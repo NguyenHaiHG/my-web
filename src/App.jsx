@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider, useData } from './context/DataContext'
 import { UIProvider, useUI } from './context/UIContext'
 import { OrderProvider, useOrder } from './context/OrderContext'
+import { LanguageProvider, useLang } from './context/LanguageContext'
 import HomePage from './pages/HomePage'
 import ToursPage from './pages/ToursPage'
 import OrderPage from './pages/OrderPage'
@@ -295,21 +296,22 @@ function Header() {
   const { user, logout, isMod } = useAuth()
   const { setShowLogin, setShowCart } = useUI()
   const { totalCount, unread } = useOrder()
+  const { lang, t, toggleLang } = useLang()
   const [open, setOpen] = useState(false)
   const [showNotif, setShowNotif] = useState(false)
 
   const links = [
-    { to: '/', label: '🏠 Trang Chủ' },
-    { to: '/tours', label: '🗺️ Du Lịch' },
-    { to: '/order', label: '🛒 Order Taobao' },
-    { to: '/dac-san', label: '🍯 Đặc Sản' },
-    { to: '/blog', label: '📝 Blog' },
-    { to: '/lien-he', label: '📞 Liên Hệ' },
+    { to: '/', label: t('nav_home') },
+    { to: '/tours', label: t('nav_tours') },
+    { to: '/order', label: t('nav_order') },
+    { to: '/dac-san', label: t('nav_products') },
+    { to: '/blog', label: t('nav_blog') },
+    { to: '/lien-he', label: t('nav_contact') },
   ]
   const mgmtLinks = [
-    { to: '/quan-ly-gio-hang', label: '🛒 QL Giỏ Hàng' },
-    { to: '/quan-ly-tour', label: '🗺️ QL Đặt Tour' },
-    { to: '/quan-ly-taobao', label: '📦 QL Taobao' },
+    { to: '/quan-ly-gio-hang', label: t('nav_mgmt_cart') },
+    { to: '/quan-ly-tour', label: t('nav_mgmt_tour') },
+    { to: '/quan-ly-taobao', label: t('nav_mgmt_taobao') },
   ]
 
   return (
@@ -343,12 +345,15 @@ function Header() {
             <div className="nav-user">
               <span className={`role-badge role-${user.role}`}>{user.role.toUpperCase()}</span>
               <span className="nav-username">{user.name}</span>
-              <button className="btn-logout" onClick={logout}><LogOut size={12} /> Thoát</button>
+              <button className="btn-logout" onClick={logout}><LogOut size={12} /> {t('btn_logout')}</button>
             </div>
           ) : null}
         </nav>
 
         <div className="header-actions">
+          <button className="lang-toggle" onClick={toggleLang} title={lang === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}>
+            {lang === 'vi' ? '🇺🇸 EN' : '🇻🇳 VI'}
+          </button>
           <button className="header-icon-btn" onClick={() => setShowCart(true)} title="Giỏ hàng">
             <ShoppingCart size={20} />
             {totalCount > 0 && <span className="header-badge">{totalCount}</span>}
@@ -365,7 +370,7 @@ function Header() {
           )}
           {!user && (
             <button className="btn-login-nav" onClick={() => setShowLogin(true)}>
-              <User size={14} /> Đăng Nhập
+              <User size={14} /> {t('btn_login')}
             </button>
           )}
           <button className="hamburger" onClick={() => setOpen(o => !o)}>
@@ -415,15 +420,17 @@ function AppInner() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <UIProvider>
-          <OrderProvider>
-            <AppInner />
-          </OrderProvider>
-        </UIProvider>
-      </DataProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <DataProvider>
+          <UIProvider>
+            <OrderProvider>
+              <AppInner />
+            </OrderProvider>
+          </UIProvider>
+        </DataProvider>
+      </AuthProvider>
+    </LanguageProvider>
   )
 }
 
