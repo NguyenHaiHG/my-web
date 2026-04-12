@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Phone, Package, Truck, Shield, Check, ChevronRight } from 'lucide-react'
 import { useUI } from '../context/UIContext'
 import { useOrder } from '../context/OrderContext'
+import { useLang } from '../context/LanguageContext'
 
 const PRICE_TABLE = [
   { weight: '0 – 0.5 kg', vn: '45.000đ', cn: '25.000đ' },
@@ -11,24 +12,31 @@ const PRICE_TABLE = [
   { weight: '> 5 kg', vn: 'Liên hệ', cn: 'Liên hệ' },
 ]
 
-const STEPS = [
-  { icon: <Package size={28} />, title: 'Chọn hàng Taobao', desc: 'Tìm sản phẩm yêu thích trên app/web Taobao, sao chép link' },
-  { icon: <ChevronRight size={28} />, title: 'Gửi link cho HTM', desc: 'Paste link vào form bên dưới hoặc gửi qua Zalo 0385.737.705' },
-  { icon: <Truck size={28} />, title: 'Thanh toán & chờ hàng', desc: 'HTM đặt hàng và vận chuyển về Việt Nam trong 7-10 ngày' },
-  { icon: <Check size={28} />, title: 'Nhận hàng tại nhà', desc: 'Hàng được đóng gói cẩn thận, giao tận nơi toàn quốc' },
-]
-
 export default function OrderPage() {
   const { showToast } = useUI()
   const { submitTaobaoOrder } = useOrder()
+  const { t } = useLang()
   const [form, setForm] = useState({ name: '', phone: '', link: '', desc: '', qty: 1, note: '' })
   const [submitted, setSubmitted] = useState(false)
+
+  const STEPS = [
+    { icon: <Package size={28} />, titleKey: 'order_s1_title', descKey: 'order_s1_desc' },
+    { icon: <ChevronRight size={28} />, titleKey: 'order_s2_title', descKey: 'order_s2_desc' },
+    { icon: <Truck size={28} />, titleKey: 'order_s3_title', descKey: 'order_s3_desc' },
+    { icon: <Check size={28} />, titleKey: 'order_s4_title', descKey: 'order_s4_desc' },
+  ]
+
+  const GUARANTEES = [
+    { icon: <Shield size={18} />, key: 'guarantee1' },
+    { icon: <Truck size={18} />, key: 'guarantee2' },
+    { icon: <Check size={18} />, key: 'guarantee3' },
+  ]
 
   const submit = (e) => {
     e.preventDefault()
     submitTaobaoOrder({ name: form.name, phone: form.phone, link: form.link, desc: form.desc, qty: form.qty, note: form.note })
     setSubmitted(true)
-    showToast('✅ Đã gửi đơn! Admin/Mod sẽ liên hệ xác nhận trong 30 phút.')
+    showToast(t('order_toast'))
     setForm({ name: '', phone: '', link: '', desc: '', qty: 1, note: '' })
     setTimeout(() => setSubmitted(false), 4000)
   }
@@ -38,15 +46,15 @@ export default function OrderPage() {
       <div className="page-hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=80)' }}>
         <div className="ph-overlay" />
         <div className="ph-content">
-          <h1>🛒 Order Taobao</h1>
-          <p>Đặt hàng Trung Quốc giá gốc – Vận chuyển nhanh – An toàn</p>
+          <h1>{t('order_hero_title')}</h1>
+          <p>{t('order_hero_sub')}</p>
         </div>
       </div>
 
       {/* STEPS */}
       <section className="order-steps-section">
         <div className="container">
-          <h2 className="section-heading text-center">Quy Trình Đặt Hàng</h2>
+          <h2 className="section-heading text-center">{t('order_process_title')}</h2>
           <div className="order-steps">
             {STEPS.map((s, i) => (
               <div key={i} className="order-step">
@@ -55,8 +63,8 @@ export default function OrderPage() {
                   {i < STEPS.length - 1 && <div className="step-line" />}
                 </div>
                 <div className="step-icon-box">{s.icon}</div>
-                <h3>{s.title}</h3>
-                <p>{s.desc}</p>
+                <h3>{t(s.titleKey)}</h3>
+                <p>{t(s.descKey)}</p>
               </div>
             ))}
           </div>
@@ -68,28 +76,32 @@ export default function OrderPage() {
         <div className="order-layout">
           {/* FORM */}
           <div className="order-form-card">
-            <h2 className="section-heading">📋 Gửi Yêu Cầu Đặt Hàng</h2>
+            <h2 className="section-heading">{t('order_form_title')}</h2>
             {submitted
-              ? <div className="success-box"><Check size={40} color="#16a34a" /><h3>Đã Gửi Thành Công!</h3><p>HTM sẽ liên hệ trong 30 phút qua số {form.phone || 'bạn cung cấp'}.</p></div>
+              ? <div className="success-box">
+                <Check size={40} color="#16a34a" />
+                <h3>{t('order_success_h')}</h3>
+                <p>{t('order_success_p')}</p>
+              </div>
               : <form onSubmit={submit} className="login-form">
-                <input className="form-input" placeholder="Họ và tên *" value={form.name}
+                <input className="form-input" placeholder={t('order_name_ph')} value={form.name}
                   onChange={e => setForm({ ...form, name: e.target.value })} required />
-                <input className="form-input" type="tel" placeholder="Số điện thoại *" value={form.phone}
+                <input className="form-input" type="tel" placeholder={t('order_phone_ph')} value={form.phone}
                   onChange={e => setForm({ ...form, phone: e.target.value })} required />
-                <input className="form-input" placeholder="Link sản phẩm Taobao *" value={form.link}
+                <input className="form-input" placeholder={t('order_link_ph')} value={form.link}
                   onChange={e => setForm({ ...form, link: e.target.value })} required />
                 <div className="form-2col">
-                  <input className="form-input" placeholder="Tên / mô tả hàng" value={form.desc}
+                  <input className="form-input" placeholder={t('order_desc_ph')} value={form.desc}
                     onChange={e => setForm({ ...form, desc: e.target.value })} />
-                  <input className="form-input" type="number" min="1" placeholder="Số lượng" value={form.qty}
+                  <input className="form-input" type="number" min="1" placeholder={t('order_qty_ph')} value={form.qty}
                     onChange={e => setForm({ ...form, qty: e.target.value })} />
                 </div>
                 <textarea className="form-input form-textarea" style={{ minHeight: 70 }}
-                  placeholder="Ghi chú (màu sắc, size, yêu cầu đặc biệt...)"
+                  placeholder={t('order_note_ph')}
                   value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} />
-                <button type="submit" className="btn3d btn3d-orange btn-full">🚀 Gửi Đơn Hàng</button>
+                <button type="submit" className="btn3d btn3d-orange btn-full">{t('order_submit_btn')}</button>
                 <a href="tel:0385737705" className="btn3d btn3d-blue btn-full" style={{ textAlign: 'center', marginTop: 8 }}>
-                  <Phone size={15} /> Gọi Tư Vấn 0385.737.705
+                  <Phone size={15} /> {t('order_call_btn')}
                 </a>
               </form>
             }
@@ -97,10 +109,10 @@ export default function OrderPage() {
 
           {/* PRICE TABLE */}
           <div className="price-card">
-            <h2 className="section-heading">💰 Bảng Giá Vận Chuyển</h2>
+            <h2 className="section-heading">{t('order_price_title')}</h2>
             <table className="price-table">
               <thead>
-                <tr><th>Cân nặng</th><th>🇻🇳 Nội địa</th><th>🇨🇳 Trung Quốc</th></tr>
+                <tr><th>{t('price_weight')}</th><th>🇻🇳 {t('price_domestic')}</th><th>🇨🇳 {t('price_china')}</th></tr>
               </thead>
               <tbody>
                 {PRICE_TABLE.map(r => (
@@ -111,8 +123,8 @@ export default function OrderPage() {
               </tbody>
             </table>
             <div className="guarantee-list">
-              {[{ icon: <Shield size={18} />, text: 'Bảo hiểm hàng hóa 100%' }, { icon: <Truck size={18} />, text: 'Theo dõi đơn hàng realtime' }, { icon: <Check size={18} />, text: 'Hoàn tiền nếu hàng lỗi' }].map((g, i) => (
-                <div key={i} className="guarantee-item"><span className="g-icon">{g.icon}</span>{g.text}</div>
+              {GUARANTEES.map((g, i) => (
+                <div key={i} className="guarantee-item"><span className="g-icon">{g.icon}</span>{t(g.key)}</div>
               ))}
             </div>
           </div>

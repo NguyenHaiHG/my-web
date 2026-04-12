@@ -26,6 +26,7 @@ import './App.css'
 function LoginModal() {
   const { login, loginError, setLoginError } = useAuth()
   const { setShowLogin } = useUI()
+  const { t } = useLang()
   const [u, setU] = useState('')
   const [p, setP] = useState('')
   const close = () => { setLoginError(''); setShowLogin(false) }
@@ -35,19 +36,19 @@ function LoginModal() {
       <div className="modal" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={close}><X size={16} /></button>
         <div className="modal-logo">🏔️</div>
-        <h2 className="modal-title">Đăng Nhập</h2>
+        <h2 className="modal-title">{t('login_title')}</h2>
         <p className="modal-hint">
           <strong>admin</strong>/admin123 &nbsp;·&nbsp;
           <strong>mod</strong>/mod123 &nbsp;·&nbsp;
           <strong>user</strong>/user123
         </p>
         <form onSubmit={submit} className="login-form">
-          <input className="form-input" placeholder="Tên đăng nhập" value={u}
+          <input className="form-input" placeholder={t('login_username_ph')} value={u}
             onChange={e => setU(e.target.value)} required autoFocus />
-          <input className="form-input" type="password" placeholder="Mật khẩu" value={p}
+          <input className="form-input" type="password" placeholder={t('login_password_ph')} value={p}
             onChange={e => setP(e.target.value)} required />
           {loginError && <p className="login-error">{loginError}</p>}
-          <button type="submit" className="btn3d btn3d-orange btn-full">Đăng Nhập</button>
+          <button type="submit" className="btn3d btn3d-orange btn-full">{t('login_btn')}</button>
         </form>
       </div>
     </div>
@@ -61,10 +62,11 @@ function AdminModal() {
   const { adminModal: type, setAdminModal } = useUI()
   const { addItem } = useData()
   const { showToast } = useUI()
+  const { t } = useLang()
   const [form, setForm] = useState({ title: '', desc: '', price: '', content: '', img: '', author: '' })
   const [preview, setPreview] = useState('')
 
-  const LABELS = { tour: 'Tour Du Lịch', product: 'Sản Phẩm', post: 'Bài Viết' }
+  const labelKey = { tour: 'admin_type_tour', product: 'admin_type_product', post: 'admin_type_post' }
 
   const handleFile = (e) => {
     const file = e.target.files?.[0]
@@ -88,7 +90,7 @@ function AdminModal() {
     setAdminModal(null)
     setForm({ title: '', desc: '', price: '', content: '', img: '', author: '' })
     setPreview('')
-    showToast(`✅ Đã thêm ${LABELS[type]} thành công!`)
+    showToast(t('admin_success').replace('{type}', t(labelKey[type])))
   }
 
   if (!type) return null
@@ -96,50 +98,50 @@ function AdminModal() {
     <div className="modal-backdrop" onClick={() => setAdminModal(null)}>
       <div className="modal modal-large" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={() => setAdminModal(null)}><X size={16} /></button>
-        <h2 className="modal-title">➕ Thêm {LABELS[type]}</h2>
+        <h2 className="modal-title">{t('admin_add')} {t(labelKey[type])}</h2>
         <form onSubmit={submit} className="login-form">
-          <input className="form-input" placeholder="Tiêu đề / Tên" value={form.title}
+          <input className="form-input" placeholder={t('admin_title_ph')} value={form.title}
             onChange={e => setForm({ ...form, title: e.target.value })} required />
 
           {type !== 'post'
-            ? <input className="form-input" placeholder="Mô tả ngắn" value={form.desc}
+            ? <input className="form-input" placeholder={t('admin_desc_ph')} value={form.desc}
               onChange={e => setForm({ ...form, desc: e.target.value })} required />
-            : <textarea className="form-input form-textarea" placeholder="Nội dung bài viết"
+            : <textarea className="form-input form-textarea" placeholder={t('admin_content_ph')}
               value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} required />
           }
 
           {type !== 'post' &&
-            <input className="form-input" placeholder="Giá (VD: 500.000đ)" value={form.price}
+            <input className="form-input" placeholder={t('admin_price_ph')} value={form.price}
               onChange={e => setForm({ ...form, price: e.target.value })} />
           }
           {type === 'post' &&
-            <input className="form-input" placeholder="Tên tác giả" value={form.author}
+            <input className="form-input" placeholder={t('admin_author_ph')} value={form.author}
               onChange={e => setForm({ ...form, author: e.target.value })} />
           }
 
           {/* IMAGE UPLOAD */}
           <div className="img-upload-area">
-            <p className="img-upload-title"><Upload size={14} /> Ảnh bài đăng</p>
+            <p className="img-upload-title"><Upload size={14} /> {t('admin_img_label')}</p>
             <label className="img-upload-box">
               <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={handleFile} />
               {preview
                 ? <div className="img-preview-wrap">
                   <img src={preview} alt="preview" className="img-preview" />
-                  <div className="img-preview-overlay"><Upload size={18} /> Đổi ảnh</div>
+                  <div className="img-preview-overlay"><Upload size={18} /> {t('admin_change_img')}</div>
                 </div>
                 : <div className="img-upload-placeholder">
                   <Upload size={32} color="#94a3b8" />
-                  <span>Click để tải ảnh lên</span>
+                  <span>{t('admin_img_click')}</span>
                   <small>PNG · JPG · WEBP</small>
                 </div>
               }
             </label>
-            <div className="img-or">— hoặc nhập URL ảnh —</div>
+            <div className="img-or">{t('admin_img_or')}</div>
             <input className="form-input" placeholder="https://example.com/image.jpg"
               value={form.img} onChange={handleUrlChange} />
           </div>
 
-          <button type="submit" className="btn3d btn3d-orange btn-full">✅ Lưu</button>
+          <button type="submit" className="btn3d btn3d-orange btn-full">{t('admin_save_btn')}</button>
         </form>
       </div>
     </div>
@@ -151,6 +153,7 @@ function AdminModal() {
 ────────────────────────────────────────────────────── */
 function DetailModal() {
   const { detailItem, setDetailItem } = useUI()
+  const { t } = useLang()
   if (!detailItem) return null
   const item = detailItem
   return (
@@ -164,10 +167,10 @@ function DetailModal() {
         <p className="detail-body">{item.desc || item.content}</p>
         <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
           <a href="tel:0385737705" className="btn3d btn3d-orange" style={{ flex: 1, textAlign: 'center' }}>
-            <Phone size={15} /> Đặt / Mua Ngay
+            <Phone size={15} /> {t('detail_book_btn')}
           </a>
           <button className="btn3d btn3d-blue" style={{ flex: 1 }} onClick={() => setDetailItem(null)}>
-            ← Quay Lại
+            {t('detail_back_btn')}
           </button>
         </div>
       </div>
@@ -181,6 +184,7 @@ function DetailModal() {
 function CartDrawer() {
   const { cart, removeFromCart, updateQty, clearCart, totalCount, submitCartOrder } = useOrder()
   const { showCart, setShowCart, showToast } = useUI()
+  const { t } = useLang()
   const [checkout, setCheckout] = useState(false)
   const [form, setForm] = useState({ name: '', phone: '', address: '', note: '' })
   if (!showCart) return null
@@ -189,7 +193,7 @@ function CartDrawer() {
     submitCartOrder(form, cart)
     setShowCart(false); setCheckout(false)
     setForm({ name: '', phone: '', address: '', note: '' })
-    showToast('✅ Đã gửi đơn! Admin/Mod sẽ liên hệ xác nhận sớm.')
+    showToast(t('cart_toast'))
   }
   return (
     <>
@@ -197,7 +201,7 @@ function CartDrawer() {
       <div className="cart-drawer">
         <div className="cart-header">
           <h3 className="cart-title">
-            <ShoppingCart size={20} /> Giỏ Hàng
+            <ShoppingCart size={20} /> {t('cart_title')}
             {totalCount > 0 && <span className="cart-count-badge">{totalCount}</span>}
           </h3>
           <button className="modal-close" onClick={() => { setShowCart(false); setCheckout(false) }}><X size={16} /></button>
@@ -207,8 +211,8 @@ function CartDrawer() {
             {cart.length === 0 ? (
               <div className="cart-empty">
                 <ShoppingCart size={52} color="#cbd5e1" />
-                <p>Giỏ hàng đang trống</p>
-                <button className="btn3d btn3d-orange btn-sm" onClick={() => setShowCart(false)}>Mua Sắm Ngay →</button>
+                <p>{t('cart_empty_msg')}</p>
+                <button className="btn3d btn3d-orange btn-sm" onClick={() => setShowCart(false)}>{t('cart_shop_btn')}</button>
               </div>
             ) : (
               <>
@@ -230,9 +234,9 @@ function CartDrawer() {
                   ))}
                 </div>
                 <div className="cart-footer">
-                  <button className="btn-text-link" onClick={clearCart}>🗑️ Xóa tất cả</button>
+                  <button className="btn-text-link" onClick={clearCart}>{t('cart_clear_btn')}</button>
                   <button className="btn3d btn3d-orange" style={{ width: '100%', marginTop: 10 }} onClick={() => setCheckout(true)}>
-                    Đặt Hàng → ({totalCount} sp)
+                    {t('cart_checkout_btn')} ({totalCount} {t('cart_items_suffix')})
                   </button>
                 </div>
               </>
@@ -241,19 +245,19 @@ function CartDrawer() {
         ) : (
           <div className="cart-checkout">
             <button className="btn-back" style={{ marginBottom: 16 }} onClick={() => setCheckout(false)}>
-              <ArrowLeft size={15} /> Giỏ hàng
+              <ArrowLeft size={15} /> {t('cart_back_btn')}
             </button>
-            <h4 className="checkout-title">📋 Thông tin nhận hàng</h4>
+            <h4 className="checkout-title">{t('cart_info_title')}</h4>
             <form onSubmit={handleSubmit} className="login-form">
-              <input className="form-input" placeholder="Họ và tên *" value={form.name}
+              <input className="form-input" placeholder={t('cart_name_ph')} value={form.name}
                 onChange={e => setForm({ ...form, name: e.target.value })} required />
-              <input className="form-input" type="tel" placeholder="Số điện thoại *" value={form.phone}
+              <input className="form-input" type="tel" placeholder={t('cart_phone_ph')} value={form.phone}
                 onChange={e => setForm({ ...form, phone: e.target.value })} required />
-              <input className="form-input" placeholder="Địa chỉ nhận hàng" value={form.address}
+              <input className="form-input" placeholder={t('cart_addr_ph')} value={form.address}
                 onChange={e => setForm({ ...form, address: e.target.value })} />
-              <textarea className="form-input form-textarea" style={{ minHeight: 70 }} placeholder="Ghi chú..."
+              <textarea className="form-input form-textarea" style={{ minHeight: 70 }} placeholder={t('cart_note_ph')}
                 value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} />
-              <button type="submit" className="btn3d btn3d-orange btn-full">✅ Xác Nhận Đặt Hàng</button>
+              <button type="submit" className="btn3d btn3d-orange btn-full">{t('cart_confirm_btn')}</button>
             </form>
           </div>
         )}
@@ -267,14 +271,15 @@ function CartDrawer() {
 ────────────────────────────────────────────────────── */
 function NotifPanel({ onClose }) {
   const { notifications, unread, markRead, markAllRead } = useOrder()
+  const { t } = useLang()
   return (
     <div className="notif-panel" onClick={e => e.stopPropagation()}>
       <div className="notif-head">
-        <strong>🔔 Thông báo {unread > 0 && <span className="notif-new">{unread} mới</span>}</strong>
-        {unread > 0 && <button className="btn-text-link" style={{ fontSize: 12 }} onClick={markAllRead}>Đọc tất cả</button>}
+        <strong>{t('notif_title')} {unread > 0 && <span className="notif-new">{unread} {t('notif_new_suffix')}</span>}</strong>
+        {unread > 0 && <button className="btn-text-link" style={{ fontSize: 12 }} onClick={markAllRead}>{t('notif_read_all')}</button>}
       </div>
       {notifications.length === 0 ? (
-        <p className="notif-empty">Chưa có thông báo nào</p>
+        <p className="notif-empty">{t('notif_empty')}</p>
       ) : (
         <div className="notif-list">
           {notifications.map(n => (
@@ -322,7 +327,7 @@ function Header() {
             <span className="logo-htm">HTM</span>
             <span className="logo-name"> TRƯỜNG HẢI</span>
           </div>
-          <div className="logo-sub">Du lịch &amp; Order Quốc tế</div>
+          <div className="logo-sub">{t('logo_sub')}</div>
         </Link>
 
         <nav className={`nav ${open ? 'nav-open' : ''}`}>
@@ -410,8 +415,8 @@ function AppInner() {
       </main>
       <footer className="footer">
         <div className="footer-inner">
-          <p>🏔️ <strong>HTM Trường Hải</strong> – Du lịch &amp; Order Quốc tế</p>
-          <p>📞 <a href="tel:0385737705">0385.737.705</a> &nbsp;·&nbsp; © 2026</p>
+          <p>🏔️ <strong>HTM Trường Hải</strong> – {t('logo_sub')}</p>
+          <p>📞 <a href="tel:0385737705">0385.737.705</a> &nbsp;·&nbsp; {t('footer_copy')}</p>
         </div>
       </footer>
     </div>
