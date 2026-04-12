@@ -359,13 +359,13 @@ function Header() {
           <button className="lang-toggle" onClick={toggleLang} title={lang === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}>
             {lang === 'vi' ? '🇺🇸 EN' : '🇻🇳 VI'}
           </button>
-          <button className="header-icon-btn" onClick={() => setShowCart(true)} title="Giỏ hàng">
+          <button className="header-icon-btn" onClick={() => setShowCart(true)} title={t('header_cart_title')}>
             <ShoppingCart size={20} />
             {totalCount > 0 && <span className="header-badge">{totalCount}</span>}
           </button>
           {isMod && (
             <div className="notif-wrap">
-              <button className="header-icon-btn" title="Thông báo"
+              <button className="header-icon-btn" title={t('header_notif_title')}
                 onClick={e => { e.stopPropagation(); setShowNotif(v => !v) }}>
                 <Bell size={20} />
                 {unread > 0 && <span className="header-badge notif-badge">{unread}</span>}

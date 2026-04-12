@@ -2,24 +2,26 @@ import { useNavigate } from 'react-router-dom'
 import { Trash2, ArrowLeft } from 'lucide-react'
 import { useOrder } from '../context/OrderContext'
 import { useAuth } from '../context/AuthContext'
-
-const STATUS_OPTS = [
-    { value: 'pending', label: 'Chờ xử lý' },
-    { value: 'confirmed', label: 'Đã xác nhận' },
-    { value: 'shipped', label: 'Đang vận chuyển' },
-    { value: 'done', label: 'Hoàn thành' },
-    { value: 'cancelled', label: 'Đã huỷ' },
-]
+import { useLang } from '../context/LanguageContext'
 
 export default function ManageTaobaoPage() {
     const { taobaoOrders, updateOrderStatus, deleteOrder } = useOrder()
     const { isMod, isAdmin } = useAuth()
     const navigate = useNavigate()
+    const { t } = useLang()
+
+    const STATUS_OPTS = [
+        { value: 'pending', label: t('status_pending') },
+        { value: 'confirmed', label: t('status_confirmed') },
+        { value: 'shipped', label: t('status_shipped') },
+        { value: 'done', label: t('status_done') },
+        { value: 'cancelled', label: t('status_cancelled') },
+    ]
 
     if (!isMod) return (
         <div className="container py-section text-center">
-            <p style={{ color: '#dc2626', fontSize: 18 }}>⛔ Chỉ Admin/Mod mới xem được trang này.</p>
-            <button className="btn3d btn3d-blue btn-sm" style={{ marginTop: 16 }} onClick={() => navigate('/')}>← Trang chủ</button>
+            <p style={{ color: '#dc2626', fontSize: 18 }}>{t('mgmt_access_denied')}</p>
+            <button className="btn3d btn3d-blue btn-sm" style={{ marginTop: 16 }} onClick={() => navigate('/')}>{t('mgmt_back_home')}</button>
         </div>
     )
 
@@ -29,15 +31,15 @@ export default function ManageTaobaoPage() {
         <div className="page-enter">
             <div className="manage-hero" style={{ background: 'linear-gradient(135deg,#dc2626,#f97316)' }}>
                 <div className="container">
-                    <button className="btn-back-white" onClick={() => navigate(-1)}><ArrowLeft size={16} /> Quay lại</button>
-                    <h1>📦 Quản Lý Kho Taobao</h1>
-                    <p>Tổng <strong>{taobaoOrders.length}</strong> đơn &nbsp;·&nbsp; <strong>{pending}</strong> đang chờ xử lý</p>
+                    <button className="btn-back-white" onClick={() => navigate(-1)}><ArrowLeft size={16} /> {t('mgmt_back')}</button>
+                    <h1>{t('mgmt_taobao_title')}</h1>
+                    <p>{t('mgmt_total')} <strong>{taobaoOrders.length}</strong> {t('mgmt_orders')} &nbsp;·&nbsp; <strong>{pending}</strong> {t('mgmt_pending_count')}</p>
                 </div>
             </div>
 
             <div className="container py-section">
                 {taobaoOrders.length === 0 ? (
-                    <p className="empty-state">Chưa có đơn Taobao nào 📦</p>
+                    <p className="empty-state">{t('mgmt_taobao_empty')}</p>
                 ) : (
                     <div className="manage-list">
                         {taobaoOrders.map(ord => (
@@ -71,8 +73,8 @@ export default function ManageTaobaoPage() {
                                 )}
 
                                 <div className="manage-meta-row">
-                                    {ord.desc && <span>🏷️ Mặt hàng: <strong>{ord.desc}</strong></span>}
-                                    {ord.qty && <span>📦 Số lượng: <strong>{ord.qty}</strong></span>}
+                                    {ord.desc && <span>🏷️ {t('mgmt_taobao_item')} <strong>{ord.desc}</strong></span>}
+                                    {ord.qty && <span>📦 {t('mgmt_taobao_qty')} <strong>{ord.qty}</strong></span>}
                                 </div>
 
                                 {ord.note && <p className="manage-note">💬 {ord.note}</p>}

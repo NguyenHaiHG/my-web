@@ -2,23 +2,25 @@ import { useNavigate } from 'react-router-dom'
 import { Trash2, ArrowLeft } from 'lucide-react'
 import { useOrder } from '../context/OrderContext'
 import { useAuth } from '../context/AuthContext'
-
-const STATUS_OPTS = [
-    { value: 'pending', label: 'Chờ xử lý' },
-    { value: 'confirmed', label: 'Đã xác nhận' },
-    { value: 'done', label: 'Hoàn thành' },
-    { value: 'cancelled', label: 'Đã huỷ' },
-]
+import { useLang } from '../context/LanguageContext'
 
 export default function ManageCartPage() {
     const { cartOrders, updateOrderStatus, deleteOrder } = useOrder()
     const { isMod, isAdmin } = useAuth()
     const navigate = useNavigate()
+    const { t } = useLang()
+
+    const STATUS_OPTS = [
+        { value: 'pending', label: t('status_pending') },
+        { value: 'confirmed', label: t('status_confirmed') },
+        { value: 'done', label: t('status_done') },
+        { value: 'cancelled', label: t('status_cancelled') },
+    ]
 
     if (!isMod) return (
         <div className="container py-section text-center">
-            <p style={{ color: '#dc2626', fontSize: 18 }}>⛔ Chỉ Admin/Mod mới xem được trang này.</p>
-            <button className="btn3d btn3d-blue btn-sm" style={{ marginTop: 16 }} onClick={() => navigate('/')}>← Trang chủ</button>
+            <p style={{ color: '#dc2626', fontSize: 18 }}>{t('mgmt_access_denied')}</p>
+            <button className="btn3d btn3d-blue btn-sm" style={{ marginTop: 16 }} onClick={() => navigate('/')}>{t('mgmt_back_home')}</button>
         </div>
     )
 
@@ -28,15 +30,15 @@ export default function ManageCartPage() {
         <div className="page-enter">
             <div className="manage-hero">
                 <div className="container">
-                    <button className="btn-back-white" onClick={() => navigate(-1)}><ArrowLeft size={16} /> Quay lại</button>
-                    <h1>🛒 Quản Lý Giỏ Hàng</h1>
-                    <p>Tổng <strong>{cartOrders.length}</strong> đơn &nbsp;·&nbsp; <strong>{pending}</strong> đang chờ xử lý</p>
+                    <button className="btn-back-white" onClick={() => navigate(-1)}><ArrowLeft size={16} /> {t('mgmt_back')}</button>
+                    <h1>{t('mgmt_cart_title')}</h1>
+                    <p>{t('mgmt_total')} <strong>{cartOrders.length}</strong> {t('mgmt_orders')} &nbsp;·&nbsp; <strong>{pending}</strong> {t('mgmt_pending_count')}</p>
                 </div>
             </div>
 
             <div className="container py-section">
                 {cartOrders.length === 0 ? (
-                    <p className="empty-state">Chưa có đơn giỏ hàng nào 📦</p>
+                    <p className="empty-state">{t('mgmt_cart_empty')}</p>
                 ) : (
                     <div className="manage-list">
                         {cartOrders.map(order => (
@@ -66,7 +68,7 @@ export default function ManageCartPage() {
                                 {order.note && <p className="manage-note">📝 {order.note}</p>}
 
                                 <div className="manage-items">
-                                    <p className="manage-items-title">Sản phẩm:</p>
+                                    <p className="manage-items-title">{t('mgmt_cart_products')}</p>
                                     {order.items.map((item, i) => (
                                         <div key={i} className="manage-item-row">
                                             {item.img && <img src={item.img} alt={item.title} className="manage-item-img" />}

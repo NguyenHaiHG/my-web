@@ -250,6 +250,43 @@ export const translations = {
         notif_read_all: 'Đọc tất cả',
         notif_empty: 'Chưa có thông báo nào',
         footer_copy: '© 2026',
+
+        // ── Header tooltips
+        header_cart_title: 'Giỏ hàng',
+        header_notif_title: 'Thông báo',
+
+        // ── Manage pages – shared
+        mgmt_access_denied: '⛔ Chỉ Admin/Mod mới xem được trang này.',
+        mgmt_back_home: '← Trang chủ',
+        mgmt_back: 'Quay lại',
+        mgmt_total: 'Tổng',
+        mgmt_orders: 'đơn',
+        mgmt_pending_count: 'đang chờ xử lý',
+        mgmt_bookings: 'booking',
+
+        // ── Status options
+        status_pending: 'Chờ xử lý',
+        status_confirmed: 'Đã xác nhận',
+        status_shipped: 'Đang vận chuyển',
+        status_done: 'Hoàn thành',
+        status_cancelled: 'Đã huỷ',
+
+        // ── ManageCart
+        mgmt_cart_title: '🛒 Quản Lý Giỏ Hàng',
+        mgmt_cart_empty: 'Chưa có đơn giỏ hàng nào 📦',
+        mgmt_cart_products: 'Sản phẩm:',
+
+        // ── ManageTaobao
+        mgmt_taobao_title: '📦 Quản Lý Kho Taobao',
+        mgmt_taobao_empty: 'Chưa có đơn Taobao nào 📦',
+        mgmt_taobao_item: 'Mặt hàng:',
+        mgmt_taobao_qty: 'Số lượng:',
+
+        // ── ManageTour
+        mgmt_tour_title: '🗺️ Quản Lý Đặt Tour',
+        mgmt_tour_empty: 'Chưa có đặt tour nào 🗺️',
+        mgmt_tour_departure: 'Khởi hành:',
+        mgmt_tour_guests: 'Số người:',
     },
 
     en: {
@@ -499,6 +536,43 @@ export const translations = {
         notif_read_all: 'Mark all read',
         notif_empty: 'No notifications yet',
         footer_copy: '© 2026',
+
+        // ── Header tooltips
+        header_cart_title: 'Cart',
+        header_notif_title: 'Notifications',
+
+        // ── Manage pages – shared
+        mgmt_access_denied: '⛔ Only Admin/Mod can view this page.',
+        mgmt_back_home: '← Home',
+        mgmt_back: 'Go Back',
+        mgmt_total: 'Total',
+        mgmt_orders: 'order(s)',
+        mgmt_pending_count: 'pending',
+        mgmt_bookings: 'booking(s)',
+
+        // ── Status options
+        status_pending: 'Pending',
+        status_confirmed: 'Confirmed',
+        status_shipped: 'Shipped',
+        status_done: 'Completed',
+        status_cancelled: 'Cancelled',
+
+        // ── ManageCart
+        mgmt_cart_title: '🛒 Cart Management',
+        mgmt_cart_empty: 'No cart orders yet 📦',
+        mgmt_cart_products: 'Products:',
+
+        // ── ManageTaobao
+        mgmt_taobao_title: '📦 Taobao Order Management',
+        mgmt_taobao_empty: 'No Taobao orders yet 📦',
+        mgmt_taobao_item: 'Item:',
+        mgmt_taobao_qty: 'Qty:',
+
+        // ── ManageTour
+        mgmt_tour_title: '🗺️ Tour Booking Management',
+        mgmt_tour_empty: 'No tour bookings yet 🗺️',
+        mgmt_tour_departure: 'Departure:',
+        mgmt_tour_guests: 'Guests:',
     },
 }
 
