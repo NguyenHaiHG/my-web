@@ -287,6 +287,30 @@ export const translations = {
         mgmt_tour_empty: 'Chưa có đặt tour nào 🗺️',
         mgmt_tour_departure: 'Khởi hành:',
         mgmt_tour_guests: 'Số người:',
+
+        // ── WhatsApp
+        contact_whatsapp: 'WhatsApp',
+        contact_whatsapp_val: 'Nhắn tin 0385.737.705',
+        whatsapp_btn: '💬 WhatsApp',
+
+        // ── Blog edit
+        blog_edit: '✏️ Sửa',
+        admin_update_btn: '✅ Cập nhật',
+        admin_edit_title: 'Chỉnh sửa bài viết',
+        admin_edit_title_prefix: '✏️ Chỉnh sửa',
+
+        // ── Misc
+        hero_hagiang: 'Hà Giang',
+        price_contact: 'Liên hệ',
+        delete_tooltip: 'Xoá',
+
+        // ── Featured tours (HomePage)
+        featured_t1: 'Tour Đồng Văn – Mã Pí Lèng',
+        featured_t1_price: '2.500.000đ',
+        featured_t2: 'Homestay Hoàng Su Phì',
+        featured_t2_price: '800.000đ/đêm',
+        featured_t3: 'Trekking Đỉnh Mây',
+        featured_t3_price: '1.800.000đ',
     },
 
     en: {
@@ -573,6 +597,30 @@ export const translations = {
         mgmt_tour_empty: 'No tour bookings yet 🗺️',
         mgmt_tour_departure: 'Departure:',
         mgmt_tour_guests: 'Guests:',
+
+        // ── WhatsApp
+        contact_whatsapp: 'WhatsApp',
+        contact_whatsapp_val: 'Message 0385.737.705',
+        whatsapp_btn: '💬 WhatsApp',
+
+        // ── Blog edit
+        blog_edit: '✏️ Edit',
+        admin_update_btn: '✅ Update',
+        admin_edit_title: 'Edit Post',
+        admin_edit_title_prefix: '✏️ Edit',
+
+        // ── Misc
+        hero_hagiang: 'Ha Giang',
+        price_contact: 'Contact us',
+        delete_tooltip: 'Delete',
+
+        // ── Featured tours (HomePage)
+        featured_t1: 'Dong Van – Ma Pi Leng Tour',
+        featured_t1_price: '2,500,000đ',
+        featured_t2: 'Hoang Su Phi Homestay',
+        featured_t2_price: '800,000đ/night',
+        featured_t3: 'Cloud Peak Trekking',
+        featured_t3_price: '1,800,000đ',
     },
 }
 

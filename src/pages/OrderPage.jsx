@@ -4,20 +4,20 @@ import { useUI } from '../context/UIContext'
 import { useOrder } from '../context/OrderContext'
 import { useLang } from '../context/LanguageContext'
 
-const PRICE_TABLE = [
-  { weight: '0 – 0.5 kg', vn: '45.000đ', cn: '25.000đ' },
-  { weight: '0.5 – 1 kg', vn: '65.000đ', cn: '35.000đ' },
-  { weight: '1 – 3 kg', vn: '80.000đ', cn: '50.000đ' },
-  { weight: '3 – 5 kg', vn: '110.000đ', cn: '70.000đ' },
-  { weight: '> 5 kg', vn: 'Liên hệ', cn: 'Liên hệ' },
-]
-
 export default function OrderPage() {
   const { showToast } = useUI()
   const { submitTaobaoOrder } = useOrder()
   const { t } = useLang()
   const [form, setForm] = useState({ name: '', phone: '', link: '', desc: '', qty: 1, note: '' })
   const [submitted, setSubmitted] = useState(false)
+
+  const PRICE_TABLE = [
+    { weight: '0 – 0.5 kg', vn: '45.000đ', cn: '25.000đ' },
+    { weight: '0.5 – 1 kg', vn: '65.000đ', cn: '35.000đ' },
+    { weight: '1 – 3 kg', vn: '80.000đ', cn: '50.000đ' },
+    { weight: '3 – 5 kg', vn: '110.000đ', cn: '70.000đ' },
+    { weight: '> 5 kg', vn: t('price_contact'), cn: t('price_contact') },
+  ]
 
   const STEPS = [
     { icon: <Package size={28} />, titleKey: 'order_s1_title', descKey: 'order_s1_desc' },
@@ -102,6 +102,9 @@ export default function OrderPage() {
                 <button type="submit" className="btn3d btn3d-orange btn-full">{t('order_submit_btn')}</button>
                 <a href="tel:0385737705" className="btn3d btn3d-blue btn-full" style={{ textAlign: 'center', marginTop: 8 }}>
                   <Phone size={15} /> {t('order_call_btn')}
+                </a>
+                <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer" className="btn3d btn3d-green btn-full" style={{ textAlign: 'center', marginTop: 8 }}>
+                  💬 {t('whatsapp_btn')} 0385.737.705
                 </a>
               </form>
             }

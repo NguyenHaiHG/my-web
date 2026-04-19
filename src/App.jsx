@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Routes, Route, NavLink, Link } from 'react-router-dom'
 import {
   Phone, User, LogOut, Menu, X,
-  Upload, ShoppingCart, Bell, ArrowLeft, Minus, Plus
+  Upload, ShoppingCart, Bell, ArrowLeft, Minus, Plus, Edit2
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider, useData } from './context/DataContext'
@@ -142,6 +142,100 @@ function AdminModal() {
           </div>
 
           <button type="submit" className="btn3d btn3d-orange btn-full">{t('admin_save_btn')}</button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+/* ──────────────────────────────────────────────────────
+   EDIT MODAL – Chỉnh sửa tour / sản phẩm / bài viết
+────────────────────────────────────────────────────── */
+function EditModal() {
+  const { editItem, setEditItem } = useUI()
+  const { updateItem } = useData()
+  const { showToast } = useUI()
+  const { t } = useLang()
+
+  const type = editItem?.type
+  const labelKey = { tour: 'admin_type_tour', product: 'admin_type_product', post: 'admin_type_post' }
+
+  const [form, setForm] = useState(() => ({
+    title: editItem?.item.title || '',
+    desc: editItem?.item.desc || '',
+    price: editItem?.item.price || '',
+    content: editItem?.item.content || '',
+    img: editItem?.item.img || '',
+    author: editItem?.item.author || '',
+  }))
+  const [preview, setPreview] = useState(editItem?.item.img || '')
+
+  const handleFile = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      setPreview(ev.target.result)
+      setForm(f => ({ ...f, img: ev.target.result }))
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const submit = (e) => {
+    e.preventDefault()
+    updateItem(type, editItem.item.id, form)
+    setEditItem(null)
+    showToast(t('admin_update_btn') + ' ' + t(labelKey[type] || type))
+  }
+
+  if (!editItem) return null
+  return (
+    <div className="modal-backdrop" onClick={() => setEditItem(null)}>
+      <div className="modal modal-large" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={() => setEditItem(null)}><X size={16} /></button>
+        <h2 className="modal-title"><Edit2 size={16} style={{ marginRight: 6 }} />{t('admin_edit_title_prefix')} {t(labelKey[type])}</h2>
+        <form onSubmit={submit} className="login-form">
+          <input className="form-input" placeholder={t('admin_title_ph')} value={form.title}
+            onChange={e => setForm({ ...form, title: e.target.value })} required />
+
+          {type !== 'post'
+            ? <input className="form-input" placeholder={t('admin_desc_ph')} value={form.desc}
+              onChange={e => setForm({ ...form, desc: e.target.value })} />
+            : <textarea className="form-input form-textarea" placeholder={t('admin_content_ph')}
+              value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} required />
+          }
+
+          {type !== 'post' &&
+            <input className="form-input" placeholder={t('admin_price_ph')} value={form.price}
+              onChange={e => setForm({ ...form, price: e.target.value })} />
+          }
+          {type === 'post' &&
+            <input className="form-input" placeholder={t('admin_author_ph')} value={form.author}
+              onChange={e => setForm({ ...form, author: e.target.value })} />
+          }
+
+          <div className="img-upload-area">
+            <p className="img-upload-title"><Upload size={14} /> {t('admin_img_label')}</p>
+            <label className="img-upload-box">
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={handleFile} />
+              {preview
+                ? <div className="img-preview-wrap">
+                  <img src={preview} alt="preview" className="img-preview" />
+                  <div className="img-preview-overlay"><Upload size={18} /> {t('admin_change_img')}</div>
+                </div>
+                : <div className="img-upload-placeholder">
+                  <Upload size={32} color="#94a3b8" />
+                  <span>{t('admin_img_click')}</span>
+                  <small>PNG · JPG · WEBP</small>
+                </div>
+              }
+            </label>
+            <div className="img-or">{t('admin_img_or')}</div>
+            <input className="form-input" placeholder="https://example.com/image.jpg"
+              value={form.img} onChange={e => { setForm({ ...form, img: e.target.value }); setPreview(e.target.value) }} />
+          </div>
+
+          <button type="submit" className="btn3d btn3d-orange btn-full">{t('admin_update_btn')}</button>
         </form>
       </div>
     </div>
@@ -391,12 +485,14 @@ function Header() {
    APP INNER
 ────────────────────────────────────────────────────── */
 function AppInner() {
-  const { toast, showLogin, adminModal, detailItem } = useUI()
+  const { toast, showLogin, adminModal, editItem, detailItem } = useUI()
+  const { t } = useLang()
   return (
     <div className="app">
       {toast && <div className="toast">{toast}</div>}
       {showLogin && <LoginModal />}
       {adminModal && <AdminModal />}
+      {editItem && <EditModal />}
       {detailItem && <DetailModal />}
       <CartDrawer />
       <Header />
@@ -416,7 +512,7 @@ function AppInner() {
       <footer className="footer">
         <div className="footer-inner">
           <p>🏔️ <strong>HTM Trường Hải</strong> – {t('logo_sub')}</p>
-          <p>📞 <a href="tel:0385737705">0385.737.705</a> &nbsp;·&nbsp; {t('footer_copy')}</p>
+          <p>📞 <a href="tel:0385737705">0385.737.705</a> &nbsp;·&nbsp; <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer">💬 WhatsApp</a> &nbsp;·&nbsp; {t('footer_copy')}</p>
         </div>
       </footer>
     </div>

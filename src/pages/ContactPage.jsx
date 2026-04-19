@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Phone, MessageSquare, MapPin, Clock, Send, Check } from 'lucide-react'
+import { Phone, MessageSquare, MessageCircle, MapPin, Clock, Send, Check } from 'lucide-react'
 import { useUI } from '../context/UIContext'
 import { useLang } from '../context/LanguageContext'
 
@@ -19,6 +19,7 @@ export default function ContactPage() {
   const contactCards = [
     { icon: <Phone size={24} />, labelKey: 'contact_hotline', valueKey: 'contact_hotline_val', link: 'tel:0385737705', color: '#f97316' },
     { icon: <MessageSquare size={24} />, labelKey: 'contact_zalo', valueKey: 'contact_zalo_val', link: 'https://zalo.me/0385737705', color: '#2563eb' },
+    { icon: <MessageCircle size={24} />, labelKey: 'contact_whatsapp', valueKey: 'contact_whatsapp_val', link: 'https://wa.me/84385737705', color: '#25d366' },
     { icon: <MapPin size={24} />, labelKey: 'contact_addr', valueKey: 'contact_addr_val', link: '#', color: '#16a34a' },
     { icon: <Clock size={24} />, labelKey: 'contact_hours', valueKey: 'contact_hours_val', link: '#', color: '#7c3aed' },
   ]
@@ -82,6 +83,9 @@ export default function ContactPage() {
               </button>
               <a href="tel:0385737705" className="btn3d btn3d-blue btn-full" style={{ textAlign: 'center', marginTop: 8 }}>
                 <Phone size={15} /> {t('contact_call_btn')}
+              </a>
+              <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer" className="btn3d btn3d-green btn-full" style={{ textAlign: 'center', marginTop: 8 }}>
+                💬 {t('whatsapp_btn')} 0385.737.705
               </a>
             </form>
           }

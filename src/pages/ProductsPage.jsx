@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { Search, Plus, Trash2, Phone, ShoppingCart } from 'lucide-react'
+import { Search, Plus, Trash2, Phone, ShoppingCart, Edit2 } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useAuth } from '../context/AuthContext'
 import { useUI } from '../context/UIContext'
 import { useOrder } from '../context/OrderContext'
 import { useLang } from '../context/LanguageContext'
 
-function ProductCard({ item, onOrder, onAddCart, onView, onDelete, isAdmin, t }) {
+function ProductCard({ item, onOrder, onAddCart, onView, onDelete, onEdit, isMod, isAdmin, t }) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
   return (
     <div className="card3d"
@@ -24,6 +24,7 @@ function ProductCard({ item, onOrder, onAddCart, onView, onDelete, isAdmin, t })
           <button className="btn-card-view" onClick={() => onView(item)}>{t('prod_detail')}</button>
           <button className="btn3d btn3d-green btn-sm" onClick={() => onAddCart(item)}><ShoppingCart size={14} /> {t('prod_cart')}</button>
           <button className="btn3d btn3d-orange btn-sm" onClick={() => onOrder(item)}>{t('prod_buy')}</button>
+          {isMod && <button className="btn3d btn3d-blue btn-sm" onClick={() => onEdit(item)}><Edit2 size={13} /> {t('blog_edit')}</button>}
           {isAdmin && <button className="btn-card-del" onClick={() => onDelete('product', item.id)}><Trash2 size={14} /></button>}
         </div>
       </div>
@@ -35,7 +36,7 @@ export default function ProductsPage() {
   const { products } = useData()
   const { deleteItem } = useData()
   const { isMod, isAdmin } = useAuth()
-  const { setAdminModal, setDetailItem, showToast } = useUI()
+  const { setAdminModal, setDetailItem, setEditItem, showToast } = useUI()
   const { addToCart, submitCartOrder } = useOrder()
   const { t } = useLang()
   const [search, setSearch] = useState('')
@@ -88,6 +89,9 @@ export default function ProductsPage() {
               <a href="tel:0385737705" className="btn3d btn3d-blue btn-full" style={{ textAlign: 'center', marginTop: 8 }}>
                 <Phone size={15} /> {t('prod_call_btn')}
               </a>
+              <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer" className="btn3d btn3d-green btn-full" style={{ textAlign: 'center', marginTop: 8 }}>
+                💬 {t('whatsapp_btn')} 0385.737.705
+              </a>
             </form>
           </div>
         </div>
@@ -102,10 +106,11 @@ export default function ProductsPage() {
         </div>
         <div className="cards-grid mt-6">
           {filtered.map(p => (
-            <ProductCard key={p.id} item={p} isAdmin={isAdmin} t={t}
+            <ProductCard key={p.id} item={p} isMod={isMod} isAdmin={isAdmin} t={t}
               onOrder={setOrderItem}
               onAddCart={item => { addToCart(item); showToast(t('prod_added_cart').replace('{title}', item.title)) }}
               onView={setDetailItem}
+              onEdit={item => setEditItem({ type: 'product', item })}
               onDelete={(type, id) => { deleteItem(type, id); showToast(t('prod_deleted')) }} />
           ))}
           {filtered.length === 0 && <p className="empty-state">{t('prod_no_result')}</p>}

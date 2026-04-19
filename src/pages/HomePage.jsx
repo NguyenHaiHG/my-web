@@ -16,9 +16,9 @@ export default function HomePage() {
   ]
 
   const featured = [
-    { img: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600&q=80', title: 'Tour Đồng Văn – Mã Pí Lèng', price: '2.500.000đ', stars: 5 },
-    { img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80', title: 'Homestay Hoàng Su Phì', price: '800.000đ/đêm', stars: 5 },
-    { img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', title: 'Trekking Đỉnh Mây', price: '1.800.000đ', stars: 4 },
+    { img: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600&q=80', titleKey: 'featured_t1', priceKey: 'featured_t1_price', stars: 5 },
+    { img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80', titleKey: 'featured_t2', priceKey: 'featured_t2_price', stars: 5 },
+    { img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', titleKey: 'featured_t3', priceKey: 'featured_t3_price', stars: 4 },
   ]
 
   return (
@@ -31,7 +31,7 @@ export default function HomePage() {
         <div className="hero-overlay" />
         <div className="hero-content">
           <div className="hero-badge">🏔️ {t('hero_badge')}</div>
-          <h1>{t('hero_h1_explore')} <span className="highlight">Hà Giang</span><br />{t('hero_h1_order')} <span className="highlight-gold">Taobao</span></h1>
+          <h1>{t('hero_h1_explore')} <span className="highlight">{t('hero_hagiang')}</span><br />{t('hero_h1_order')} <span className="highlight-gold">Taobao</span></h1>
           <p className="hero-sub">{t('hero_sub')}</p>
           <div className="hero-buttons">
             <button className="btn3d btn3d-orange" onClick={() => navigate('/tours')}>🗺️ {t('hero_btn_tour')}</button>
@@ -84,8 +84,8 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="prev-body">
-                  <strong>{item.title}</strong>
-                  <div className="row-between"><span className="prev-price">{item.price}</span><ChevronRight size={16} color="#f97316" /></div>
+                  <strong>{t(item.titleKey)}</strong>
+                  <div className="row-between"><span className="prev-price">{t(item.priceKey)}</span><ChevronRight size={16} color="#f97316" /></div>
                 </div>
               </div>
             ))}
@@ -97,10 +97,11 @@ export default function HomePage() {
       <section className="home-cta">
         <div className="home-cta-overlay" />
         <div className="container cta-inner">
-          <h2>{t('cta_title')} <span className="highlight">Hà Giang</span>?</h2>
+          <h2>{t('cta_title')} <span className="highlight">{t('hero_hagiang')}</span>?</h2>
           <p>{t('cta_sub')}</p>
           <div className="cta-btns">
             <a href="tel:0385737705" className="btn3d btn3d-orange"><Phone size={16} /> {t('cta_call')}</a>
+            <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer" className="btn3d btn3d-green">💬 {t('whatsapp_btn')}</a>
             <button className="btn3d btn3d-blue" onClick={() => navigate('/lien-he')}>📋 {t('cta_consult')}</button>
           </div>
         </div>

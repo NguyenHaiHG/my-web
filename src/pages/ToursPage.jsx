@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Search, MapPin, Clock, Users, Plus, Trash2, Phone, Star, Check, Calendar } from 'lucide-react'
+import { Search, MapPin, Clock, Users, Plus, Trash2, Phone, Star, Check, Calendar, Edit2 } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useAuth } from '../context/AuthContext'
 import { useUI } from '../context/UIContext'
@@ -12,19 +12,19 @@ function parsePrice(str) {
   return parseInt(str.replace(/[^\d]/g, '')) || 0
 }
 
-const INC_MAP = {
-  transport: { vi: '🚌 Xe đưa đón', en: '🚌 Transport' },
-  meal: { vi: '🍽️ Ăn uống', en: '🍽️ Meals' },
-  guide: { vi: '🧭 HDV', en: '🧭 Guide' },
-  hotel: { vi: '🏨 Lưu trú', en: '🏨 Hotel' },
-  ticket: { vi: '🎫 Vé tham quan', en: '🎫 Tickets' },
+const INC_KEYS = {
+  transport: 'inc_transport',
+  meal: 'inc_meal',
+  guide: 'inc_guide',
+  hotel: 'inc_hotel',
+  ticket: 'inc_ticket',
 }
 
 /* ════════════════════════════════════════════════════
    TOUR BOOKING CARD
 ════════════════════════════════════════════════════ */
-function TourBookCard({ tour, onBook, onView, onDelete, isAdmin }) {
-  const { t, lang } = useLang()
+function TourBookCard({ tour, onBook, onView, onDelete, onEdit, isMod, isAdmin }) {
+  const { t } = useLang()
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
 
   const includes = tour.includes || ['transport', 'meal', 'guide']
@@ -36,9 +36,9 @@ function TourBookCard({ tour, onBook, onView, onDelete, isAdmin }) {
   const reviews = tour.reviews ?? 0
 
   const catLabel = {
-    premium: `⭐ ${lang === 'en' ? 'Premium' : 'Cao cấp'}`,
+    premium: `⭐ ${t('tours_filter_premium').replace(/^⭐\s*/, '')}`,
     trek: `🥾 Trekking`,
-    budget: `💰 ${lang === 'en' ? 'Budget' : 'Tiết kiệm'}`,
+    budget: `💰 ${t('tours_filter_budget').replace(/^💰\s*/, '')}`,
   }[category] ?? '💰'
 
   return (
@@ -63,7 +63,7 @@ function TourBookCard({ tour, onBook, onView, onDelete, isAdmin }) {
           {reviews > 0 && <span className="tour-bcard-reviews">({reviews})</span>}
         </div>
         {isAdmin && (
-          <button className="tour-bcard-del" title="Xoá" onClick={() => onDelete('tour', tour.id)}>
+          <button className="tour-bcard-del" title={t('delete_tooltip')} onClick={() => onDelete('tour', tour.id)}>
             <Trash2 size={13} />
           </button>
         )}
@@ -83,8 +83,8 @@ function TourBookCard({ tour, onBook, onView, onDelete, isAdmin }) {
         <div className="tour-bcard-includes">
           <span className="tour-inc-label">{t('card_includes')}</span>
           {includes.map(key => (
-            <span key={key} className="tour-inc-chip" title={INC_MAP[key]?.[lang] || key}>
-              {INC_MAP[key]?.[lang]?.split(' ')[0] || '✓'}
+            <span key={key} className="tour-inc-chip" title={t(INC_KEYS[key] || key)}>
+              {t(INC_KEYS[key] || key).split(' ')[0] || '✓'}
             </span>
           ))}
         </div>
@@ -99,6 +99,11 @@ function TourBookCard({ tour, onBook, onView, onDelete, isAdmin }) {
             <button className="btn-tour-detail" onClick={() => onView(tour)}>
               {t('card_detail')}
             </button>
+            {isMod && (
+              <button className="btn3d btn3d-blue btn-sm" onClick={() => onEdit(tour)}>
+                <Edit2 size={12} /> {t('blog_edit')}
+              </button>
+            )}
             <button className="btn3d btn3d-orange btn-sm" onClick={() => onBook(tour)}>
               {t('card_book')}
             </button>
@@ -293,6 +298,9 @@ function BookingModal({ tour, onClose }) {
               <a href="tel:0385737705" className="btn3d btn3d-green btn-full" style={{ textAlign: 'center' }}>
                 <Phone size={15} /> {t('book_call')}
               </a>
+              <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer" className="btn3d btn3d-blue btn-full" style={{ textAlign: 'center' }}>
+                💬 {t('whatsapp_btn')} 0385.737.705
+              </a>
             </div>
           </div>
         )}
@@ -307,7 +315,7 @@ function BookingModal({ tour, onClose }) {
 export default function ToursPage() {
   const { tours, deleteItem } = useData()
   const { isMod, isAdmin } = useAuth()
-  const { setAdminModal, setDetailItem, showToast } = useUI()
+  const { setAdminModal, setDetailItem, setEditItem, showToast } = useUI()
   const { t } = useLang()
 
   const [search, setSearch] = useState('')
@@ -396,9 +404,11 @@ export default function ToursPage() {
             <TourBookCard
               key={tour.id}
               tour={tour}
+              isMod={isMod}
               isAdmin={isAdmin}
               onBook={setBooking}
               onView={setDetailItem}
+              onEdit={tour => setEditItem({ type: 'tour', item: tour })}
               onDelete={(type, id) => { deleteItem(type, id); showToast(t('book_deleted')) }}
             />
           ))}

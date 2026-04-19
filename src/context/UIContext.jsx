@@ -5,6 +5,7 @@ const UIContext = createContext(null)
 export function UIProvider({ children }) {
   const [toast, setToast] = useState('')
   const [adminModal, setAdminModal] = useState(null) // 'tour' | 'product' | 'post'
+  const [editItem, setEditItem] = useState(null) // { type, item }
   const [detailItem, setDetailItem] = useState(null)
   const [showLogin, setShowLogin] = useState(false)
   const [showCart, setShowCart] = useState(false)
@@ -18,6 +19,7 @@ export function UIProvider({ children }) {
     <UIContext.Provider value={{
       toast, showToast,
       adminModal, setAdminModal,
+      editItem, setEditItem,
       detailItem, setDetailItem,
       showLogin, setShowLogin,
       showCart, setShowCart,
