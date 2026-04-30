@@ -1,96 +1,69 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const DataContext = createContext(null)
 
-const initialTours = [
-  {
-    id: 1,
-    title: 'Tour Hà Giang Trọn Gói 3N2Đ',
-    desc: 'Chinh phục Đồng Văn, Mèo Vạc, Mã Pí Lèng hùng vĩ. Ngắm nhìn toàn cảnh cao nguyên đá từ trên cao.',
-    price: '2.500.000đ',
-    img: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=400&q=80',
-    tag: 'tour',
-    duration: '3N2Đ',
-    maxGuests: 10,
-    rating: 4.9,
-    reviews: 128,
-    category: 'premium',
-    departureFrom: 'Hà Nội',
-    location: 'Hà Giang',
-    includes: ['transport', 'meal', 'guide', 'hotel', 'ticket'],
-  },
-  {
-    id: 2,
-    title: 'Homestay Núi Đá',
-    desc: 'Ngủ giữa ruộng bậc thang Hoàng Su Phì, trải nghiệm văn hóa H\'Mông bản địa.',
-    price: '800.000đ',
-    img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80',
-    tag: 'tour',
-    duration: '2N1Đ',
-    maxGuests: 6,
-    rating: 4.7,
-    reviews: 85,
-    category: 'budget',
-    departureFrom: 'Hà Giang',
-    location: 'Hoàng Su Phì',
-    includes: ['meal', 'hotel'],
-  },
-  {
-    id: 3,
-    title: 'Tour Trekking Đỉnh Mây',
-    desc: 'Chinh phục đỉnh núi cao trên 2000m, ngắm biển mây kỳ ảo tại Tây Côn Lĩnh.',
-    price: '1.800.000đ',
-    img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&q=80',
-    tag: 'tour',
-    duration: '2N1Đ',
-    maxGuests: 8,
-    rating: 5.0,
-    reviews: 42,
-    category: 'trek',
-    departureFrom: 'Hà Giang',
-    location: 'Tây Côn Lĩnh',
-    includes: ['transport', 'meal', 'guide', 'ticket'],
-  },
-]
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
-const initialProducts = [
-  { id: 1, title: 'Mật Ong Bạc Hà', desc: 'Mật ong nguyên chất từ hoa bạc hà vùng cao, hũ 500g', price: '280.000đ', img: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&q=80', tag: 'product' },
-  { id: 2, title: 'Trà Hoa Vàng Hà Giang', desc: 'Trà hoa vàng cổ thụ quý hiếm, hộp 100g', price: '350.000đ', img: 'https://images.unsplash.com/photo-1563822249548-9a72b6353cd1?w=400&q=80', tag: 'product' },
-  { id: 3, title: 'Thịt Trâu Gác Bếp', desc: 'Đặc sản thịt trâu truyền thống hun khói, gói 300g', price: '220.000đ', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&q=80', tag: 'product' },
-]
+// MongoDB trả về _id, map sang id để không cần sửa các component khác
+const mapId = item => ({ ...item, id: item._id || item.id })
 
-const initialPosts = [
-  { id: 1, title: 'Kinh nghiệm du lịch Hà Giang tháng 10', content: 'Tháng 10 là mùa lúa chín vàng trên ruộng bậc thang Hoàng Su Phì, đây là thời điểm đẹp nhất để ghé thăm...', author: 'Admin', date: '10/04/2026', img: 'https://images.unsplash.com/photo-1540975038511-ad92c58acd41?w=400&q=80', tag: 'post' },
-  { id: 2, title: 'Hướng dẫn order Taobao siêu tiết kiệm', content: 'Bí kíp order hàng Taobao giá rẻ, vận chuyển an toàn về Việt Nam chỉ trong 7-10 ngày...', author: 'Mod HTM', date: '08/04/2026', img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&q=80', tag: 'post' },
-]
+const plural = type => type === 'post' ? 'posts' : type + 's'
 
 export function DataProvider({ children }) {
-  const [tours, setTours] = useState(initialTours)
-  const [products, setProducts] = useState(initialProducts)
-  const [posts, setPosts] = useState(initialPosts)
+  const [tours, setTours] = useState([])
+  const [products, setProducts] = useState([])
+  const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const addItem = (type, item) => {
-    const newItem = { ...item, id: Date.now() }
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API}/api/tours`).then(r => r.json()),
+      fetch(`${API}/api/products`).then(r => r.json()),
+      fetch(`${API}/api/posts`).then(r => r.json()),
+    ])
+      .then(([toursData, productsData, postsData]) => {
+        setTours(toursData.map(mapId))
+        setProducts(productsData.map(mapId))
+        setPosts(postsData.map(mapId))
+      })
+      .catch(err => console.error('Lỗi tải dữ liệu:', err))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const addItem = async (type, item) => {
+    const res = await fetch(`${API}/api/${plural(type)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    })
+    const newItem = mapId(await res.json())
     if (type === 'tour') setTours(p => [newItem, ...p])
     else if (type === 'product') setProducts(p => [newItem, ...p])
     else if (type === 'post') setPosts(p => [newItem, ...p])
   }
 
-  const deleteItem = (type, id) => {
+  const deleteItem = async (type, id) => {
+    await fetch(`${API}/api/${plural(type)}/${id}`, { method: 'DELETE' })
     if (type === 'tour') setTours(p => p.filter(i => i.id !== id))
     else if (type === 'product') setProducts(p => p.filter(i => i.id !== id))
     else if (type === 'post') setPosts(p => p.filter(i => i.id !== id))
   }
 
-  const updateItem = (type, id, data) => {
-    const updater = list => list.map(i => i.id === id ? { ...i, ...data } : i)
+  const updateItem = async (type, id, data) => {
+    const res = await fetch(`${API}/api/${plural(type)}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    const updated = mapId(await res.json())
+    const updater = list => list.map(i => i.id === id ? updated : i)
     if (type === 'tour') setTours(updater)
     else if (type === 'product') setProducts(updater)
     else if (type === 'post') setPosts(updater)
   }
 
   return (
-    <DataContext.Provider value={{ tours, products, posts, addItem, deleteItem, updateItem }}>
+    <DataContext.Provider value={{ tours, products, posts, loading, addItem, deleteItem, updateItem }}>
       {children}
     </DataContext.Provider>
   )
