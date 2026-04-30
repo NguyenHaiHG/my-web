@@ -16,17 +16,19 @@ export function DataProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([
+    Promise.allSettled([
       fetch(`${API}/api/tours`).then(r => r.json()),
       fetch(`${API}/api/products`).then(r => r.json()),
       fetch(`${API}/api/posts`).then(r => r.json()),
     ])
-      .then(([toursData, productsData, postsData]) => {
-        setTours(toursData.map(mapId))
-        setProducts(productsData.map(mapId))
-        setPosts(postsData.map(mapId))
+      .then(([toursRes, productsRes, postsRes]) => {
+        if (toursRes.status === 'fulfilled') setTours(toursRes.value.map(mapId))
+        else console.error('Lỗi tải tours:', toursRes.reason)
+        if (productsRes.status === 'fulfilled') setProducts(productsRes.value.map(mapId))
+        else console.error('Lỗi tải products:', productsRes.reason)
+        if (postsRes.status === 'fulfilled') setPosts(postsRes.value.map(mapId))
+        else console.error('Lỗi tải posts:', postsRes.reason)
       })
-      .catch(err => console.error('Lỗi tải dữ liệu:', err))
       .finally(() => setLoading(false))
   }, [])
 

@@ -84,13 +84,17 @@ function AdminModal() {
     setPreview(e.target.value)
   }
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
-    addItem(type, { ...form, date: new Date().toLocaleDateString('vi-VN'), tag: type })
-    setAdminModal(null)
-    setForm({ title: '', desc: '', price: '', content: '', img: '', author: '' })
-    setPreview('')
-    showToast(t('admin_success').replace('{type}', t(labelKey[type])))
+    try {
+      await addItem(type, { ...form, date: new Date().toLocaleDateString('vi-VN'), tag: type })
+      setAdminModal(null)
+      setForm({ title: '', desc: '', price: '', content: '', img: '', author: '' })
+      setPreview('')
+      showToast(t('admin_success').replace('{type}', t(labelKey[type])))
+    } catch (err) {
+      showToast('❌ Lỗi: ' + (err.message || 'Không thể lưu, thử lại!'))
+    }
   }
 
   if (!type) return null
