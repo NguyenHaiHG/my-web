@@ -36,6 +36,7 @@ export function DataProvider({ children }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(item),
     })
+    if (!res.ok) throw new Error(await res.text())
     const newItem = mapId(await res.json())
     if (type === 'tour') setTours(p => [newItem, ...p])
     else if (type === 'product') setProducts(p => [newItem, ...p])

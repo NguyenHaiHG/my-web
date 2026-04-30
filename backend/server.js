@@ -31,8 +31,10 @@ app.use('/api/posts', postsRouter)
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 
 // Kết nối MongoDB rồi mới lắng nghe request
+// Xoá appName rỗng nếu có trong URI (gây lỗi trên Render)
+const mongoURI = (process.env.MONGODB_URI || '').replace(/([&?])appName=(?=[&]|$)|[&?]appName=$/, '')
 mongoose
-    .connect(process.env.MONGODB_URI)
+    .connect(mongoURI)
     .then(() => {
         console.log('MongoDB connected')
         app.listen(PORT, () => console.log(`Backend đang chạy tại http://localhost:${PORT}`))
