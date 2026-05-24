@@ -40,11 +40,7 @@ function LoginModal() {
         <button className="modal-close" onClick={close}><X size={16} /></button>
         <div className="modal-logo">🏔️</div>
         <h2 className="modal-title">{t('login_title')}</h2>
-        <p className="modal-hint">
-          <strong>admin</strong>/admin123 &nbsp;·&nbsp;
-          <strong>mod</strong>/mod123 &nbsp;·&nbsp;
-          <strong>user</strong>/user123
-        </p>
+
         <form onSubmit={submit} className="login-form">
           <input className="form-input" placeholder={t('login_username_ph')} value={u}
             onChange={e => setU(e.target.value)} required autoFocus />
@@ -180,7 +176,7 @@ function Header() {
     { to: '/cong-dong', label: '🌱 Dự Án' },
     { to: '/workshop', label: '🎓 Workshop' },
     { to: '/thu-vien', label: '📚 Thư Viện' },
-    { to: '/tours', label: '🗺️ Tours' },
+    { to: '/tours', label: '🗺️ Khám Phá Hà Giang' },
     { to: '/san-pham', label: '🛍️ Sản Phẩm' },
     { to: '/blog', label: t('nav_blog') },
     { to: '/lien-he', label: t('nav_contact') },

@@ -96,7 +96,7 @@ export const translations = {
 
         // ── Blog Page
         blog_hero_title: '📝 Blog & Tin Tức',
-        blog_hero_sub: 'Kinh nghiệm du lịch, hướng dẫn order Taobao, khám phá vùng cao',
+        blog_hero_sub: 'Kinh nghiệm du lịch, khám phá vùng cao',
         blog_search: 'Tìm bài viết...',
         blog_add: 'Đăng Bài',
         blog_back: '← Quay lại Blog',
