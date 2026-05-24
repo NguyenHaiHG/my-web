@@ -4,7 +4,7 @@ const AuthContext = createContext(null)
 
 // Tài khoản mẫu (trong thực tế nên dùng backend/database)
 const USERS = [
-  { id: 1, username: 'admin', password: 'admin123', role: 'admin', name: 'Nguyễn Xuân Hải' },
+  { id: 1, username: 'admin', password: 'Aa864189', role: 'admin', name: 'Nguyễn Xuân Hải' },
   { id: 2, username: 'mod', password: 'mod123', role: 'mod', name: 'Lộc Như Quỳnh' },
   { id: 3, username: 'user', password: 'user123', role: 'user', name: 'Khách Hàng' },
 ]
