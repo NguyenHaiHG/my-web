@@ -4779,3 +4779,58 @@ select.form-input {
       display: none
    }
 }
+
+/* ====================================================
+   EDIT MODAL – Dashboard inline editor
+   ==================================================== */
+.edit-modal {
+   max-width: 560px;
+   max-height: 88vh;
+   overflow-y: auto
+}
+
+.edit-field-label {
+   display: block;
+   font-size: 12px;
+   font-weight: 700;
+   color: #374151;
+   margin-bottom: 5px;
+   text-transform: uppercase;
+   letter-spacing: .4px
+}
+
+.edit-img-current {
+   position: relative;
+   border-radius: 12px;
+   overflow: hidden;
+   margin-bottom: 8px
+}
+
+.edit-img-current img {
+   width: 100%;
+   height: 180px;
+   object-fit: cover;
+   display: block
+}
+
+.edit-img-remove {
+   position: absolute;
+   top: 8px;
+   right: 8px;
+   background: rgba(220, 38, 38, .85);
+   color: #fff;
+   border: none;
+   border-radius: 8px;
+   padding: 5px 10px;
+   font-size: 12px;
+   font-weight: 700;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   gap: 4px;
+   transition: background .15s
+}
+
+.edit-img-remove:hover {
+   background: #dc2626
+}

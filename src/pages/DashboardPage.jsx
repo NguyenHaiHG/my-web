@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
     FileText, Package, MapPin, BookOpen, Users, Heart,
     Star, Plus, Trash2, Check, X, Edit2, LayoutDashboard,
-    ChevronDown, ChevronRight, Bell, LogOut
+    ChevronDown, ChevronRight, Bell, LogOut, Upload, Save
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
@@ -162,6 +162,125 @@ function AppTable({ title, items, statusKey, onStatusChange, onDelete }) {
     )
 }
 
+/* ── EDIT MODAL ── */
+const FIELD_DEFS = {
+    post: ['title', 'content', 'author', 'img'],
+    workshop: ['title', 'content', 'date', 'time', 'category', 'capacity', 'status', 'instructor', 'img'],
+    library: ['title', 'content', 'category', 'ethnic', 'pronunciation', 'translation', 'img'],
+    product: ['title', 'desc', 'price', 'img'],
+    tour: ['title', 'desc', 'price', 'duration', 'img'],
+    review: ['name', 'country', 'rating', 'content'],
+}
+const FIELD_META = {
+    title: { label: 'Tiêu đề', type: 'text', required: true },
+    content: { label: 'Nội dung', type: 'textarea' },
+    desc: { label: 'Mô tả', type: 'textarea' },
+    author: { label: 'Tác giả', type: 'text' },
+    date: { label: 'Ngày', type: 'text' },
+    time: { label: 'Giờ', type: 'text' },
+    category: { label: 'Danh mục / Loại', type: 'text' },
+    capacity: { label: 'Sức chứa', type: 'number' },
+    status: { label: 'Trạng thái', type: 'text' },
+    instructor: { label: 'Giảng viên', type: 'text' },
+    ethnic: { label: 'Dân tộc', type: 'text' },
+    pronunciation: { label: 'Phát âm', type: 'text' },
+    translation: { label: 'Dịch nghĩa', type: 'text' },
+    price: { label: 'Giá', type: 'text' },
+    duration: { label: 'Thời gian', type: 'text' },
+    name: { label: 'Tên', type: 'text' },
+    country: { label: 'Quốc gia', type: 'text' },
+    rating: { label: 'Đánh giá (1-5)', type: 'number' },
+    img: { label: 'Ảnh', type: 'image' },
+}
+
+function EditModal({ type, item, onClose, onSave }) {
+    const fields = FIELD_DEFS[type] || Object.keys(item).filter(k => k !== 'id' && k !== '_id')
+    const [form, setForm] = useState(() => {
+        const f = {}
+        fields.forEach(k => { f[k] = item[k] ?? '' })
+        return f
+    })
+    const [preview, setPreview] = useState(item.img || '')
+    const [saving, setSaving] = useState(false)
+
+    const handleFile = (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        const reader = new FileReader()
+        reader.onload = (ev) => {
+            setPreview(ev.target.result)
+            setForm(f => ({ ...f, img: ev.target.result }))
+        }
+        reader.readAsDataURL(file)
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        setSaving(true)
+        await onSave(form)
+        setSaving(false)
+    }
+
+    const TYPE_LABELS = { post: 'Bài viết', workshop: 'Workshop', library: 'Thư viện', product: 'Sản phẩm', tour: 'Tour', review: 'Review' }
+
+    return (
+        <div className="modal-backdrop" onClick={onClose}>
+            <div className="modal modal-large edit-modal" onClick={e => e.stopPropagation()}>
+                <button className="modal-close" onClick={onClose}><X size={16} /></button>
+                <h2 className="modal-title">✏️ Chỉnh sửa {TYPE_LABELS[type] || type}</h2>
+                <form onSubmit={handleSubmit} className="login-form">
+                    {fields.map(key => {
+                        const meta = FIELD_META[key] || { label: key, type: 'text' }
+                        if (meta.type === 'image') return (
+                            <div key={key} className="img-upload-area">
+                                <p className="img-upload-title"><Upload size={14} /> Ảnh</p>
+                                {/* Current image preview */}
+                                {preview && (
+                                    <div className="edit-img-current">
+                                        <img src={preview} alt="current" />
+                                        <button type="button" className="edit-img-remove" onClick={() => { setPreview(''); setForm(f => ({ ...f, img: '' })) }}>
+                                            <X size={12} /> Xoá ảnh
+                                        </button>
+                                    </div>
+                                )}
+                                <label className="img-upload-box">
+                                    <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={handleFile} />
+                                    <div className="img-upload-placeholder" style={{ padding: '14px' }}>
+                                        <Upload size={22} color="#94a3b8" />
+                                        <span style={{ fontSize: 13 }}>{preview ? 'Thay ảnh mới' : 'Tải ảnh lên'}</span>
+                                        <small>PNG · JPG · WEBP</small>
+                                    </div>
+                                </label>
+                                <div className="img-or">hoặc dán URL</div>
+                                <input className="form-input" placeholder="https://..." value={form.img}
+                                    onChange={e => { setForm(f => ({ ...f, img: e.target.value })); setPreview(e.target.value) }} />
+                            </div>
+                        )
+                        if (meta.type === 'textarea') return (
+                            <div key={key}>
+                                <label className="edit-field-label">{meta.label}</label>
+                                <textarea className="form-input form-textarea" value={form[key]}
+                                    onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
+                            </div>
+                        )
+                        return (
+                            <div key={key}>
+                                <label className="edit-field-label">{meta.label}</label>
+                                <input className="form-input" type={meta.type || 'text'} required={meta.required}
+                                    value={form[key]}
+                                    onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
+                            </div>
+                        )
+                    })}
+                    <button type="submit" className="btn3d btn3d-green btn-full" disabled={saving}>
+                        <Save size={15} /> {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+                    </button>
+                </form>
+            </div>
+        </div>
+    )
+}
+
 export default function DashboardPage() {
     const navigate = useNavigate()
     const { user, logout, isMod } = useAuth()
@@ -171,6 +290,10 @@ export default function DashboardPage() {
     const { t } = useLang()
     const [activeTab, setActiveTab] = useState('overview')
     const [sidebarOpen, setSidebarOpen] = useState(true)
+    const [editState, setEditState] = useState(null) // { type, item }
+
+    const openEdit = (type, item) => setEditState({ type, item })
+    const closeEdit = () => setEditState(null)
 
     if (!isMod) {
         return (
@@ -201,6 +324,7 @@ export default function DashboardPage() {
                 return <ContentTable type="posts" items={data.posts}
                     onAdd={() => setAdminModal('post')}
                     onDelete={(id) => handleDelete('post', id)}
+                    onEdit={(item) => openEdit('post', item)}
                     columns={[
                         { key: 'title', label: 'Tiêu đề' },
                         { key: 'author', label: 'Tác giả' },
@@ -210,6 +334,7 @@ export default function DashboardPage() {
                 return <ContentTable type="workshops" items={data.workshops}
                     onAdd={() => setAdminModal('workshop')}
                     onDelete={(id) => handleDelete('workshop', id)}
+                    onEdit={(item) => openEdit('workshop', item)}
                     columns={[
                         { key: 'title', label: 'Tên workshop' },
                         { key: 'date', label: 'Ngày' },
@@ -224,6 +349,7 @@ export default function DashboardPage() {
                 return <ContentTable type="library" items={data.libraryItems}
                     onAdd={() => setAdminModal('library')}
                     onDelete={(id) => handleDelete('library', id)}
+                    onEdit={(item) => openEdit('library', item)}
                     columns={[
                         { key: 'title', label: 'Tiêu đề' },
                         { key: 'category', label: 'Danh mục' },
@@ -233,6 +359,7 @@ export default function DashboardPage() {
                 return <ContentTable type="products" items={data.products}
                     onAdd={() => setAdminModal('product')}
                     onDelete={(id) => handleDelete('product', id)}
+                    onEdit={(item) => openEdit('product', item)}
                     columns={[
                         { key: 'title', label: 'Tên sản phẩm' },
                         { key: 'price', label: 'Giá' },
@@ -241,6 +368,7 @@ export default function DashboardPage() {
                 return <ContentTable type="tours" items={data.tours}
                     onAdd={() => setAdminModal('tour')}
                     onDelete={(id) => handleDelete('tour', id)}
+                    onEdit={(item) => openEdit('tour', item)}
                     columns={[
                         { key: 'title', label: 'Tên tour' },
                         { key: 'price', label: 'Giá' },
@@ -293,6 +421,22 @@ export default function DashboardPage() {
 
     return (
         <div className="db-layout">
+            {editState && (
+                <EditModal
+                    type={editState.type}
+                    item={editState.item}
+                    onClose={closeEdit}
+                    onSave={async (changes) => {
+                        try {
+                            await data.updateItem(editState.type, editState.item.id, changes)
+                            showToast('✅ Đã lưu thay đổi!')
+                            closeEdit()
+                        } catch (e) {
+                            showToast('❌ Lỗi: ' + e.message)
+                        }
+                    }}
+                />
+            )}
             {/* SIDEBAR */}
             <aside className={`db-sidebar ${sidebarOpen ? 'db-sidebar-open' : 'db-sidebar-collapsed'}`}>
                 <div className="db-sidebar-header">
