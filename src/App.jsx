@@ -1,17 +1,26 @@
 import { useState } from 'react'
-import { Routes, Route, NavLink, Link } from 'react-router-dom'
+import { Routes, Route, NavLink, Link, useNavigate } from 'react-router-dom'
 import {
   User, LogOut, Menu, X,
-  Upload, Plus
+  Upload, Plus, LayoutDashboard
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider, useData } from './context/DataContext'
 import { UIProvider, useUI } from './context/UIContext'
 import { LanguageProvider, useLang } from './context/LanguageContext'
+import { OrderProvider } from './context/OrderContext'
 import HomePage from './pages/HomePage'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import ContactPage from './pages/ContactPage'
+import CommunityPage from './pages/CommunityPage'
+import WorkshopPage from './pages/WorkshopPage'
+import LibraryPage from './pages/LibraryPage'
+import VolunteerPage from './pages/VolunteerPage'
+import DashboardPage from './pages/DashboardPage'
+import ProductsPage from './pages/ProductsPage'
+import ToursPage from './pages/ToursPage'
+import ManageCartPage from './pages/ManageCartPage'
 import './App.css'
 
 /* ──────────────────────────────────────────────────────
@@ -50,17 +59,17 @@ function LoginModal() {
 }
 
 /* ──────────────────────────────────────────────────────
-   ADMIN MODAL – Thêm bài viết
+   ADMIN MODAL – Thêm nội dung
 ────────────────────────────────────────────────────── */
 function AdminModal() {
   const { adminModal: type, setAdminModal } = useUI()
   const { addItem } = useData()
   const { showToast } = useUI()
   const { t } = useLang()
-  const [form, setForm] = useState({ title: '', content: '', img: '', author: '' })
+  const [form, setForm] = useState({ title: '', content: '', img: '', author: '', desc: '', price: '', time: '', date: '' })
   const [preview, setPreview] = useState('')
 
-  const labelKey = { post: 'admin_type_post' }
+  const labelKey = { post: 'Bài viết', product: 'Sản phẩm', tour: 'Tour', workshop: 'Workshop', library: 'Thư viện' }
 
   const handleFile = (e) => {
     const file = e.target.files?.[0]
@@ -81,11 +90,14 @@ function AdminModal() {
   const submit = async (e) => {
     e.preventDefault()
     try {
-      await addItem(type, { ...form, date: new Date().toLocaleDateString('vi-VN'), tag: type })
+      const payload = { ...form, tag: type }
+      if (!payload.date) payload.date = new Date().toLocaleDateString('vi-VN')
+      if (type === 'workshop') { payload.status = 'upcoming'; payload.isFree = true }
+      await addItem(type, payload)
       setAdminModal(null)
-      setForm({ title: '', content: '', img: '', author: '' })
+      setForm({ title: '', content: '', img: '', author: '', desc: '', price: '', time: '', date: '' })
       setPreview('')
-      showToast(t('admin_success').replace('{type}', t(labelKey[type] || type)))
+      showToast(`✅ Đã thêm ${labelKey[type] || type} thành công!`)
     } catch (err) {
       showToast('❌ Lỗi: ' + (err.message || 'Không thể lưu, thử lại!'))
     }
@@ -96,14 +108,34 @@ function AdminModal() {
     <div className="modal-backdrop" onClick={() => setAdminModal(null)}>
       <div className="modal modal-large" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={() => setAdminModal(null)}><X size={16} /></button>
-        <h2 className="modal-title">{t('admin_add')} {t(labelKey[type])}</h2>
+        <h2 className="modal-title">➕ Thêm {labelKey[type] || type}</h2>
         <form onSubmit={submit} className="login-form">
           <input className="form-input" placeholder={t('admin_title_ph')} value={form.title}
             onChange={e => setForm({ ...form, title: e.target.value })} required />
-          <textarea className="form-input form-textarea" placeholder={t('admin_content_ph')}
-            value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} required />
-          <input className="form-input" placeholder={t('admin_author_ph')} value={form.author}
-            onChange={e => setForm({ ...form, author: e.target.value })} />
+          {(type === 'post' || type === 'workshop' || type === 'library') && (
+            <textarea className="form-input form-textarea" placeholder={t('admin_content_ph')}
+              value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} />
+          )}
+          {(type === 'product' || type === 'tour') && (
+            <>
+              <textarea className="form-input form-textarea" placeholder="Mô tả ngắn"
+                value={form.desc} onChange={e => setForm({ ...form, desc: e.target.value })} />
+              <input className="form-input" placeholder="Giá (VD: 500.000đ)" value={form.price}
+                onChange={e => setForm({ ...form, price: e.target.value })} />
+            </>
+          )}
+          {type === 'workshop' && (
+            <div className="form-2col">
+              <input className="form-input" placeholder="Ngày diễn ra" value={form.date}
+                onChange={e => setForm({ ...form, date: e.target.value })} />
+              <input className="form-input" placeholder="Giờ (VD: 08:00–11:00)" value={form.time}
+                onChange={e => setForm({ ...form, time: e.target.value })} />
+            </div>
+          )}
+          {type === 'post' && (
+            <input className="form-input" placeholder={t('admin_author_ph')} value={form.author}
+              onChange={e => setForm({ ...form, author: e.target.value })} />
+          )}
 
           {/* IMAGE UPLOAD */}
           <div className="img-upload-area">
@@ -138,13 +170,18 @@ function AdminModal() {
    HEADER
 ────────────────────────────────────────────────────── */
 function Header() {
-  const { user, logout } = useAuth()
+  const { user, logout, isMod } = useAuth()
   const { setShowLogin } = useUI()
   const { lang, t, toggleLang } = useLang()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
   const links = [
-    { to: '/', label: t('nav_home') },
+    { to: '/cong-dong', label: '🌱 Dự Án' },
+    { to: '/workshop', label: '🎓 Workshop' },
+    { to: '/thu-vien', label: '📚 Thư Viện' },
+    { to: '/tours', label: '🗺️ Tours' },
+    { to: '/san-pham', label: '🛍️ Sản Phẩm' },
     { to: '/blog', label: t('nav_blog') },
     { to: '/lien-he', label: t('nav_contact') },
   ]
@@ -154,7 +191,7 @@ function Header() {
       <div className="header-inner">
         <Link to="/" className="logo" onClick={() => setOpen(false)}>
           <div className="logo-top">
-            <span className="logo-htm">HTM</span>
+            <span className="logo-htm">HTX</span>
             <span className="logo-name"> TRƯỜNG HẢI</span>
           </div>
           <div className="logo-sub">{t('logo_sub')}</div>
@@ -172,6 +209,12 @@ function Header() {
             <div className="nav-user">
               <span className={`role-badge role-${user.role}`}>{user.role.toUpperCase()}</span>
               <span className="nav-username">{user.name}</span>
+              {isMod && (
+                <NavLink to="/dashboard" className={({ isActive }) => `nav-dashboard ${isActive ? 'nav-active' : ''}`}
+                  onClick={() => setOpen(false)}>
+                  <LayoutDashboard size={14} /> Dashboard
+                </NavLink>
+              )}
               <button className="btn-logout" onClick={logout}><LogOut size={12} /> {t('btn_logout')}</button>
             </div>
           ) : null}
@@ -210,6 +253,14 @@ function AppInner() {
       <main>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/cong-dong" element={<CommunityPage />} />
+          <Route path="/workshop" element={<WorkshopPage />} />
+          <Route path="/thu-vien" element={<LibraryPage />} />
+          <Route path="/tinh-nguyen" element={<VolunteerPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/tours" element={<ToursPage />} />
+          <Route path="/san-pham" element={<ProductsPage />} />
+          <Route path="/gio-hang" element={<ManageCartPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:id" element={<BlogPostPage />} />
           <Route path="/lien-he" element={<ContactPage />} />
@@ -217,7 +268,14 @@ function AppInner() {
       </main>
       <footer className="footer">
         <div className="footer-inner">
-          <p>📝 <strong>HTM Trường Hải</strong> – {t('logo_sub')}</p>
+          <p>🌿 <strong>HTX Trường Hải</strong> – Tổ 5 Quang Trung · Phường Hà Giang 2 · Tuyên Quang</p>
+          <div className="footer-links">
+            <a href="/cong-dong">Dự án</a>
+            <a href="/workshop">Workshop</a>
+            <a href="/thu-vien">Thư viện</a>
+            <a href="/tinh-nguyen">Tình nguyện</a>
+            <a href="/lien-he">Liên hệ</a>
+          </div>
           <p>📞 <a href="tel:0385737705">0385.737.705</a> &nbsp;·&nbsp; <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer">💬 WhatsApp</a> &nbsp;·&nbsp; {t('footer_copy')}</p>
         </div>
       </footer>
@@ -231,7 +289,9 @@ export default function App() {
       <AuthProvider>
         <DataProvider>
           <UIProvider>
-            <AppInner />
+            <OrderProvider>
+              <AppInner />
+            </OrderProvider>
           </UIProvider>
         </DataProvider>
       </AuthProvider>

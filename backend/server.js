@@ -6,6 +6,11 @@ const cors = require('cors')
 const toursRouter = require('./routes/tours')
 const productsRouter = require('./routes/products')
 const postsRouter = require('./routes/posts')
+const workshopsRouter = require('./routes/workshops')
+const libraryRouter = require('./routes/library')
+const reviewsRouter = require('./routes/reviews')
+const workshopRegsRouter = require('./routes/workshopRegs')
+const volunteersRouter = require('./routes/volunteers')
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -29,6 +34,11 @@ app.use(express.json({ limit: '10mb' }))
 app.use('/api/tours', toursRouter)
 app.use('/api/products', productsRouter)
 app.use('/api/posts', postsRouter)
+app.use('/api/workshops', workshopsRouter)
+app.use('/api/library', libraryRouter)
+app.use('/api/reviews', reviewsRouter)
+app.use('/api/workshop-regs', workshopRegsRouter)
+app.use('/api/volunteers', volunteersRouter)
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))

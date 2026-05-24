@@ -28,7 +28,8 @@ export function OrderProvider({ children }) {
     /* ── 3 SEPARATE ORDER STORES ──────────────────────────── */
     const [cartOrders, setCartOrders] = useState([])
     const [tourBookings, setTourBookings] = useState([])
-    const [taobaoOrders, setTaobaoOrders] = useState([])
+    const [workshopRegs, setWorkshopRegs] = useState([])
+    const [volunteerApps, setVolunteerApps] = useState([])
 
     /* ── NOTIFICATIONS ────────────────────────────────────── */
     const [notifications, setNotifications] = useState([])
@@ -69,35 +70,46 @@ export function OrderProvider({ children }) {
         addNotif(`🗺️ Đặt tour: "${bookingData.tourTitle}" – ${bookingData.name} (${bookingData.phone})`, 'tour')
     }
 
-    const submitTaobaoOrder = (orderData) => {
-        setTaobaoOrders(prev => [{
-            ...orderData,
+    const submitWorkshopReg = (regData) => {
+        setWorkshopRegs(prev => [{
+            ...regData,
             id: Date.now(),
             date: new Date().toLocaleString('vi-VN'),
             status: 'pending',
         }, ...prev])
-        addNotif(`📦 Đơn Taobao mới từ ${orderData.name} – SĐT: ${orderData.phone}`, 'taobao')
+        addNotif(`🎓 Đăng ký workshop: "${regData.workshopTitle}" – ${regData.name}`, 'workshop')
     }
 
-    /* ── STATUS & DELETE ──────────────────────────────────── */
+    const submitVolunteerApp = (appData) => {
+        setVolunteerApps(prev => [{
+            ...appData,
+            id: Date.now(),
+            date: new Date().toLocaleString('vi-VN'),
+            status: 'pending',
+        }, ...prev])
+        addNotif(`🙋 Đơn tình nguyện mới từ ${appData.name}`, 'volunteer')
+    }
+
     const updateOrderStatus = (type, id, status) => {
         const upd = list => list.map(o => o.id === id ? { ...o, status } : o)
         if (type === 'cart') setCartOrders(upd)
         if (type === 'tour') setTourBookings(upd)
-        if (type === 'taobao') setTaobaoOrders(upd)
+        if (type === 'workshop') setWorkshopRegs(upd)
+        if (type === 'volunteer') setVolunteerApps(upd)
     }
 
     const deleteOrder = (type, id) => {
         if (type === 'cart') setCartOrders(p => p.filter(o => o.id !== id))
         if (type === 'tour') setTourBookings(p => p.filter(o => o.id !== id))
-        if (type === 'taobao') setTaobaoOrders(p => p.filter(o => o.id !== id))
+        if (type === 'workshop') setWorkshopRegs(p => p.filter(o => o.id !== id))
+        if (type === 'volunteer') setVolunteerApps(p => p.filter(o => o.id !== id))
     }
 
     return (
         <OrderContext.Provider value={{
             cart, addToCart, removeFromCart, updateQty, clearCart, totalCount,
-            cartOrders, tourBookings, taobaoOrders,
-            submitCartOrder, submitTourBooking, submitTaobaoOrder,
+            cartOrders, tourBookings, workshopRegs, volunteerApps,
+            submitCartOrder, submitTourBooking, submitWorkshopReg, submitVolunteerApp,
             updateOrderStatus, deleteOrder,
             notifications, unread, markRead, markAllRead,
         }}>
