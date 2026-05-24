@@ -18,8 +18,8 @@ const NAV_ITEMS = [
     { key: 'library', icon: <BookOpen size={18} />, label: 'Thư viện số' },
     { key: 'posts', icon: <FileText size={18} />, label: 'Bài viết' },
     { key: 'products', icon: <Package size={18} />, label: 'Sản phẩm' },
-    { key: 'tours', icon: <MapPin size={18} />, label: 'Tours' },
-    { key: 'tour-bookings', icon: <MapPin size={18} />, label: 'Đặt tour' },
+    { key: 'tours', icon: <MapPin size={18} />, label: 'Discover' },
+    { key: 'tour-bookings', icon: <MapPin size={18} />, label: 'Đặt lịch' },
     { key: 'volunteers', icon: <Heart size={18} />, label: 'Tình nguyện' },
     { key: 'reviews', icon: <Star size={18} />, label: 'Reviews' },
 ]
@@ -33,7 +33,7 @@ function Overview({ data, orders }) {
         { label: 'Bài viết', val: data.posts.length, color: '#2563eb', icon: <FileText size={22} />, link: '/blog' },
         { label: 'Workshops', val: data.workshops.length, color: '#7c3aed', icon: <Users size={22} />, link: '/workshop' },
         { label: 'Đăng ký WS', val: orders.workshopRegs.length, color: '#db2777', icon: <Check size={22} /> },
-        { label: 'Đặt tour', val: orders.tourBookings.length, color: '#f97316', icon: <MapPin size={22} />, link: '/tours' },
+        { label: 'Đặt lịch', val: orders.tourBookings.length, color: '#f97316', icon: <MapPin size={22} />, link: '/tours' },
         { label: 'Đơn TNV', val: orders.volunteerApps.length, color: '#16a34a', icon: <Heart size={22} />, link: '/tinh-nguyen' },
         { label: 'Reviews chờ duyệt', val: data.reviews.filter(r => !r.approved).length, color: '#c05621', icon: <Star size={22} /> },
     ]
@@ -221,7 +221,7 @@ function EditModal({ type, item, onClose, onSave }) {
         setSaving(false)
     }
 
-    const TYPE_LABELS = { post: 'Bài viết', workshop: 'Workshop', library: 'Thư viện', product: 'Sản phẩm', tour: 'Tour', review: 'Review' }
+    const TYPE_LABELS = { post: 'Bài viết', workshop: 'Workshop', library: 'Thư viện', product: 'Sản phẩm', tour: 'Discover', review: 'Review' }
 
     return (
         <div className="modal-backdrop" onClick={onClose}>
@@ -370,12 +370,12 @@ export default function DashboardPage() {
                     onDelete={(id) => handleDelete('tour', id)}
                     onEdit={(item) => openEdit('tour', item)}
                     columns={[
-                        { key: 'title', label: 'Tên tour' },
+                        { key: 'title', label: 'Tên' },
                         { key: 'price', label: 'Giá' },
                         { key: 'duration', label: 'Thời gian' },
                     ]} />
             case 'tour-bookings':
-                return <AppTable title="Booking Tour" items={orders.tourBookings}
+                return <AppTable title="Booking Discover" items={orders.tourBookings}
                     statusKey="tour" onStatusChange={orders.updateOrderStatus} onDelete={orders.deleteOrder} />
             case 'volunteers':
                 return <AppTable title="Đơn Tình Nguyện" items={orders.volunteerApps}

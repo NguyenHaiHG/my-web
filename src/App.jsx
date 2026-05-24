@@ -65,7 +65,7 @@ function AdminModal() {
   const [form, setForm] = useState({ title: '', content: '', img: '', author: '', desc: '', price: '', time: '', date: '' })
   const [preview, setPreview] = useState('')
 
-  const labelKey = { post: 'Bài viết', product: 'Sản phẩm', tour: 'Tour', workshop: 'Workshop', library: 'Thư viện' }
+  const labelKey = { post: 'Bài viết', product: 'Sản phẩm', tour: 'Discover', workshop: 'Workshop', library: 'Thư viện' }
 
   const handleFile = (e) => {
     const file = e.target.files?.[0]
