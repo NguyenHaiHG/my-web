@@ -2,15 +2,12 @@ import { useState } from 'react'
 import { Heart, CheckCircle, Leaf, BookOpen, Camera, Hammer, Code } from 'lucide-react'
 import { useOrder } from '../context/OrderContext'
 import { useUI } from '../context/UIContext'
+import { useLang } from '../context/LanguageContext'
 
-const SKILL_OPTIONS = [
-    { value: 'teaching', label: '📚 Dạy học (tiếng Anh, kỹ năng số)', icon: <BookOpen size={18} /> },
-    { value: 'agriculture', label: '🌱 Nông nghiệp & làm vườn', icon: <Leaf size={18} /> },
-    { value: 'photography', label: '📷 Nhiếp ảnh / quay phim', icon: <Camera size={18} /> },
-    { value: 'construction', label: '🔨 Xây dựng / sửa chữa', icon: <Hammer size={18} /> },
-    { value: 'tech', label: '💻 Công nghệ / số hoá tư liệu', icon: <Code size={18} /> },
-    { value: 'other', label: '✨ Kỹ năng khác', icon: <Heart size={18} /> },
-]
+const SKILL_VALUES = ['teaching', 'agriculture', 'photography', 'construction', 'tech', 'other']
+const SKILL_ICONS = [<BookOpen size={18} />, <Leaf size={18} />, <Camera size={18} />, <Hammer size={18} />, <Code size={18} />, <Heart size={18} />]
+const SKILL_EMOJIS = ['📚', '🌱', '📷', '🔨', '💻', '✨']
+const SKILL_TKEYS = ['vol_skill1', 'vol_skill2', 'vol_skill3', 'vol_skill4', 'vol_skill5', 'vol_skill6']
 
 const TESTIMONIALS = [
     {
@@ -33,14 +30,19 @@ const TESTIMONIALS = [
 export default function VolunteerPage() {
     const { submitVolunteerApp } = useOrder()
     const { showToast } = useUI()
+    const { t } = useLang()
     const [form, setForm] = useState({ name: '', phone: '', email: '', skills: '', availability: '', motivation: '' })
     const [done, setDone] = useState(false)
+
+    const skillOptions = SKILL_VALUES.map((v, i) => ({
+        value: v, label: `${SKILL_EMOJIS[i]} ${t(SKILL_TKEYS[i])}`, icon: SKILL_ICONS[i]
+    }))
 
     const submit = (e) => {
         e.preventDefault()
         submitVolunteerApp(form)
         setDone(true)
-        showToast('✅ Đã gửi đơn tình nguyện!')
+        showToast(`✅ ${t('vol_done_h')}`)
     }
 
     return (
@@ -49,8 +51,8 @@ export default function VolunteerPage() {
             <div className="page-hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1593113630400-ea4288922559?w=1400&q=80)' }}>
                 <div className="ph-overlay" />
                 <div className="ph-content">
-                    <h1>Trở Thành Tình Nguyện Viên</h1>
-                    <p>Góp tay bảo tồn văn hoá · Dạy học · Phát triển cộng đồng bền vững</p>
+                    <h1>{t('vol_h1')}</h1>
+                    <p>{t('vol_sub')}</p>
                 </div>
             </div>
 
@@ -58,15 +60,12 @@ export default function VolunteerPage() {
                 <div className="vol-layout">
                     {/* LEFT: Info */}
                     <div className="vol-info">
-                        <span className="section-label">🙋 Chúng tôi cần bạn</span>
-                        <h2>Bạn có thể đóng góp gì?</h2>
-                        <p style={{ color: '#64748b', lineHeight: 1.7 }}>
-                            Dự án luôn chào đón tình nguyện viên — không cần kinh nghiệm, chỉ cần nhiệt huyết.
-                            Bạn có thể ở lại vài ngày, vài tuần, hoặc đóng góp từ xa.
-                        </p>
+                        <span className="section-label">{t('vol_section_label')}</span>
+                        <h2>{t('vol_h2')}</h2>
+                        <p style={{ color: '#64748b', lineHeight: 1.7 }}>{t('vol_intro')}</p>
 
                         <div className="vol-skills-grid">
-                            {SKILL_OPTIONS.map(s => (
+                            {skillOptions.map(s => (
                                 <div key={s.value} className="vol-skill-chip">
                                     {s.icon} <span>{s.label}</span>
                                 </div>
@@ -74,7 +73,7 @@ export default function VolunteerPage() {
                         </div>
 
                         <div className="vol-logistics">
-                            <h3>Thông tin thực tế</h3>
+                            <h3>{t('vol_logistics_h')}</h3>
                             <ul>
                                 <li>📍 <strong>Địa điểm:</strong> Tổ 5 Quang Trung, Phường Hà Giang 2 — chỉ xe máy vào được</li>
                                 <li>🏕️ <strong>Chỗ ở:</strong> Homestay tại gia đình — trải nghiệm cuộc sống dân tộc thực thụ</li>
@@ -87,13 +86,13 @@ export default function VolunteerPage() {
 
                         {/* Testimonials */}
                         <div className="vol-testimonials">
-                            <h3>TNV nói gì?</h3>
-                            {TESTIMONIALS.map((t, i) => (
+                            <h3>{t('vol_testimonials_h')}</h3>
+                            {TESTIMONIALS.map((tm, i) => (
                                 <div key={i} className="vol-quote">
-                                    <img src={t.img} alt={t.name} className="vol-quote-img" />
+                                    <img src={tm.img} alt={tm.name} className="vol-quote-img" />
                                     <div>
-                                        <p className="vol-quote-text">"{t.quote}"</p>
-                                        <span className="vol-quote-meta">{t.name} · {t.duration} · {t.skill}</span>
+                                        <p className="vol-quote-text">"{tm.quote}"</p>
+                                        <span className="vol-quote-meta">{tm.name} · {tm.duration} · {tm.skill}</span>
                                     </div>
                                 </div>
                             ))}
@@ -106,42 +105,40 @@ export default function VolunteerPage() {
                             {done ? (
                                 <div className="text-center" style={{ padding: '40px 0' }}>
                                     <CheckCircle size={64} color="#40916c" style={{ margin: '0 auto 16px' }} />
-                                    <h3>Cảm ơn bạn!</h3>
-                                    <p style={{ color: '#64748b', marginTop: 8 }}>
-                                        Chúng tôi sẽ liên hệ với bạn trong vòng 24–48 giờ để trao đổi chi tiết.
-                                    </p>
+                                    <h3>{t('vol_done_h')}</h3>
+                                    <p style={{ color: '#64748b', marginTop: 8 }}>{t('vol_done_p')}</p>
                                     <button className="btn3d btn3d-orange btn-sm" style={{ marginTop: 20 }}
                                         onClick={() => { setDone(false); setForm({ name: '', phone: '', email: '', skills: '', availability: '', motivation: '' }) }}>
-                                        Gửi thêm đơn khác
+                                        {t('vol_done_btn')}
                                     </button>
                                 </div>
                             ) : (
                                 <>
-                                    <h2>📋 Đơn Tình Nguyện</h2>
-                                    <p style={{ color: '#64748b', marginBottom: 20 }}>Điền thông tin bên dưới — chúng tôi sẽ liên hệ trong 24h.</p>
+                                    <h2>📋 {t('vol_form_h')}</h2>
+                                    <p style={{ color: '#64748b', marginBottom: 20 }}>{t('vol_form_p')}</p>
                                     <form onSubmit={submit} className="login-form">
-                                        <input className="form-input" placeholder="Họ và tên *" value={form.name}
+                                        <input className="form-input" placeholder={t('vol_name_ph')} value={form.name}
                                             onChange={e => setForm({ ...form, name: e.target.value })} required />
                                         <div className="form-2col">
-                                            <input className="form-input" type="tel" placeholder="Số điện thoại" value={form.phone}
+                                            <input className="form-input" type="tel" placeholder={t('vol_phone_ph')} value={form.phone}
                                                 onChange={e => setForm({ ...form, phone: e.target.value })} />
-                                            <input className="form-input" type="email" placeholder="Email" value={form.email}
+                                            <input className="form-input" type="email" placeholder={t('vol_email_ph')} value={form.email}
                                                 onChange={e => setForm({ ...form, email: e.target.value })} />
                                         </div>
                                         <select className="form-input" value={form.skills}
                                             onChange={e => setForm({ ...form, skills: e.target.value })} required>
-                                            <option value="">Kỹ năng bạn muốn đóng góp *</option>
-                                            {SKILL_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                                            <option value="">{t('vol_skills_ph')}</option>
+                                            {skillOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                                         </select>
-                                        <input className="form-input" placeholder="Thời gian có thể tham gia (VD: 2 tuần tháng 6)"
+                                        <input className="form-input" placeholder={t('vol_avail_ph')}
                                             value={form.availability} onChange={e => setForm({ ...form, availability: e.target.value })} />
-                                        <textarea className="form-input form-textarea" placeholder="Bạn muốn đóng góp điều gì cho cộng đồng? *"
+                                        <textarea className="form-input form-textarea" placeholder={t('vol_motivation_ph')}
                                             value={form.motivation} onChange={e => setForm({ ...form, motivation: e.target.value })} required />
                                         <button type="submit" className="btn3d btn3d-orange btn-full">
-                                            <Heart size={16} /> Gửi đơn tình nguyện
+                                            <Heart size={16} /> {t('vol_submit_btn')}
                                         </button>
                                         <a href="tel:0385737705" className="btn3d btn3d-blue btn-full" style={{ textAlign: 'center', marginTop: 8 }}>
-                                            📞 Gọi trực tiếp: 0385.737.705
+                                            {t('vol_call_btn')}
                                         </a>
                                     </form>
                                 </>

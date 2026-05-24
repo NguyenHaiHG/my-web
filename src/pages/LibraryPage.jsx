@@ -3,13 +3,17 @@ import { Search, BookOpen, Utensils, Music, Palette, Leaf, Star } from 'lucide-r
 import { useData } from '../context/DataContext'
 import { useLang } from '../context/LanguageContext'
 
-const CAT_CONFIG = {
-    language: { icon: <BookOpen size={16} />, label: 'Ngôn ngữ', color: '#2563eb' },
-    food: { icon: <Utensils size={16} />, label: 'Ẩm thực', color: '#d97706' },
-    culture: { icon: <Music size={16} />, label: 'Văn hoá', color: '#7c3aed' },
-    craft: { icon: <Palette size={16} />, label: 'Nghề thủ công', color: '#db2777' },
-    nature: { icon: <Leaf size={16} />, label: 'Thiên nhiên', color: '#16a34a' },
-    story: { icon: <Star size={16} />, label: 'Câu chuyện', color: '#c05621' },
+const CAT_ICONS = {
+    language: <BookOpen size={16} />, food: <Utensils size={16} />, culture: <Music size={16} />,
+    craft: <Palette size={16} />, nature: <Leaf size={16} />, story: <Star size={16} />,
+}
+const CAT_COLORS = {
+    language: '#2563eb', food: '#d97706', culture: '#7c3aed',
+    craft: '#db2777', nature: '#16a34a', story: '#c05621',
+}
+const CAT_KEYS = {
+    language: 'cat_language', food: 'cat_food', culture: 'cat_culture',
+    craft: 'cat_craft', nature: 'cat_nature', story: 'cat_story',
 }
 
 const SAMPLE_ITEMS = [
@@ -52,15 +56,17 @@ const SAMPLE_ITEMS = [
     },
 ]
 
-function LibraryCard({ item }) {
-    const cat = CAT_CONFIG[item.category] || CAT_CONFIG.culture
+function LibraryCard({ item, t }) {
+    const catColor = CAT_COLORS[item.category] || CAT_COLORS.culture
+    const catIcon = CAT_ICONS[item.category] || CAT_ICONS.culture
+    const catKey = CAT_KEYS[item.category] || CAT_KEYS.culture
     const [expanded, setExpanded] = useState(false)
 
     return (
         <div className="lib-card">
             {item.img && <div className="lib-card-img" style={{ backgroundImage: `url(${item.img})` }}>
-                <span className="lib-cat-badge" style={{ background: cat.color }}>
-                    {cat.icon} {cat.label}
+                <span className="lib-cat-badge" style={{ background: catColor }}>
+                    {catIcon} {t(catKey)}
                 </span>
             </div>}
             <div className="lib-card-body">
@@ -75,7 +81,7 @@ function LibraryCard({ item }) {
                 <p className={`lib-content ${expanded ? '' : 'lib-content-clamp'}`}>{item.content}</p>
                 {item.content?.length > 120 && (
                     <button className="lib-expand-btn" onClick={() => setExpanded(!expanded)}>
-                        {expanded ? 'Thu gọn ▲' : 'Xem thêm ▼'}
+                        {expanded ? t('lib_collapse') : t('lib_expand')}
                     </button>
                 )}
                 {item.tags?.length > 0 && (
@@ -90,6 +96,7 @@ function LibraryCard({ item }) {
 
 export default function LibraryPage() {
     const { libraryItems } = useData()
+    const { t } = useLang()
     const [search, setSearch] = useState('')
     const [cat, setCat] = useState('all')
 
@@ -107,8 +114,8 @@ export default function LibraryPage() {
             <div className="page-hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=1400&q=80)' }}>
                 <div className="ph-overlay" />
                 <div className="ph-content">
-                    <h1>Thư Viện Số</h1>
-                    <p>Ngôn ngữ · Ẩm thực · Văn hoá · Nghề thủ công — di sản dân tộc được lưu giữ</p>
+                    <h1>{t('lib_h1')}</h1>
+                    <p>{t('lib_sub')}</p>
                 </div>
             </div>
 
@@ -117,22 +124,24 @@ export default function LibraryPage() {
                 <div className="lib-toolbar">
                     <div className="search-box">
                         <Search size={17} color="#94a3b8" />
-                        <input placeholder="Tìm kiếm tư liệu..." value={search}
+                        <input placeholder={t('lib_search_ph')} value={search}
                             onChange={e => setSearch(e.target.value)} />
                     </div>
                     <div className="lib-filter-row">
-                        {[['all', '🌐 Tất cả'], ...Object.entries(CAT_CONFIG).map(([k, v]) => [k, `${v.label}`])].map(([val, label]) => (
+                        {[['all', '🌐', null], ...Object.keys(CAT_KEYS).map(k => [k, '', CAT_KEYS[k]])].map(([val, emoji, key]) => (
                             <button key={val} className={`filter-chip ${cat === val ? 'filter-chip-active' : ''}`}
-                                onClick={() => setCat(val)}>{label}</button>
+                                onClick={() => setCat(val)}>
+                                {val === 'all' ? `🌐 ${t('lib_filter_all')}` : `${emoji}${t(key)}`}
+                            </button>
                         ))}
                     </div>
                 </div>
 
-                <p className="lib-count">{filtered.length} tư liệu</p>
+                <p className="lib-count">{filtered.length} {t('lib_count_unit')}</p>
 
                 <div className="lib-grid mt-6">
-                    {filtered.map(item => <LibraryCard key={item.id} item={item} />)}
-                    {filtered.length === 0 && <p className="empty-state">Không tìm thấy tư liệu nào.</p>}
+                    {filtered.map(item => <LibraryCard key={item.id} item={item} t={t} />)}
+                    {filtered.length === 0 && <p className="empty-state">{t('lib_empty')}</p>}
                 </div>
             </div>
         </div>

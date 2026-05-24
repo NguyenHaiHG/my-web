@@ -173,11 +173,11 @@ function Header() {
   const [open, setOpen] = useState(false)
 
   const links = [
-    { to: '/cong-dong', label: '🌱 Dự Án' },
+    { to: '/cong-dong', label: t('nav_du_an') },
     { to: '/workshop', label: '🎓 Workshop' },
-    { to: '/thu-vien', label: '📚 Thư Viện' },
-    { to: '/tours', label: '🗺️ Khám Phá Hà Giang' },
-    { to: '/san-pham', label: '🛍️ Sản Phẩm' },
+    { to: '/thu-vien', label: t('nav_thu_vien') },
+    { to: '/tours', label: t('nav_kham_pha') },
+    { to: '/san-pham', label: t('nav_san_pham') },
     { to: '/blog', label: t('nav_blog') },
     { to: '/lien-he', label: t('nav_contact') },
   ]

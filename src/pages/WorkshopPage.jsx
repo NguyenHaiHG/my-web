@@ -5,13 +5,17 @@ import { useData } from '../context/DataContext'
 import { useUI } from '../context/UIContext'
 import { useLang } from '../context/LanguageContext'
 
-const CAT_LABELS = {
-    sewing: { label: 'May mặc', color: '#7c3aed', emoji: '🪡' },
-    embroidery: { label: 'Thêu thổ cẩm', color: '#db2777', emoji: '🌸' },
-    english: { label: 'Tiếng Anh', color: '#2563eb', emoji: '🗣️' },
-    digital: { label: 'Kỹ năng số', color: '#0891b2', emoji: '💻' },
-    cooking: { label: 'Ẩm thực dân tộc', color: '#d97706', emoji: '🍲' },
-    other: { label: 'Khác', color: '#6b7280', emoji: '📌' },
+const CAT_COLORS = {
+    sewing: '#7c3aed', embroidery: '#db2777', english: '#2563eb',
+    digital: '#0891b2', cooking: '#d97706', other: '#6b7280',
+}
+const CAT_EMOJIS = {
+    sewing: '🪡', embroidery: '🌸', english: '🗣️',
+    digital: '💻', cooking: '🍲', other: '📌',
+}
+const CAT_KEY_MAP = {
+    sewing: 'ws_cat_sewing', embroidery: 'ws_cat_embroidery', english: 'ws_cat_english',
+    digital: 'ws_cat_digital', cooking: 'ws_cat_cooking', other: 'ws_cat_other',
 }
 
 // Sample data shown when backend is offline
@@ -46,8 +50,10 @@ const SAMPLE_WORKSHOPS = [
     },
 ]
 
-function WorkshopCard({ ws, onRegister }) {
-    const cat = CAT_LABELS[ws.category] || CAT_LABELS.other
+function WorkshopCard({ ws, onRegister, t }) {
+    const catColor = CAT_COLORS[ws.category] || CAT_COLORS.other
+    const catEmoji = CAT_EMOJIS[ws.category] || CAT_EMOJIS.other
+    const catKey = CAT_KEY_MAP[ws.category] || CAT_KEY_MAP.other
     const pct = Math.min(100, Math.round((ws.registered / ws.capacity) * 100))
     const full = ws.registered >= ws.capacity
 
@@ -55,10 +61,10 @@ function WorkshopCard({ ws, onRegister }) {
         <div className="ws-card">
             {ws.img && (
                 <div className="ws-card-img" style={{ backgroundImage: `url(${ws.img})` }}>
-                    <span className="ws-badge" style={{ background: cat.color }}>
-                        {cat.emoji} {cat.label}
+                    <span className="ws-badge" style={{ background: catColor }}>
+                        {catEmoji} {t(catKey)}
                     </span>
-                    {ws.isFree && <span className="ws-free-badge">MIỄN PHÍ</span>}
+                    {ws.isFree && <span className="ws-free-badge">{t('ws_reg_free')}</span>}
                 </div>
             )}
             <div className="ws-card-body">
@@ -77,7 +83,7 @@ function WorkshopCard({ ws, onRegister }) {
 
                 <div className="ws-capacity">
                     <div className="ws-cap-row">
-                        <span><Users size={13} /> {ws.registered}/{ws.capacity} người đăng ký</span>
+                        <span><Users size={13} /> {ws.registered}/{ws.capacity} {t('ws_registered')}</span>
                         <span>{pct}%</span>
                     </div>
                     <div className="ws-progress"><div className="ws-progress-fill" style={{ width: `${pct}%`, background: full ? '#dc2626' : '#40916c' }} /></div>
@@ -89,7 +95,7 @@ function WorkshopCard({ ws, onRegister }) {
                         onClick={() => !full && onRegister(ws)}
                         disabled={full}
                     >
-                        {full ? 'Đã đủ chỗ' : 'Đăng ký tham gia'}
+                        {full ? t('ws_full') : t('ws_reg_btn')}
                     </button>
                 )}
             </div>
@@ -100,6 +106,7 @@ function WorkshopCard({ ws, onRegister }) {
 function RegisterModal({ ws, onClose }) {
     const { submitWorkshopReg } = useOrder()
     const { showToast } = useUI()
+    const { t } = useLang()
     const [form, setForm] = useState({ name: '', phone: '', email: '', note: '' })
     const [done, setDone] = useState(false)
 
@@ -107,7 +114,7 @@ function RegisterModal({ ws, onClose }) {
         e.preventDefault()
         submitWorkshopReg({ ...form, workshopId: ws.id, workshopTitle: ws.title })
         setDone(true)
-        showToast(`✅ Đã đăng ký "${ws.title}"!`)
+        showToast(`✅ ${t('ws_reg_title')} "${ws.title}"!`)
     }
 
     return (
@@ -117,24 +124,24 @@ function RegisterModal({ ws, onClose }) {
                 {done ? (
                     <div className="text-center" style={{ padding: '32px 0' }}>
                         <CheckCircle size={56} color="#40916c" style={{ margin: '0 auto 16px' }} />
-                        <h3>Đăng ký thành công!</h3>
-                        <p style={{ color: '#64748b', marginTop: 8 }}>Chúng tôi sẽ liên hệ với bạn trước ngày diễn ra workshop.</p>
-                        <button className="btn3d btn3d-orange btn-sm" style={{ marginTop: 20 }} onClick={onClose}>Đóng</button>
+                        <h3>{t('ws_reg_success_h')}</h3>
+                        <p style={{ color: '#64748b', marginTop: 8 }}>{t('ws_reg_success_p')}</p>
+                        <button className="btn3d btn3d-orange btn-sm" style={{ marginTop: 20 }} onClick={onClose}>{t('ws_reg_close')}</button>
                     </div>
                 ) : (
                     <>
-                        <h2 className="modal-title">🎓 Đăng ký Workshop</h2>
-                        <p className="modal-hint">{ws.title} · {ws.date || 'Xem lịch'} · {ws.isFree ? 'MIỄN PHÍ' : ws.price}</p>
+                        <h2 className="modal-title">🎓 {t('ws_reg_title')}</h2>
+                        <p className="modal-hint">{ws.title} · {ws.date || 'Xem lịch'} · {ws.isFree ? t('ws_reg_free') : ws.price}</p>
                         <form onSubmit={submit} className="login-form">
-                            <input className="form-input" placeholder="Họ và tên *" value={form.name}
+                            <input className="form-input" placeholder={t('ws_reg_name_ph')} value={form.name}
                                 onChange={e => setForm({ ...form, name: e.target.value })} required />
-                            <input className="form-input" type="tel" placeholder="Số điện thoại *" value={form.phone}
+                            <input className="form-input" type="tel" placeholder={t('ws_reg_phone_ph')} value={form.phone}
                                 onChange={e => setForm({ ...form, phone: e.target.value })} required />
-                            <input className="form-input" type="email" placeholder="Email (không bắt buộc)" value={form.email}
+                            <input className="form-input" type="email" placeholder={t('ws_reg_email_ph')} value={form.email}
                                 onChange={e => setForm({ ...form, email: e.target.value })} />
-                            <textarea className="form-input form-textarea" placeholder="Ghi chú (bạn muốn học gì, kinh nghiệm trước...)"
+                            <textarea className="form-input form-textarea" placeholder={t('ws_reg_note_ph')}
                                 value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} />
-                            <button type="submit" className="btn3d btn3d-orange btn-full">Xác nhận đăng ký</button>
+                            <button type="submit" className="btn3d btn3d-orange btn-full">{t('ws_reg_confirm')}</button>
                         </form>
                     </>
                 )}
@@ -143,8 +150,18 @@ function RegisterModal({ ws, onClose }) {
     )
 }
 
+const FILTER_CATS = [
+    ['all', '🌟', 'ws_filter_all'],
+    ['sewing', '🪡', 'ws_cat_sewing'],
+    ['embroidery', '🌸', 'ws_cat_embroidery'],
+    ['english', '🗣️', 'ws_cat_english'],
+    ['digital', '💻', 'ws_cat_digital'],
+    ['cooking', '🍲', 'ws_cat_cooking'],
+]
+
 export default function WorkshopPage() {
     const { workshops } = useData()
+    const { t } = useLang()
     const [filter, setFilter] = useState('all')
     const [regWs, setRegWs] = useState(null)
 
@@ -157,35 +174,33 @@ export default function WorkshopPage() {
             <div className="page-hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1400&q=80)' }}>
                 <div className="ph-overlay" />
                 <div className="ph-content">
-                    <h1>Workshop Cộng Đồng</h1>
-                    <p>Miễn phí · Thực hành · Dành cho phụ nữ dân tộc & người học tiếng Anh</p>
+                    <h1>{t('ws_h1')}</h1>
+                    <p>{t('ws_sub')}</p>
                 </div>
             </div>
 
             <div className="container py-section">
                 {/* INFO BANNER */}
                 <div className="ws-info-banner">
-                    <div className="ws-info-item">📍 <strong>Địa điểm:</strong> Tổ 5 Quang Trung, Phường Hà Giang 2 (chỉ xe máy)</div>
-                    <div className="ws-info-item">🆓 <strong>Học phí:</strong> Miễn phí hoàn toàn</div>
-                    <div className="ws-info-item">📱 <strong>Liên hệ:</strong> 0385.737.705</div>
+                    <div className="ws-info-item">{t('ws_info1')}</div>
+                    <div className="ws-info-item">{t('ws_info2')}</div>
+                    <div className="ws-info-item">{t('ws_info3')}</div>
                 </div>
 
                 {/* FILTER */}
                 <div className="ws-filter-row">
-                    {[['all', '🌟 Tất cả'], ['sewing', '🪡 May'], ['embroidery', '🌸 Thêu'],
-                    ['english', '🗣️ Tiếng Anh'], ['digital', '💻 Kỹ năng số'], ['cooking', '🍲 Ẩm thực']
-                    ].map(([val, label]) => (
+                    {FILTER_CATS.map(([val, emoji, key]) => (
                         <button key={val} className={`filter-chip ${filter === val ? 'filter-chip-active' : ''}`}
-                            onClick={() => setFilter(val)}>{label}</button>
+                            onClick={() => setFilter(val)}>{emoji} {t(key)}</button>
                     ))}
                 </div>
 
                 {/* GRID */}
                 <div className="ws-grid mt-6">
                     {list.map(ws => (
-                        <WorkshopCard key={ws.id} ws={ws} onRegister={setRegWs} />
+                        <WorkshopCard key={ws.id} ws={ws} onRegister={setRegWs} t={t} />
                     ))}
-                    {list.length === 0 && <p className="empty-state">Không có workshop nào.</p>}
+                    {list.length === 0 && <p className="empty-state">{t('ws_empty')}</p>}
                 </div>
             </div>
 

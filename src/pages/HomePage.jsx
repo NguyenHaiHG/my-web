@@ -1,20 +1,18 @@
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, MapPin, Heart, BookOpen, Leaf, Users, Star, ArrowRight, Calendar, User } from 'lucide-react'
+import { ChevronRight, MapPin, Heart, Leaf, Users, ArrowRight, Calendar, User } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useLang } from '../context/LanguageContext'
 
-const PROGRAMS = [
-  { icon: '🪡', title: 'Workshop Phụ Nữ', desc: 'May, thêu thổ cẩm, kỹ năng số, tiếng Anh — miễn phí cho phụ nữ dân tộc.', link: '/workshop', color: '#7c3aed' },
-  { icon: '📚', title: 'Thư Viện Số', desc: 'Số hoá ngôn ngữ, văn hoá, ẩm thực dân tộc — bảo tồn cho thế hệ mai sau.', link: '/thu-vien', color: '#1a6b8a' },
-  { icon: '🌿', title: 'Du Lịch Bảo Tồn', desc: 'Trải nghiệm cuộc sống 4 thế hệ người dân tộc ngay cửa ngõ Hà Giang Loop.', link: '/tours', color: '#2d6a4f' },
-  { icon: '🙋', title: 'Tình Nguyện Viên', desc: 'Góp tay cùng cộng đồng — dạy học, số hóa, phát triển du lịch bền vững.', link: '/tinh-nguyen', color: '#c05621' },
-]
-
-const STATS = [
-  { num: '12+', label: 'Phụ nữ được đào tạo' },
-  { num: '3', label: 'Workshop / tháng' },
-  { num: '4', label: 'Thế hệ cùng chung sống' },
-  { num: '200+', label: 'Du khách ghé thăm' },
+const PROGRAM_ICONS = ['🪡', '📚', '🌿', '🙋']
+const PROGRAM_LINKS = ['/workshop', '/thu-vien', '/tours', '/tinh-nguyen']
+const PROGRAM_COLORS = ['#7c3aed', '#1a6b8a', '#2d6a4f', '#c05621']
+const STATS_NUMS = ['12+', '3', '4', '200+']
+const STAT_KEYS = ['hp_stat1', 'hp_stat2', 'hp_stat3', 'hp_stat4']
+const PROG_KEYS = [
+  ['hp_prog1_title', 'hp_prog1_desc'],
+  ['hp_prog2_title', 'hp_prog2_desc'],
+  ['hp_prog3_title', 'hp_prog3_desc'],
+  ['hp_prog4_title', 'hp_prog4_desc'],
 ]
 
 export default function HomePage() {
@@ -34,17 +32,16 @@ export default function HomePage() {
         <div className="ng-hero-overlay" />
         <div className="ng-hero-content">
           <span className="ng-hero-eyebrow">
-            <MapPin size={13} /> Tổ 5 Quang Trung · Phường Hà Giang 2 · Tuyên Quang
+            <MapPin size={13} /> {t('hp_eyebrow')}
           </span>
-          <h1>Nơi <span className="ng-hl">4 thế hệ</span><br />người dân tộc gìn giữ bản sắc</h1>
-          <p>500m khỏi cửa ngõ Hà Giang Loop — workshop phụ nữ,<br className="hero-br" />
-            thư viện số, du lịch bảo tồn cảnh quan</p>
+          <h1>{t('hp_h1_pre')} <span className="ng-hl">{t('hp_h1_hl')}</span><br />{t('hp_h1_post')}</h1>
+          <p>{t('hp_hero_sub')}</p>
           <div className="ng-hero-btns">
             <button className="btn3d btn3d-orange" onClick={() => navigate('/cong-dong')}>
-              Khám phá dự án <ArrowRight size={16} />
+              {t('hp_hero_btn1')} <ArrowRight size={16} />
             </button>
             <button className="btn3d btn3d-outline-white" onClick={() => navigate('/tinh-nguyen')}>
-              Trở thành TNV
+              {t('hp_hero_btn2')}
             </button>
           </div>
         </div>
@@ -56,10 +53,10 @@ export default function HomePage() {
       {/* ═══ IMPACT NUMBERS ═══ */}
       <section id="impact" className="ng-impact">
         <div className="container ng-impact-grid">
-          {STATS.map((s, i) => (
+          {STATS_NUMS.map((num, i) => (
             <div key={i} className="ng-stat">
-              <strong>{s.num}</strong>
-              <span>{s.label}</span>
+              <strong>{num}</strong>
+              <span>{t(STAT_KEYS[i])}</span>
             </div>
           ))}
         </div>
@@ -71,24 +68,24 @@ export default function HomePage() {
           <div className="ng-story-img">
             <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" alt="Cảnh quan Hà Giang" />
             <div className="ng-story-badge">
-              <MapPin size={14} /> ~1000m · 500m khỏi Hà Giang Loop
+              <MapPin size={14} /> {t('hp_story_badge')}
             </div>
           </div>
           <div className="ng-story-text">
-            <span className="section-label">📖 Câu chuyện của chúng tôi</span>
-            <h2>Bốn thế hệ trên mảnh đất hoang sơ</h2>
+            <span className="section-label">{t('hp_story_label')}</span>
+            <h2>{t('hp_story_h2')}</h2>
+            <p>{t('hp_story_p1')}</p>
             <p>
-              Tổ 5 Quang Trung nằm trên sườn núi ~1.000m, cách mặt đường chính 500m —
-              chỉ xe máy mới vào được. Vườn cây ăn quả trăm năm tuổi, gia đình người dân tộc
-              4 thế hệ, và một cộng đồng đang chủ động bước vào thời đại mới mà không đánh mất chính mình.
-            </p>
-            <p>
-              Trước làn sóng đô thị hoá, chúng tôi chọn <strong>trao quyền cho phụ nữ</strong> qua
-              kỹ năng nghề và kỹ năng số, <strong>số hoá di sản</strong> trước khi nó biến mất,
-              và <strong>mở cửa đón khách</strong> một cách có trách nhiệm.
+              {t('hp_story_p2').split(t('hp_story_p2_em1'))[0]}
+              <strong>{t('hp_story_p2_em1')}</strong>
+              {t('hp_story_p2').split(t('hp_story_p2_em1'))[1]?.split(t('hp_story_p2_em2'))[0]}
+              <strong>{t('hp_story_p2_em2')}</strong>
+              {t('hp_story_p2').split(t('hp_story_p2_em2'))[1]?.split(t('hp_story_p2_em3'))[0]}
+              <strong>{t('hp_story_p2_em3')}</strong>
+              {t('hp_story_p2').split(t('hp_story_p2_em3'))[1]}
             </p>
             <button className="btn3d btn3d-green" onClick={() => navigate('/cong-dong')}>
-              Tìm hiểu dự án đầy đủ <ChevronRight size={16} />
+              {t('hp_story_btn')} <ChevronRight size={16} />
             </button>
           </div>
         </div>
@@ -98,16 +95,16 @@ export default function HomePage() {
       <section className="ng-programs">
         <div className="container">
           <div className="section-header-center">
-            <span className="section-label">🌱 Các chương trình</span>
-            <h2>Chúng tôi đang làm gì?</h2>
+            <span className="section-label">{t('hp_prog_label')}</span>
+            <h2>{t('hp_prog_h2')}</h2>
           </div>
           <div className="ng-programs-grid">
-            {PROGRAMS.map((p, i) => (
-              <div key={i} className="ng-program-card" onClick={() => navigate(p.link)}>
-                <span className="ng-prog-icon">{p.icon}</span>
-                <h3>{p.title}</h3>
-                <p>{p.desc}</p>
-                <span className="ng-prog-link">Tìm hiểu <ArrowRight size={13} /></span>
+            {PROG_KEYS.map(([tk, dk], i) => (
+              <div key={i} className="ng-program-card" onClick={() => navigate(PROGRAM_LINKS[i])}>
+                <span className="ng-prog-icon">{PROGRAM_ICONS[i]}</span>
+                <h3>{t(tk)}</h3>
+                <p>{t(dk)}</p>
+                <span className="ng-prog-link">{t('hp_prog_cta')} <ArrowRight size={13} /></span>
               </div>
             ))}
           </div>
@@ -120,7 +117,7 @@ export default function HomePage() {
           <div className="container">
             <div className="row-between">
               <div>
-                <span className="section-label">📝 Tin tức & Câu chuyện</span>
+                <span className="section-label">{t('hp_blog_label')}</span>
                 <h2 style={{ marginTop: 4 }}>{t('home_recent_posts')}</h2>
               </div>
               <button className="btn-text-link" onClick={() => navigate('/blog')}>
@@ -153,8 +150,8 @@ export default function HomePage() {
       <section className="ng-reviews">
         <div className="container">
           <div className="section-header-center">
-            <span className="section-label">💬 Cảm nhận</span>
-            <h2>Du khách & cộng đồng nói gì?</h2>
+            <span className="section-label">{t('hp_review_label')}</span>
+            <h2>{t('hp_review_h2')}</h2>
           </div>
           <div className="ng-reviews-grid">
             {(approvedReviews.length > 0 ? approvedReviews : [
@@ -179,18 +176,18 @@ export default function HomePage() {
       <section className="ng-cta">
         <div className="ng-cta-overlay" />
         <div className="container ng-cta-inner">
-          <span className="section-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Hành động ngay hôm nay</span>
-          <h2>Bạn có thể tạo ra sự khác biệt</h2>
-          <p>Dù là tình nguyện viên, du khách, hay người ủng hộ — mỗi sự tham gia đều có ý nghĩa.</p>
+          <span className="section-label" style={{ color: 'rgba(255,255,255,0.8)' }}>{t('hp_cta_label')}</span>
+          <h2>{t('hp_cta_h2')}</h2>
+          <p>{t('hp_cta_sub')}</p>
           <div className="ng-cta-btns">
             <button className="btn3d btn3d-orange" onClick={() => navigate('/tinh-nguyen')}>
-              <Heart size={16} /> Đăng ký tình nguyện
+              <Heart size={16} /> {t('hp_cta_btn1')}
             </button>
             <button className="btn3d btn3d-green" onClick={() => navigate('/workshop')}>
-              <Users size={16} /> Tham gia workshop
+              <Users size={16} /> {t('hp_cta_btn2')}
             </button>
             <button className="btn3d btn3d-blue" onClick={() => navigate('/tours')}>
-              <Leaf size={16} /> Đặt tour bảo tồn
+              <Leaf size={16} /> {t('hp_cta_btn3')}
             </button>
           </div>
         </div>

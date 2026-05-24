@@ -2,46 +2,23 @@ import { useNavigate } from 'react-router-dom'
 import { Heart, BookOpen, Leaf, Users, MapPin, ArrowRight } from 'lucide-react'
 import { useLang } from '../context/LanguageContext'
 
-const PROGRAMS = [
-    {
-        icon: <Users size={28} />,
-        color: '#2d6a4f',
-        title: 'Workshop Phụ Nữ',
-        desc: 'Dạy may, thêu thổ cẩm, kỹ năng số và tiếng Anh giao tiếp miễn phí cho phụ nữ dân tộc.',
-        link: '/workshop',
-        tag: 'Đang tuyển sinh',
-    },
-    {
-        icon: <BookOpen size={28} />,
-        color: '#1a6b8a',
-        title: 'Thư Viện Số',
-        desc: 'Số hoá ngôn ngữ, văn hóa, ẩm thực các dân tộc thiểu số — lưu giữ cho thế hệ mai sau.',
-        link: '/thu-vien',
-        tag: 'Mở cửa',
-    },
-    {
-        icon: <Leaf size={28} />,
-        color: '#c05621',
-        title: 'Du Lịch Bảo Tồn',
-        desc: 'Trải nghiệm cuộc sống 4 thế hệ người dân tộc, cây ăn quả, cảnh quan hoang sơ cửa ngõ Hà Giang Loop.',
-        link: '/tours',
-        tag: 'Đặt tour',
-    },
-    {
-        icon: <Heart size={28} />,
-        color: '#9b2c2c',
-        title: 'Tình Nguyện Viên',
-        desc: 'Góp tay cùng cộng đồng — dạy học, làm vườn, số hóa tư liệu, phát triển du lịch bền vững.',
-        link: '/tinh-nguyen',
-        tag: 'Tham gia',
-    },
+const PROG_ICONS = [<Users size={28} />, <BookOpen size={28} />, <Leaf size={28} />, <Heart size={28} />]
+const PROG_COLORS = ['#2d6a4f', '#1a6b8a', '#c05621', '#9b2c2c']
+const PROG_LINKS = ['/workshop', '/thu-vien', '/tours', '/tinh-nguyen']
+const PROG_KEYS = [
+    ['comm_prog1_title', 'comm_prog1_desc', 'comm_prog1_tag'],
+    ['comm_prog2_title', 'comm_prog2_desc', 'comm_prog2_tag'],
+    ['comm_prog3_title', 'comm_prog3_desc', 'comm_prog3_tag'],
+    ['comm_prog4_title', 'comm_prog4_desc', 'comm_prog4_tag'],
 ]
-
-const STORY_MILESTONES = [
-    { year: '~1940s', text: 'Thế hệ thứ nhất định cư tại Tổ 5 Quang Trung, khai phá vườn cây ăn quả trên núi.' },
-    { year: '~1970s', text: 'Thế hệ thứ hai mở rộng canh tác, gìn giữ nghề thêu thổ cẩm truyền thống.' },
-    { year: '2000s', text: 'Thế hệ thứ ba chứng kiến đô thị hoá — cân bằng giữa hiện đại và bản sắc.' },
-    { year: '2024', text: 'Thế hệ thứ tư khởi động dự án — kết nối cộng đồng, đào tạo phụ nữ, mở cửa đón khách.' },
+const MS_KEYS = [
+    ['comm_ms1_year', 'comm_ms1'], ['comm_ms2_year', 'comm_ms2'],
+    ['comm_ms3_year', 'comm_ms3'], ['comm_ms4_year', 'comm_ms4'],
+]
+const COMM_STATS = [
+    { num: '12+', key: 'comm_stat1' }, { num: '3', key: 'comm_stat2' },
+    { num: '200+', key: 'comm_stat3' }, { num: '4', key: 'comm_stat4' },
+    { num: '48+', key: 'comm_stat5' }, { num: '100%', key: 'comm_stat6' },
 ]
 
 export default function CommunityPage() {
@@ -55,17 +32,16 @@ export default function CommunityPage() {
                 <div className="comm-hero-overlay" />
                 <div className="comm-hero-content">
                     <span className="comm-eyebrow">
-                        <MapPin size={14} /> Tổ 5 Quang Trung · Phường Hà Giang 2 · Tuyên Quang
+                        <MapPin size={14} /> {t('comm_eyebrow')}
                     </span>
-                    <h1>Dự Án Cộng Đồng<br /><span className="comm-hl">HTX Trường Hải</span></h1>
-                    <p>Trao quyền cho phụ nữ · Bảo tồn văn hoá · Phát triển bền vững<br />
-                        Ngay cửa ngõ Hà Giang Loop — 500m khỏi con đường lớn, trên độ cao ~1000m</p>
+                    <h1>{t('comm_h1a')}<br /><span className="comm-hl">{t('comm_h1b')}</span></h1>
+                    <p>{t('comm_hero_p')}</p>
                     <div className="comm-hero-btns">
                         <button className="btn3d btn3d-orange" onClick={() => navigate('/workshop')}>
-                            Tham gia Workshop
+                            {t('comm_hero_btn1')}
                         </button>
                         <button className="btn3d btn3d-blue" onClick={() => navigate('/tinh-nguyen')}>
-                            Trở thành TNV
+                            {t('comm_hero_btn2')}
                         </button>
                     </div>
                 </div>
@@ -74,17 +50,10 @@ export default function CommunityPage() {
             {/* IMPACT NUMBERS */}
             <section className="comm-impact">
                 <div className="container comm-impact-grid">
-                    {[
-                        { num: '12+', label: 'Phụ nữ được đào tạo' },
-                        { num: '3', label: 'Workshop / tháng' },
-                        { num: '200+', label: 'Du khách ghé thăm' },
-                        { num: '4', label: 'Thế hệ cùng chung sống' },
-                        { num: '48+', label: 'Mục thư viện số' },
-                        { num: '100%', label: 'Miễn phí cho phụ nữ' },
-                    ].map((s, i) => (
+                    {COMM_STATS.map((s, i) => (
                         <div key={i} className="comm-stat">
                             <strong>{s.num}</strong>
-                            <span>{s.label}</span>
+                            <span>{t(s.key)}</span>
                         </div>
                     ))}
                 </div>
@@ -93,30 +62,21 @@ export default function CommunityPage() {
             {/* OUR STORY */}
             <section className="comm-story container">
                 <div className="comm-story-text">
-                    <span className="section-label">📖 Câu chuyện của chúng tôi</span>
-                    <h2>Bốn thế hệ trên mảnh đất<br />cửa ngõ Hà Giang</h2>
-                    <p>
-                        Tổ 5 Quang Trung nằm trên sườn núi cao khoảng 1.000m, cách mặt đường chính 500m —
-                        chỉ xe máy mới vào được. Đây không phải bất lợi, mà là đặc ân: thiên nhiên hoang sơ,
-                        vườn cây ăn quả trăm năm tuổi, và gia đình người dân tộc 4 thế hệ vẫn còn đó.
-                    </p>
-                    <p>
-                        Trước làn sóng đô thị hoá, chúng tôi chọn không đứng yên. Dự án ra đời để
-                        <strong> trao quyền cho phụ nữ</strong> qua kỹ năng nghề và kỹ năng số,
-                        <strong> số hoá di sản</strong> trước khi nó biến mất, và
-                        <strong> mở cửa đón khách</strong> một cách có trách nhiệm.
-                    </p>
+                    <span className="section-label">{t('comm_story_label')}</span>
+                    <h2>{t('comm_story_h2')}</h2>
+                    <p>{t('comm_story_p1')}</p>
+                    <p>{t('comm_story_p2')}</p>
                     <button className="btn3d btn3d-orange" onClick={() => navigate('/tours')}>
-                        Khám phá địa điểm <ArrowRight size={16} />
+                        {t('comm_story_btn')} <ArrowRight size={16} />
                     </button>
                 </div>
                 <div className="comm-story-timeline">
-                    {STORY_MILESTONES.map((m, i) => (
+                    {MS_KEYS.map(([yk, tk], i) => (
                         <div key={i} className="timeline-item">
                             <div className="timeline-dot" />
                             <div className="timeline-content">
-                                <strong>{m.year}</strong>
-                                <p>{m.text}</p>
+                                <strong>{t(yk)}</strong>
+                                <p>{t(tk)}</p>
                             </div>
                         </div>
                     ))}
@@ -127,20 +87,20 @@ export default function CommunityPage() {
             <section className="comm-programs">
                 <div className="container">
                     <div className="section-header-center">
-                        <span className="section-label">🌱 Các chương trình</span>
-                        <h2>Chúng tôi đang làm gì?</h2>
+                        <span className="section-label">{t('comm_prog_label')}</span>
+                        <h2>{t('comm_prog_h2')}</h2>
                     </div>
                     <div className="comm-programs-grid">
-                        {PROGRAMS.map((p, i) => (
-                            <div key={i} className="comm-program-card" onClick={() => navigate(p.link)}>
-                                <div className="comm-program-icon" style={{ background: p.color + '18', color: p.color }}>
-                                    {p.icon}
+                        {PROG_KEYS.map(([tk, dk, tagk], i) => (
+                            <div key={i} className="comm-program-card" onClick={() => navigate(PROG_LINKS[i])}>
+                                <div className="comm-program-icon" style={{ background: PROG_COLORS[i] + '18', color: PROG_COLORS[i] }}>
+                                    {PROG_ICONS[i]}
                                 </div>
-                                <span className="comm-program-tag">{p.tag}</span>
-                                <h3>{p.title}</h3>
-                                <p>{p.desc}</p>
+                                <span className="comm-program-tag">{t(tagk)}</span>
+                                <h3>{t(tk)}</h3>
+                                <p>{t(dk)}</p>
                                 <span className="comm-program-link">
-                                    Tìm hiểu thêm <ArrowRight size={14} />
+                                    {t('comm_prog_link')} <ArrowRight size={14} />
                                 </span>
                             </div>
                         ))}
@@ -152,17 +112,17 @@ export default function CommunityPage() {
             <section className="comm-cta">
                 <div className="comm-cta-overlay" />
                 <div className="container comm-cta-inner">
-                    <h2>Bạn có thể đóng góp gì?</h2>
-                    <p>Dù là tình nguyện viên, du khách, hay nhà hảo tâm — mỗi sự tham gia đều có ý nghĩa.</p>
+                    <h2>{t('comm_cta_h2')}</h2>
+                    <p>{t('comm_cta_p')}</p>
                     <div className="comm-cta-btns">
                         <button className="btn3d btn3d-orange" onClick={() => navigate('/tinh-nguyen')}>
-                            <Heart size={16} /> Đăng ký tình nguyện
+                            <Heart size={16} /> {t('comm_cta_btn1')}
                         </button>
                         <button className="btn3d btn3d-blue" onClick={() => navigate('/workshop')}>
-                            <Users size={16} /> Tham gia workshop
+                            <Users size={16} /> {t('comm_cta_btn2')}
                         </button>
                         <button className="btn3d btn3d-green" onClick={() => navigate('/tours')}>
-                            <Leaf size={16} /> Đặt tour bảo tồn
+                            <Leaf size={16} /> {t('comm_cta_btn3')}
                         </button>
                     </div>
                 </div>
