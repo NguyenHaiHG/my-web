@@ -7964,3 +7964,79 @@ select.form-input {
    margin: 0;
    line-height: 1.6;
 }
+/* ══ FLOATING CONTACT ══ */
+.float-contact {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.float-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .22s ease, transform .22s ease;
+}
+.float-open .float-options {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0);
+}
+.float-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px 9px 12px;
+  border-radius: 99px;
+  text-decoration: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0,0,0,.22);
+  white-space: nowrap;
+  transition: transform .15s, box-shadow .15s;
+}
+.float-btn:hover { transform: scale(1.04); box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+.float-btn-wa  { background: #25D366; }
+.float-btn-zalo { background: #0068FF; }
+.float-btn-icon {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,.22);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.float-z { font-size: 16px; font-weight: 900; color: #fff; line-height: 1; }
+.float-btn-text { display: flex; flex-direction: column; line-height: 1.3; }
+.float-btn-text strong { font-size: 13px; }
+.float-btn-text span { font-size: 11px; opacity: .85; }
+.float-main {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(249,115,22,.45);
+  transition: transform .15s, box-shadow .15s;
+}
+.float-main:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(249,115,22,.55); }
+.float-open .float-main { background: linear-gradient(135deg, #64748b, #475569); box-shadow: none; }
+@keyframes float-pulse {
+  0%,100% { box-shadow: 0 4px 20px rgba(249,115,22,.45); }
+  50% { box-shadow: 0 4px 28px rgba(249,115,22,.7); }
+}
+.float-main { animation: float-pulse 2.5s ease-in-out infinite; }
+.float-open .float-main { animation: none; }
+@media (max-width: 480px) {
+  .float-contact { bottom: 16px; right: 12px; }
+  .float-btn { padding: 8px 14px 8px 10px; }
+}
