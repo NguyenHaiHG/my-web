@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useOrder } from '../context/OrderContext'
+import { usePassport } from '../context/PassportContext'
 import { useUI } from '../context/UIContext'
 import { useLang } from '../context/LanguageContext'
 import { CheckCircle, Clock, Users, BookOpen, ChevronDown, ChevronUp, Send } from 'lucide-react'
@@ -126,6 +127,7 @@ function ProgramCard({ prog, onRegister }) {
 
 function RegisterModal({ prog, onClose }) {
     const { addWorkshopReg } = useOrder()
+    const { addStamp } = usePassport()
     const { showToast } = useUI()
     const [form, setForm] = useState({ name: '', phone: '', age: '', note: '' })
     const [done, setDone] = useState(false)
@@ -142,6 +144,7 @@ function RegisterModal({ prog, onClose }) {
         })
         setDone(true)
         showToast('✅ Đăng ký thành công! HTX sẽ liên hệ sớm.')
+        addStamp('training')
     }
 
     return (

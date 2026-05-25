@@ -9,6 +9,9 @@ import { DataProvider, useData } from './context/DataContext'
 import { UIProvider, useUI } from './context/UIContext'
 import { LanguageProvider, useLang } from './context/LanguageContext'
 import { OrderProvider } from './context/OrderContext'
+import { PassportProvider, usePassport } from './context/PassportContext'
+import DiscoverPage from './pages/DiscoverPage'
+import PassportPage from './pages/PassportPage'
 import HomePage from './pages/HomePage'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
@@ -378,6 +381,7 @@ function Header() {
               <WifiOff size={13} /> Local
             </span>
           )}
+          <PassportBtn />
           <button className="lang-toggle" onClick={toggleLang} title={lang === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}>
             {lang === 'vi' ? '🇺🇸 EN' : '🇻🇳 VI'}
           </button>
@@ -396,6 +400,20 @@ function Header() {
 }
 
 /* ──────────────────────────────────────────────────────
+   PASSPORT HEADER BUTTON
+────────────────────────────────────────────────────── */
+function PassportBtn() {
+  const { passport } = usePassport()
+  const count = passport.stamps.length
+  return (
+    <Link to="/ho-chieu" className="pp-header-btn" title="Hộ chiếu trải nghiệm Hà Giang">
+      🌸
+      {count > 0 && <span className="pp-header-count">{count}</span>}
+    </Link>
+  )
+}
+
+/* ──────────────────────────────────────────────────────
    APP INNER
 ────────────────────────────────────────────────────── */
 function AppInner() {
@@ -410,7 +428,9 @@ function AppInner() {
       <Header />
       <main>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<DiscoverPage />} />
+          <Route path="/gioi-thieu" element={<HomePage />} />
+          <Route path="/ho-chieu" element={<PassportPage />} />
           <Route path="/cong-dong" element={<CommunityPage />} />
           <Route path="/workshop" element={<WorkshopPage />} />
           <Route path="/thu-vien" element={<LibraryPage />} />
@@ -445,17 +465,19 @@ function AppInner() {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <DataProvider>
-          <UIProvider>
-            <OrderProvider>
-              <AppInner />
-            </OrderProvider>
-          </UIProvider>
-        </DataProvider>
-      </AuthProvider>
-    </LanguageProvider>
+    <PassportProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <DataProvider>
+            <UIProvider>
+              <OrderProvider>
+                <AppInner />
+              </OrderProvider>
+            </UIProvider>
+          </DataProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </PassportProvider>
   )
 }
 

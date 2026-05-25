@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useUI } from '../context/UIContext'
+import { usePassport } from '../context/PassportContext'
 import { Send, ShieldAlert, Heart, Radio, Volume2, ChevronRight, AlertCircle, Play, Pause } from 'lucide-react'
 
 /* ── Đặt URL stream thực tế vào đây ── */
@@ -104,7 +105,9 @@ function isOnAir(prog) {
 function RadioSection() {
     const [tab, setTab] = useState('schedule') // 'schedule' | 'listen'
     const [playing, setPlaying] = useState(false)
+    const [radioStampGiven, setRadioStampGiven] = useState(false)
     const audioRef = useRef(null)
+    const { addStamp } = usePassport()
     const now = new Date()
     const todayDow = now.getDay()
     const currentlyOnAir = SCHEDULE.find(isOnAir)
@@ -116,7 +119,10 @@ function RadioSection() {
             audio.pause()
             setPlaying(false)
         } else {
-            audio.play().then(() => setPlaying(true)).catch(() => setPlaying(false))
+            audio.play().then(() => {
+                setPlaying(true)
+                if (!radioStampGiven) { addStamp('radio'); setRadioStampGiven(true) }
+            }).catch(() => setPlaying(false))
         }
     }
 

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useUI } from '../context/UIContext'
 import { useOrder } from '../context/OrderContext'
 import { useLang } from '../context/LanguageContext'
+import { usePassport } from '../context/PassportContext'
 import AdminImgBtn from '../components/AdminImgBtn'
 
 function ProductCard({ item, onOrder, onAddCart, onView, onDelete, onEdit, isMod, isAdmin, t }) {
@@ -39,6 +40,7 @@ export default function ProductsPage() {
   const { deleteItem } = useData()
   const { isMod, isAdmin } = useAuth()
   const { setAdminModal, setDetailItem, setEditItem, showToast } = useUI()
+  const { addStamp } = usePassport()
   const { addToCart, submitCartOrder } = useOrder()
   const { t } = useLang()
   const [search, setSearch] = useState('')
@@ -110,7 +112,7 @@ export default function ProductsPage() {
           {filtered.map(p => (
             <ProductCard key={p.id} item={p} isMod={isMod} isAdmin={isAdmin} t={t}
               onOrder={setOrderItem}
-              onAddCart={item => { addToCart(item); showToast(t('prod_added_cart').replace('{title}', item.title)) }}
+              onAddCart={item => { addToCart(item); addStamp('product'); showToast(t('prod_added_cart').replace('{title}', item.title)) }}
               onView={setDetailItem}
               onEdit={item => setEditItem({ type: 'product', item })}
               onDelete={(type, id) => { deleteItem(type, id); showToast(t('prod_deleted')) }} />
