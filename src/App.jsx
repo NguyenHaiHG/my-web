@@ -21,6 +21,8 @@ import DashboardPage from './pages/DashboardPage'
 import ProductsPage from './pages/ProductsPage'
 import ToursPage from './pages/ToursPage'
 import ManageCartPage from './pages/ManageCartPage'
+import TrainingPage from './pages/TrainingPage'
+import WomenSupportPage from './pages/WomenSupportPage'
 import './App.css'
 
 /* ──────────────────────────────────────────────────────
@@ -327,9 +329,11 @@ function Header() {
   const links = [
     { to: '/cong-dong', label: t('nav_du_an') },
     { to: '/workshop', label: '🎓 Workshop' },
+    { to: '/dao-tao', label: '📚 Đào tạo' },
     { to: '/thu-vien', label: t('nav_thu_vien') },
     { to: '/tours', label: t('nav_kham_pha') },
     { to: '/san-pham', label: t('nav_san_pham') },
+    { to: '/ho-tro', label: '💜 Hỗ trợ' },
     { to: '/blog', label: t('nav_blog') },
     { to: '/lien-he', label: t('nav_contact') },
   ]
@@ -418,6 +422,8 @@ function AppInner() {
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:id" element={<BlogPostPage />} />
           <Route path="/lien-he" element={<ContactPage />} />
+          <Route path="/dao-tao" element={<TrainingPage />} />
+          <Route path="/ho-tro" element={<WomenSupportPage />} />
         </Routes>
       </main>
       <footer className="footer">

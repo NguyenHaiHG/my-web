@@ -5587,3 +5587,465 @@ select.form-input {
       margin-left: 2px
    }
 }
+/* ═══════════════════════════════════════════════════════
+   TRAINING PAGE
+═══════════════════════════════════════════════════════ */
+.tp-banner {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 0;
+   background: #1b4332;
+   border-radius: 16px;
+   overflow: hidden;
+   margin-bottom: 36px
+}
+.tp-banner-item {
+   flex: 1 1 140px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   padding: 20px 16px;
+   color: #fff;
+   font-size: 13px;
+   gap: 4px;
+   border-right: 1px solid rgba(255,255,255,.15)
+}
+.tp-banner-item:last-child { border-right: none }
+.tp-banner-num {
+   font-size: 28px;
+   font-weight: 900;
+   color: #86efac
+}
+.tp-filters {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 10px;
+   margin-bottom: 28px
+}
+.tp-filter-btn {
+   padding: 8px 18px;
+   border-radius: 24px;
+   border: 2px solid #e2e8f0;
+   background: #fff;
+   font-size: 13px;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all .15s
+}
+.tp-filter-btn:hover { border-color: #40916c; color: #40916c }
+.tp-filter-active {
+   background: #1b4332 !important;
+   border-color: #1b4332 !important;
+   color: #fff !important
+}
+.tp-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+   gap: 24px;
+   margin-bottom: 48px
+}
+.tp-card {
+   background: #fff;
+   border-radius: 16px;
+   overflow: hidden;
+   box-shadow: 0 2px 16px rgba(0,0,0,.08);
+   display: flex;
+   flex-direction: column;
+   transition: transform .2s, box-shadow .2s
+}
+.tp-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,.13) }
+.tp-card-top {
+   height: 110px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   position: relative
+}
+.tp-icon { font-size: 52px }
+.tp-badge {
+   position: absolute;
+   top: 10px;
+   right: 10px;
+   background: rgba(255,255,255,.85);
+   border-radius: 20px;
+   padding: 3px 10px;
+   font-size: 11px;
+   font-weight: 700;
+   color: #1e3a5f
+}
+.tp-card-body {
+   padding: 18px;
+   display: flex;
+   flex-direction: column;
+   flex: 1;
+   gap: 10px
+}
+.tp-title {
+   font-size: 18px;
+   font-weight: 800;
+   color: #1e293b;
+   margin: 0
+}
+.tp-desc {
+   font-size: 13.5px;
+   color: #64748b;
+   line-height: 1.6;
+   margin: 0
+}
+.tp-meta {
+   display: flex;
+   gap: 14px;
+   font-size: 12px;
+   color: #94a3b8;
+   font-weight: 600
+}
+.tp-meta span {
+   display: flex;
+   align-items: center;
+   gap: 4px
+}
+.tp-toggle {
+   background: #f8fafc;
+   border: 1px solid #e2e8f0;
+   border-radius: 8px;
+   padding: 7px 12px;
+   font-size: 12px;
+   font-weight: 600;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   gap: 6px;
+   color: #475569;
+   transition: background .15s
+}
+.tp-toggle:hover { background: #e9f7ef }
+.tp-outcomes {
+   list-style: none;
+   padding: 0;
+   margin: 0;
+   display: flex;
+   flex-direction: column;
+   gap: 6px
+}
+.tp-outcomes li {
+   display: flex;
+   align-items: flex-start;
+   gap: 7px;
+   font-size: 13px;
+   color: #374151;
+   line-height: 1.5
+}
+.tp-btn {
+   margin-top: auto;
+   padding: 11px;
+   border: none;
+   border-radius: 10px;
+   color: #fff;
+   font-size: 14px;
+   font-weight: 700;
+   cursor: pointer;
+   transition: opacity .15s, transform .12s
+}
+.tp-btn:hover { opacity: .88; transform: translateY(-1px) }
+.tp-cta {
+   background: linear-gradient(135deg,#ecfdf5,#d1fae5);
+   border: 2px solid #6ee7b7;
+   border-radius: 20px;
+   padding: 36px 28px;
+   text-align: center
+}
+.tp-cta h3 { font-size: 20px; color: #1b4332; margin: 0 0 8px }
+.tp-cta p { color: #64748b; margin: 0 0 20px }
+.tp-success {
+   text-align: center;
+   padding: 24px 0;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 12px
+}
+.tp-success-icon { font-size: 52px }
+.tp-success h3 { font-size: 20px; font-weight: 800; color: #1b4332 }
+.tp-success p { color: #64748b; font-size: 14px; max-width: 340px }
+
+/* ═══════════════════════════════════════════════════════
+   WOMEN SUPPORT PAGE
+═══════════════════════════════════════════════════════ */
+.supp-emergency-bar {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   flex-wrap: wrap;
+   background: #fef2f2;
+   border: 2px solid #fecaca;
+   border-radius: 12px;
+   padding: 14px 20px;
+   margin-bottom: 28px;
+   font-size: 14px;
+   font-weight: 600;
+   color: #dc2626
+}
+.supp-hotline-btn {
+   padding: 6px 14px;
+   border-radius: 20px;
+   color: #fff;
+   font-weight: 700;
+   font-size: 14px;
+   text-decoration: none;
+   transition: opacity .15s
+}
+.supp-hotline-btn:hover { opacity: .85 }
+.supp-hotlines {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+   gap: 16px;
+   margin-bottom: 12px
+}
+.supp-hotline-card {
+   background: #fff;
+   border-radius: 12px;
+   border-top: 4px solid;
+   padding: 16px;
+   box-shadow: 0 2px 10px rgba(0,0,0,.07);
+   display: flex;
+   align-items: flex-start;
+   gap: 12px;
+   text-decoration: none;
+   transition: transform .15s, box-shadow .15s
+}
+.supp-hotline-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.12) }
+.supp-hl-icon { font-size: 26px; flex-shrink: 0 }
+.supp-hl-label { font-size: 12px; color: #64748b; margin-bottom: 3px }
+.supp-hl-number { font-size: 18px; font-weight: 900 }
+.supp-hl-note { font-size: 11px; color: #94a3b8; margin-top: 2px }
+.supp-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+   gap: 22px;
+   margin-bottom: 16px
+}
+.supp-card {
+   border-radius: 16px;
+   border: 2px solid;
+   padding: 22px;
+   display: flex;
+   flex-direction: column;
+   gap: 12px;
+   transition: transform .2s, box-shadow .2s
+}
+.supp-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,.1) }
+.supp-urgent-badge {
+   display: flex;
+   align-items: center;
+   gap: 6px;
+   background: #fef2f2;
+   border: 1px solid #fecaca;
+   border-radius: 8px;
+   padding: 6px 10px;
+   font-size: 11px;
+   font-weight: 700;
+   color: #dc2626
+}
+.supp-card-top {
+   display: flex;
+   align-items: center;
+   gap: 12px
+}
+.supp-icon { font-size: 32px }
+.supp-title { font-size: 17px; font-weight: 800; margin: 0 }
+.supp-desc { font-size: 13.5px; color: #475569; line-height: 1.6; margin: 0 }
+.supp-toggle {
+   background: none;
+   border: none;
+   font-size: 13px;
+   font-weight: 600;
+   color: var(--supp-color);
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   gap: 4px;
+   padding: 0
+}
+.supp-helps {
+   list-style: none;
+   padding: 0;
+   margin: 0;
+   display: flex;
+   flex-direction: column;
+   gap: 7px
+}
+.supp-helps li {
+   display: flex;
+   align-items: flex-start;
+   gap: 8px;
+   font-size: 13px;
+   color: #374151
+}
+.supp-btn {
+   margin-top: auto;
+   padding: 10px;
+   border: none;
+   border-radius: 10px;
+   color: #fff;
+   font-size: 14px;
+   font-weight: 700;
+   cursor: pointer;
+   transition: opacity .15s
+}
+.supp-btn:hover { opacity: .85 }
+.supp-urgent-banner {
+   background: #fef2f2;
+   border: 2px solid #fecaca;
+   border-radius: 10px;
+   padding: 12px 16px;
+   font-size: 14px;
+   color: #dc2626;
+   font-weight: 600;
+   margin-bottom: 12px;
+   text-align: center
+}
+.supp-urgent-banner a { color: #dc2626 }
+
+/* ── Radio ── */
+.radio-section {
+   background: #0f172a;
+   border-radius: 20px;
+   overflow: hidden;
+   color: #e2e8f0
+}
+.radio-header {
+   background: linear-gradient(135deg, #1e1b4b, #312e81);
+   padding: 24px 28px;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   flex-wrap: wrap;
+   gap: 12px
+}
+.radio-logo {
+   display: flex;
+   align-items: center;
+   gap: 16px;
+   color: #e0e7ff
+}
+.radio-name { font-size: 18px; font-weight: 800 }
+.radio-tagline { font-size: 12px; color: #a5b4fc; margin-top: 2px }
+.radio-on-air {
+   display: flex;
+   align-items: center;
+   gap: 6px;
+   background: #ef4444;
+   color: #fff;
+   padding: 5px 12px;
+   border-radius: 20px;
+   font-size: 12px;
+   font-weight: 800;
+   letter-spacing: 1px;
+   animation: pulse-red 1.5s infinite
+}
+@keyframes pulse-red {
+   0%, 100% { opacity: 1 }
+   50% { opacity: .6 }
+}
+.radio-tabs {
+   display: flex;
+   border-bottom: 1px solid rgba(255,255,255,.1)
+}
+.radio-tab {
+   flex: 1;
+   padding: 14px;
+   background: none;
+   border: none;
+   color: #94a3b8;
+   font-size: 14px;
+   font-weight: 600;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 6px;
+   transition: color .15s, background .15s
+}
+.radio-tab:hover { color: #e2e8f0; background: rgba(255,255,255,.05) }
+.radio-tab-active {
+   color: #a5b4fc !important;
+   border-bottom: 2px solid #818cf8;
+   background: rgba(129,140,248,.08) !important
+}
+.radio-stories { padding: 20px }
+.radio-empty {
+   text-align: center;
+   padding: 32px;
+   color: #64748b
+}
+.radio-story-card {
+   background: rgba(255,255,255,.05);
+   border-radius: 12px;
+   padding: 18px;
+   margin-bottom: 14px;
+   border-left: 3px solid #818cf8
+}
+.radio-story-ep {
+   font-size: 11px;
+   color: #818cf8;
+   font-weight: 700;
+   text-transform: uppercase;
+   letter-spacing: 1px;
+   margin-bottom: 8px
+}
+.radio-story-content {
+   font-size: 15px;
+   color: #e2e8f0;
+   line-height: 1.7;
+   font-style: italic;
+   margin: 0 0 10px
+}
+.radio-story-meta {
+   display: flex;
+   justify-content: space-between;
+   font-size: 12px;
+   color: #64748b
+}
+.radio-share { padding: 24px }
+.radio-share-intro {
+   font-size: 14px;
+   color: #94a3b8;
+   line-height: 1.7;
+   margin: 0 0 16px;
+   text-align: center
+}
+.radio-cats {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 8px;
+   margin-bottom: 16px
+}
+.radio-cat-btn {
+   padding: 6px 14px;
+   border-radius: 20px;
+   border: 1px solid rgba(129,140,248,.4);
+   background: rgba(129,140,248,.1);
+   color: #a5b4fc;
+   font-size: 12px;
+   font-weight: 600;
+   cursor: pointer;
+   transition: background .15s
+}
+.radio-cat-btn:hover { background: rgba(129,140,248,.25) }
+.radio-sent {
+   text-align: center;
+   padding: 32px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 12px
+}
+.radio-sent h4 { font-size: 20px; color: #a5b4fc }
+.radio-sent p { color: #94a3b8; font-size: 14px; max-width: 340px }
+
+@media (max-width: 600px) {
+   .tp-grid { grid-template-columns: 1fr }
+   .supp-grid { grid-template-columns: 1fr }
+   .supp-hotlines { grid-template-columns: 1fr 1fr }
+   .tp-banner-item { padding: 14px 10px }
+}
