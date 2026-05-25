@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useUI } from '../context/UIContext'
 import { useOrder } from '../context/OrderContext'
 import { useLang } from '../context/LanguageContext'
+import AdminImgBtn from '../components/AdminImgBtn'
 
 /* ── helper ── */
 function parsePrice(str) {
@@ -56,6 +57,7 @@ function TourBookCard({ tour, onBook, onView, onDelete, onEdit, isMod, isAdmin }
         className="tour-bcard-img"
         style={{ backgroundImage: `url(${tour.img || 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=400&q=80'})` }}
       >
+        {isMod && <AdminImgBtn type="tour" itemId={tour.id} />}
         <span className={`tour-bcard-cat tour-bcard-cat-${category}`}>{catLabel}</span>
         <div className="tour-bcard-rating">
           <Star size={11} fill="#fbbf24" color="#fbbf24" />

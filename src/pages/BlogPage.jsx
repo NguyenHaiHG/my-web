@@ -5,6 +5,7 @@ import { useData } from '../context/DataContext'
 import { useAuth } from '../context/AuthContext'
 import { useUI } from '../context/UIContext'
 import { useLang } from '../context/LanguageContext'
+import AdminImgBtn from '../components/AdminImgBtn'
 
 export default function BlogPage() {
   const { posts, deleteItem } = useData()
@@ -40,13 +41,13 @@ export default function BlogPage() {
         <div className="blog-grid mt-6">
           {filtered.map(post => (
             <article key={post.id} className="blog-card">
-              {post.img && (
-                <div
-                  className="blog-card-img"
-                  style={{ backgroundImage: `url(${post.img || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80'})`, cursor: 'pointer' }}
-                  onClick={() => navigate(`/blog/${post.id}`)}
-                />
-              )}
+              <div
+                className="blog-card-img"
+                style={{ backgroundImage: `url(${post.img || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80'})`, cursor: 'pointer' }}
+                onClick={() => navigate(`/blog/${post.id}`)}
+              >
+                {isMod && <AdminImgBtn type="post" itemId={post.id} />}
+              </div>
               <div className="blog-card-body">
                 <div className="blog-meta">
                   {post.date && <span><Calendar size={12} /> {post.date}</span>}

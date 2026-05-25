@@ -1466,7 +1466,8 @@ select.form-input {
 .blog-card-img {
    height: 180px;
    background-size: cover;
-   background-position: center
+   background-position: center;
+   position: relative
 }
 
 .blog-card-body {
@@ -2599,6 +2600,39 @@ select.form-input {
 }
 
 /* Delete button (admin) */
+/* Admin inline image replace overlay */
+.admin-img-btn {
+   position: absolute;
+   inset: 0;
+   z-index: 2;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 6px;
+   color: #fff;
+   font-size: 13px;
+   font-weight: 700;
+   letter-spacing: .3px;
+   background: rgba(0, 0, 0, 0);
+   opacity: 0;
+   cursor: pointer;
+   border-radius: inherit;
+   transition: background .2s, opacity .2s
+}
+
+.admin-img-btn:hover {
+   background: rgba(0, 0, 0, .5);
+   opacity: 1
+}
+
+/* show when parent image container is hovered */
+.tour-bcard-img:hover .admin-img-btn,
+.card3d-img:hover .admin-img-btn,
+.blog-card-img:hover .admin-img-btn {
+   opacity: 1;
+   background: rgba(0, 0, 0, .45)
+}
+
 .tour-bcard-del {
    position: absolute;
    bottom: 10px;

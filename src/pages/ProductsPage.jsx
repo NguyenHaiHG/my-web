@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useUI } from '../context/UIContext'
 import { useOrder } from '../context/OrderContext'
 import { useLang } from '../context/LanguageContext'
+import AdminImgBtn from '../components/AdminImgBtn'
 
 function ProductCard({ item, onOrder, onAddCart, onView, onDelete, onEdit, isMod, isAdmin, t }) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
@@ -14,6 +15,7 @@ function ProductCard({ item, onOrder, onAddCart, onView, onDelete, onEdit, isMod
       onMouseMove={e => { const r = e.currentTarget.getBoundingClientRect(); setTilt({ x: ((e.clientY - r.top) / r.height - .5) * 12, y: -((e.clientX - r.left) / r.width - .5) * 12 }) }}
       onMouseLeave={() => setTilt({ x: 0, y: 0 })}>
       <div className="card3d-img" style={{ backgroundImage: `url(${item.img || 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&q=80'})` }}>
+        {isMod && <AdminImgBtn type="product" itemId={item.id} />}
         <div className="card3d-badge">🌿 {t('prod_badge')}</div>
       </div>
       <div className="card3d-body">
