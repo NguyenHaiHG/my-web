@@ -22,6 +22,7 @@ export default function DiscoverPage() {
         { icon: '🛣️', label: t('dc_hl2'), sub: t('dc_hl2s') },
         { icon: '🌸', label: t('dc_hl3'), sub: t('dc_hl3s') },
         { icon: '👘', label: t('dc_hl4'), sub: t('dc_hl4s') },
+        { icon: '🌾', label: t('dc_hl5'), sub: t('dc_hl5s') },
     ]
 
     const LOOP_PKGS = [
