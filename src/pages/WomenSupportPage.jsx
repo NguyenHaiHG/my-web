@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useUI } from '../context/UIContext'
-import { Send, ShieldAlert, Heart, Radio, Volume2, ChevronRight, AlertCircle } from 'lucide-react'
+import { Send, ShieldAlert, Heart, Radio, Volume2, ChevronRight, AlertCircle, Play, Pause } from 'lucide-react'
+
+/* ── Đặt URL stream thực tế vào đây ── */
+const STREAM_URL = '' // ví dụ: 'https://stream.zeno.fm/xxx' hoặc file .mp3
 
 /* ── Emergency hotlines ── */
 const HOTLINES = [
@@ -100,9 +103,22 @@ function isOnAir(prog) {
 /* ── Radio section — lịch hẹn giờ + nghe trực tuyến ── */
 function RadioSection() {
     const [tab, setTab] = useState('schedule') // 'schedule' | 'listen'
+    const [playing, setPlaying] = useState(false)
+    const audioRef = useRef(null)
     const now = new Date()
     const todayDow = now.getDay()
     const currentlyOnAir = SCHEDULE.find(isOnAir)
+
+    const togglePlay = () => {
+        const audio = audioRef.current
+        if (!audio) return
+        if (playing) {
+            audio.pause()
+            setPlaying(false)
+        } else {
+            audio.play().then(() => setPlaying(true)).catch(() => setPlaying(false))
+        }
+    }
 
     return (
         <div className="radio-section">
@@ -167,22 +183,31 @@ function RadioSection() {
                 <div className="radio-listen">
                     <div className="radio-player-wrap">
                         <div className="radio-player-art">
-                            <Radio size={44} />
-                            <div className="radio-wave"><span /><span /><span /><span /><span /></div>
+                            <Radio size={36} />
+                            {playing && <div className="radio-wave"><span /><span /><span /><span /><span /></div>}
                         </div>
-                        <p className="radio-player-title">📻 Trường Hải FM — Phát sóng trực tiếp</p>
-                        <p className="radio-player-sub">Nghe miễn phí · Không cần đăng ký</p>
-                        {/* Thay src bằng URL stream thực tế của bạn */}
-                        <audio
-                            controls
-                            style={{ width: '100%', marginTop: 12, borderRadius: 8 }}
-                            src=""
-                        >
-                            Trình duyệt của bạn không hỗ trợ audio.
-                        </audio>
-                        <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 10, textAlign: 'center' }}>
-                            💡 Đài phát sóng theo lịch cố định. Nếu không nghe được, hãy kiểm tra tab <strong>Lịch phát sóng</strong> và thử lại đúng giờ.
+                        <p className="radio-player-title">📻 Trường Hải FM</p>
+                        <p className="radio-player-sub">
+                            {playing ? <><span className="radio-live-dot" /> Đang phát trực tiếp...</> : 'Nhấn nút ↓ để nghe đài'}
                         </p>
+                        <button
+                            className={`radio-play-btn${playing ? ' radio-play-btn-active' : ''}`}
+                            onClick={togglePlay}
+                            aria-label={playing ? 'Dừng' : 'Phát'}
+                        >
+                            {playing ? <Pause size={38} /> : <Play size={38} />}
+                        </button>
+                        <audio ref={audioRef} src={STREAM_URL} preload="none" />
+                        {!STREAM_URL && (
+                            <p style={{ fontSize: 12, color: '#f97316', marginTop: 10, textAlign: 'center' }}>
+                                ⚠️ Chưa có URL stream. Cập nhật hằng số <code>STREAM_URL</code> trong file WomenSupportPage.jsx.
+                            </p>
+                        )}
+                        {STREAM_URL && (
+                            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 10, textAlign: 'center' }}>
+                                💡 Phát sóng theo lịch. Kiểm tra tab <strong>Lịch phát sóng</strong> nếu không có tín hiệu.
+                            </p>
+                        )}
                     </div>
                 </div>
             )}

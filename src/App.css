@@ -6130,3 +6130,24 @@ select.form-input {
   .radio-sched-day { min-width: 80px; }
   .radio-sched-daylabel { font-size: 12px; }
 }
+
+/* ═══ Radio: custom play button ═══ */
+.radio-play-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 88px; height: 88px; border-radius: 50%;
+  background: #f97316; color: #fff; border: none;
+  cursor: pointer; margin: 16px auto 8px;
+  box-shadow: 0 0 0 0 rgba(249,115,22,.5);
+  transition: transform .15s, background .2s;
+}
+.radio-play-btn:hover { background: #ea6c0d; transform: scale(1.06); }
+.radio-play-btn-active {
+  background: #dc2626;
+  animation: pulse-ring 1.4s ease-out infinite;
+}
+.radio-play-btn-active:hover { background: #b91c1c; }
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(220,38,38,.5); }
+  70%  { box-shadow: 0 0 0 20px rgba(220,38,38,0); }
+  100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+}
