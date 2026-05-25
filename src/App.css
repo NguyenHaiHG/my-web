@@ -5454,12 +5454,14 @@ select.form-input {
    padding: 0 12px;
    height: 44px;
    position: sticky;
-   top: 62px;        /* chiều cao header */
+   top: 62px;
+   /* chiều cao header */
    z-index: 900;
-   box-shadow: 0 2px 8px rgba(0,0,0,.06);
+   box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
    overflow: hidden;
    transition: height .25s ease
 }
+
 .hnb-wrap.hnb-open {
    height: auto;
    min-height: 44px;
@@ -5482,7 +5484,10 @@ select.form-input {
    transition: background .15s;
    margin-right: 8px
 }
-.hnb-toggle:hover { background: #dcfce7 }
+
+.hnb-toggle:hover {
+   background: #dcfce7
+}
 
 /* Collapsed: items hidden */
 .hnb-items {
@@ -5490,6 +5495,7 @@ select.form-input {
    flex-wrap: wrap;
    gap: 4px
 }
+
 .hnb-open .hnb-items {
    display: flex
 }
@@ -5509,12 +5515,19 @@ select.form-input {
    transition: background .15s, color .15s;
    white-space: nowrap
 }
+
 .hnb-item:hover {
    background: #dcfce7;
    color: #1b4332
 }
-.hnb-icon { font-size: 16px }
-.hnb-label { font-size: 13px }
+
+.hnb-icon {
+   font-size: 16px
+}
+
+.hnb-label {
+   font-size: 13px
+}
 
 /* On wider screens show a hint label next to toggle */
 @media (min-width: 640px) {

@@ -57,6 +57,28 @@ function LoginModal() {
 /* ──────────────────────────────────────────────────────
    ADMIN MODAL – Thêm nội dung
 ────────────────────────────────────────────────────── */
+/* Nén ảnh bằng Canvas trước khi base64 — tránh vượt giới hạn 10MB */
+function compressImage(file, maxW = 1200, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = reject
+    reader.onload = ev => {
+      const img = new Image()
+      img.onerror = reject
+      img.onload = () => {
+        const scale = Math.min(1, maxW / Math.max(img.width, img.height))
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * scale)
+        canvas.height = Math.round(img.height * scale)
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+        resolve(canvas.toDataURL('image/jpeg', quality))
+      }
+      img.src = ev.target.result
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
 function AdminModal() {
   const { adminModal: type, setAdminModal } = useUI()
   const { addItem } = useData()
@@ -67,15 +89,17 @@ function AdminModal() {
 
   const labelKey = { post: 'Bài viết', product: 'Sản phẩm', tour: 'Discover', workshop: 'Workshop', library: 'Thư viện' }
 
-  const handleFile = (e) => {
+  const handleFile = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      setPreview(ev.target.result)
-      setForm(f => ({ ...f, img: ev.target.result }))
+    if (file.size > 20 * 1024 * 1024) { showToast('❌ Ảnh quá lớn (tối đa 20MB)'); return }
+    try {
+      const compressed = await compressImage(file)
+      setPreview(compressed)
+      setForm(f => ({ ...f, img: compressed }))
+    } catch {
+      showToast('❌ Không đọc được ảnh, thử file khác')
     }
-    reader.readAsDataURL(file)
   }
 
   const handleUrlChange = (e) => {

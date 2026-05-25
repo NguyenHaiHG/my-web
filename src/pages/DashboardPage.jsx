@@ -11,6 +11,28 @@ import { useOrder } from '../context/OrderContext'
 import { useUI } from '../context/UIContext'
 import { useLang } from '../context/LanguageContext'
 
+/* Nén ảnh bằng Canvas — tránh base64 vượt 10MB */
+function compressImage(file, maxW = 1200, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onerror = reject
+        reader.onload = ev => {
+            const img = new Image()
+            img.onerror = reject
+            img.onload = () => {
+                const scale = Math.min(1, maxW / Math.max(img.width, img.height))
+                const canvas = document.createElement('canvas')
+                canvas.width = Math.round(img.width * scale)
+                canvas.height = Math.round(img.height * scale)
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+                resolve(canvas.toDataURL('image/jpeg', quality))
+            }
+            img.src = ev.target.result
+        }
+        reader.readAsDataURL(file)
+    })
+}
+
 const NAV_ITEMS = [
     { key: 'overview', icon: <LayoutDashboard size={18} />, label: 'Tổng quan' },
     { key: 'workshops', icon: <Users size={18} />, label: 'Workshop' },
@@ -203,15 +225,17 @@ function EditModal({ type, item, onClose, onSave }) {
     const [preview, setPreview] = useState(item.img || '')
     const [saving, setSaving] = useState(false)
 
-    const handleFile = (e) => {
+    const handleFile = async (e) => {
         const file = e.target.files?.[0]
         if (!file) return
-        const reader = new FileReader()
-        reader.onload = (ev) => {
-            setPreview(ev.target.result)
-            setForm(f => ({ ...f, img: ev.target.result }))
+        if (file.size > 20 * 1024 * 1024) { alert('Ảnh quá lớn (tối đa 20MB)'); return }
+        try {
+            const compressed = await compressImage(file)
+            setPreview(compressed)
+            setForm(f => ({ ...f, img: compressed }))
+        } catch {
+            alert('Không đọc được ảnh, thử file khác')
         }
-        reader.readAsDataURL(file)
     }
 
     const handleSubmit = async (e) => {
