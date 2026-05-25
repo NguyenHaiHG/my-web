@@ -1,11 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useUI } from '../context/UIContext'
-import { usePassport } from '../context/PassportContext'
 import { useLang } from '../context/LanguageContext'
-import { Send, ShieldAlert, Heart, Radio, Volume2, ChevronRight, AlertCircle, Play, Pause } from 'lucide-react'
+import { Send, ShieldAlert, Heart, ChevronRight, AlertCircle } from 'lucide-react'
 
 /* ── Đặt URL stream thực tế vào đây ── */
-const STREAM_URL = '' // ví dụ: 'https://stream.zeno.fm/xxx' hoặc file .mp3
 
 /* ── Emergency hotlines ── */
 const HOTLINES = [
@@ -101,147 +99,6 @@ const SUPPORT_ITEMS = [
     },
 ]
 
-/* ── Lịch phát sóng theo ngày ── */
-const SCHEDULE = [
-    { day: 1, dayLabel: 'Thứ Hai', dayLabel_en: 'Mon', time: '20:00–20:30', icon: '💌', title: 'Tình cảm đôi lứa', title_en: 'Love Stories', desc: 'Những câu chuyện yêu thương, nhớ nhung và gắn kết.', desc_en: 'Stories of love, longing, and connection.' },
-    { day: 2, dayLabel: 'Thứ Ba', dayLabel_en: 'Tue', time: '20:00–20:30', icon: '👨‍👩‍👧', title: 'Mái ấm gia đình', title_en: 'Family Warmth', desc: 'Chuyện bố mẹ, con cái và những khoảnh khắc đáng nhớ.', desc_en: 'Stories of parents, children, and cherished moments.' },
-    { day: 3, dayLabel: 'Thứ Tư', dayLabel_en: 'Wed', time: '20:00–20:30', icon: '🌱', title: 'Vượt khó — Truyền cảm hứng', title_en: 'Overcoming — Inspiration', desc: 'Hành trình vươn lên của những người bình thường.', desc_en: 'Journey of ordinary people rising above challenges.' },
-    { day: 4, dayLabel: 'Thứ Năm', dayLabel_en: 'Thu', time: '20:00–20:30', icon: '🤝', title: 'Tình người', title_en: 'Human Kindness', desc: 'Những nghĩa cử cao đẹp và lòng tốt quanh ta.', desc_en: 'Noble acts and goodness around us.' },
-    { day: 5, dayLabel: 'Thứ Sáu', dayLabel_en: 'Fri', time: '20:00–20:30', icon: '🏔️', title: 'Quê hương & Ký ức', title_en: 'Homeland & Memories', desc: 'Nỗi nhớ quê, tiếng làng, bữa cơm gia đình.', desc_en: 'Nostalgia for home, village sounds, family meals.' },
-    { day: 6, dayLabel: 'Thứ Bảy', dayLabel_en: 'Sat', time: '19:00–20:00', icon: '🌸', title: 'Phụ nữ & Cuộc sống', title_en: 'Women & Life', desc: 'Chuyên đề đặc biệt: sức mạnh, vẻ đẹp và bản lĩnh phụ nữ.', desc_en: 'Special topic: the strength, beauty, and spirit of women.' },
-    { day: 0, dayLabel: 'Chủ Nhật', dayLabel_en: 'Sun', time: '19:00–19:30', icon: '📰', title: 'Tin tức cộng đồng', title_en: 'Community News', desc: 'Điểm tin hoạt động, sự kiện và thông báo địa phương.', desc_en: 'Activities, events, and local announcements.' },
-]
-
-function isOnAir(prog) {
-    const now = new Date()
-    if (now.getDay() !== prog.day) return false
-    const [startStr, endStr] = prog.time.split('–')
-    const [sh, sm] = startStr.split(':').map(Number)
-    const [eh, em] = endStr.split(':').map(Number)
-    const mins = now.getHours() * 60 + now.getMinutes()
-    return mins >= sh * 60 + sm && mins < eh * 60 + em
-}
-
-/* ── Radio section — lịch hẹn giờ + nghe trực tuyến ── */
-function RadioSection() {
-    const [tab, setTab] = useState('schedule') // 'schedule' | 'listen'
-    const [playing, setPlaying] = useState(false)
-    const [radioStampGiven, setRadioStampGiven] = useState(false)
-    const audioRef = useRef(null)
-    const { addStamp } = usePassport()
-    const { t, lang } = useLang()
-    const now = new Date()
-    const todayDow = now.getDay()
-    const currentlyOnAir = SCHEDULE.find(isOnAir)
-
-    const togglePlay = () => {
-        const audio = audioRef.current
-        if (!audio) return
-        if (playing) {
-            audio.pause()
-            setPlaying(false)
-        } else {
-            audio.play().then(() => {
-                setPlaying(true)
-                if (!radioStampGiven) { addStamp('radio'); setRadioStampGiven(true) }
-            }).catch(() => setPlaying(false))
-        }
-    }
-
-    return (
-        <div className="radio-section">
-            <div className="radio-header">
-                <div className="radio-logo">
-                    <Radio size={28} />
-                    <div>
-                        <div className="radio-name">📻 Trường Hải FM</div>
-                        <div className="radio-tagline">{t('ws_radio_tagline')}</div>
-                    </div>
-                </div>
-                {currentlyOnAir ? (
-                    <div className="radio-on-air"><Volume2 size={14} /> ON AIR</div>
-                ) : (
-                    <div className="radio-off-air">{t('ws_off_air')}</div>
-                )}
-            </div>
-
-            {currentlyOnAir && (
-                <div className="radio-now-playing">
-                    <span className="radio-live-dot" /> {t('ws_on_air')} <strong>{currentlyOnAir.icon} {lang === 'en' ? currentlyOnAir.title_en : currentlyOnAir.title}</strong>
-                    <span style={{ marginLeft: 8, opacity: .8 }}>{currentlyOnAir.time}</span>
-                </div>
-            )}
-
-            <div className="radio-tabs">
-                <button className={`radio-tab ${tab === 'schedule' ? 'radio-tab-active' : ''}`} onClick={() => setTab('schedule')}>
-                    {t('ws_schedule_tab')}
-                </button>
-                <button className={`radio-tab ${tab === 'listen' ? 'radio-tab-active' : ''}`} onClick={() => setTab('listen')}>
-                    <Volume2 size={14} /> {t('ws_listen_tab')}
-                </button>
-            </div>
-
-            {tab === 'schedule' && (
-                <div className="radio-schedule">
-                    {SCHEDULE.map(prog => {
-                        const onAir = isOnAir(prog)
-                        const isToday = prog.day === todayDow
-                        return (
-                            <div key={prog.day} className={`radio-sched-row${onAir ? ' radio-sched-onair' : ''}${isToday && !onAir ? ' radio-sched-today' : ''}`}>
-                                <div className="radio-sched-day">
-                                    <span className="radio-sched-daylabel">{lang === 'en' ? prog.dayLabel_en : prog.dayLabel}</span>
-                                    <span className="radio-sched-time">{prog.time}</span>
-                                </div>
-                                <div className="radio-sched-icon">{prog.icon}</div>
-                                <div className="radio-sched-info">
-                                    <div className="radio-sched-title">
-                                        {lang === 'en' ? prog.title_en : prog.title}
-                                        {onAir && <span className="radio-live-badge"><span className="radio-live-dot" />{lang === 'en' ? 'ON AIR' : 'ĐANG PHÁT'}</span>}
-                                        {isToday && !onAir && <span className="radio-today-badge">{lang === 'en' ? 'Today' : 'Hôm nay'}</span>}
-                                    </div>
-                                    <div className="radio-sched-desc">{lang === 'en' ? prog.desc_en : prog.desc}</div>
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
-            )}
-
-            {tab === 'listen' && (
-                <div className="radio-listen">
-                    <div className="radio-player-wrap">
-                        <div className="radio-player-art">
-                            <Radio size={36} />
-                            {playing && <div className="radio-wave"><span /><span /><span /><span /><span /></div>}
-                        </div>
-                        <p className="radio-player-title">📻 Trường Hải FM</p>
-                        <p className="radio-player-sub">
-                            {playing ? <><span className="radio-live-dot" /> {lang === 'en' ? 'Now streaming live...' : 'Đang phát trực tiếp...'}</> : t('ws_play_hint')}
-                        </p>
-                        <button
-                            className={`radio-play-btn${playing ? ' radio-play-btn-active' : ''}`}
-                            onClick={togglePlay}
-                            aria-label={playing ? (lang === 'en' ? 'Pause' : 'Dừng') : (lang === 'en' ? 'Play' : 'Phát')}
-                        >
-                            {playing ? <Pause size={38} /> : <Play size={38} />}
-                        </button>
-                        <audio ref={audioRef} src={STREAM_URL} preload="none" />
-                        {!STREAM_URL && (
-                            <p style={{ fontSize: 12, color: '#f97316', marginTop: 10, textAlign: 'center' }}>
-                                ⚠️ Chưa có URL stream. Cập nhật hằng số <code>STREAM_URL</code> trong file WomenSupportPage.jsx.
-                            </p>
-                        )}
-                        {STREAM_URL && (
-                            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 10, textAlign: 'center' }}>
-                                {t('ws_stream_hint')}
-                            </p>
-                        )}
-                    </div>
-                </div>
-            )}
-        </div>
-    )
-}
 
 /* ── Support card ── */
 function SupportCard({ item, onContact }) {
@@ -387,15 +244,7 @@ export default function WomenSupportPage() {
                     ))}
                 </div>
 
-                {/* Radio */}
-                <h2 className="section-title" style={{ marginTop: 56 }}>
-                    <Radio size={22} style={{ verticalAlign: 'middle', marginRight: 8 }} />
-                    {t('ws_radio_title')}
-                </h2>
-                <p style={{ color: '#64748b', marginBottom: 24, maxWidth: 560 }}>
-                    {t('ws_radio_sub')}
-                </p>
-                <RadioSection />
+
             </div>
 
             {contact && <ContactModal item={contact} onClose={() => setContact(null)} />}
