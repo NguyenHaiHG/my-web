@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: hagiang-backend
+    env: node
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: FRONTEND_URL
+        value: https://htxtruonghai.com
