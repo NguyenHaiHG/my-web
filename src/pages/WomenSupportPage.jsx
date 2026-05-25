@@ -100,7 +100,6 @@ const SUPPORT_ITEMS = [
         urgent: true,
     },
 ]
-]
 
 /* ── Lịch phát sóng theo ngày ── */
 const SCHEDULE = [
