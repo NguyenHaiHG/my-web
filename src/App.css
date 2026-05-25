@@ -7268,10 +7268,10 @@ select.form-input {
 }
 
 /* ══ BUCKWHEAT BANNER ══ */
-background: linear-gradient(135deg, #4c1d95, #7c3aed, #ec4899);
-padding: 56px 24px;
-text-align: center;
-margin-top: 16px;
+.dc-bw-banner {
+   padding: 56px 24px;
+   text-align: center;
+   margin-top: 16px;
 }
 
 .dc-bw-flowers {
