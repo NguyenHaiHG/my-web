@@ -8,6 +8,7 @@ export const translations = {
         nav_home: '🏠 Trang Chủ',
         nav_blog: '📝 Blog',
         nav_contact: '📞 Liên Hệ',
+        nav_faq: '❓ FAQ',
         btn_login: 'Đăng Nhập',
         btn_logout: 'Thoát',
 
@@ -361,6 +362,8 @@ export const translations = {
         dc_loop_per_person: 'đ / người',
         dc_loop_includes: 'Đã bao gồm:',
         dc_loop_book: 'Đặt tour này →',
+        dc_reviews_title: 'Khách du lịch nói gì',
+        dc_reviews_sub: 'Đánh giá thực từ khách đã trải nghiệm cùng HTX Trường Hải',
         dc_bw_title: 'Hoa tam giác mạch nở rộ · Tháng 10–12',
         dc_bw_sub: 'Đến Hà Giang mùa hoa và mang về chứng nhận trải nghiệm đặc biệt nhất',
         dc_bw_btn: '🗺️ Tạo hộ chiếu của bạn →',
@@ -442,6 +445,7 @@ export const translations = {
         nav_home: '🏠 Home',
         nav_blog: '📝 Blog',
         nav_contact: '📞 Contact',
+        nav_faq: '❓ FAQ',
         btn_login: 'Login',
         btn_logout: 'Sign Out',
 
@@ -785,6 +789,8 @@ export const translations = {
         dc_loop_per_person: 'VND / person',
         dc_loop_includes: 'Included:',
         dc_loop_book: 'Book this tour →',
+        dc_reviews_title: 'What Travelers Say',
+        dc_reviews_sub: 'Real reviews from guests who experienced HTX Truong Hai',
         dc_bw_title: 'Buckwheat flowers in bloom · Oct–Dec',
         dc_bw_sub: 'Visit Ha Giang in bloom season and bring back the most special experience certificate',
         dc_bw_btn: '🗺️ Create your passport →',

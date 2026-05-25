@@ -11,6 +11,9 @@ export default function ContactPage() {
 
   const submit = (e) => {
     e.preventDefault()
+    const svcMap = { tour: 'Tour Hà Giang Loop', order: 'Sản phẩm', dacsan: 'Đặc sản địa phương', other: 'Khác' }
+    const msg = `Xin chào HTX Trường Hải! 🌿\n\nHọ tên: ${form.name}\nSĐT: ${form.phone}${form.email ? '\nEmail: ' + form.email : ''}\nDịch vụ: ${svcMap[form.service] || form.service}\n\nNội dung:\n${form.msg}`
+    window.open('https://wa.me/84385737705?text=' + encodeURIComponent(msg), '_blank')
     setSent(true)
     showToast(t('contact_toast'))
     setForm({ name: '', phone: '', email: '', service: '', msg: '' })
@@ -95,7 +98,7 @@ export default function ContactPage() {
           <h2 className="section-heading">{t('contact_map_title')}</h2>
           <div className="map-embed">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58890.35985994455!2d104.92685!3d22.82348!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x36cc8b2a5ef01d9d%3A0x7d8f8f8f8f8f8f8f!2zSOG6oCBHaWFuZw!5e0!3m2!1svi!2svn!4v1681234567890"
+              src="https://maps.google.com/maps?q=T%E1%BB%95+5+Quang+Trung%2C+Ph%C6%B0%E1%BB%9Dng+H%C3%A0+Giang%2C+H%C3%A0+Giang&hl=vi&z=16&output=embed"
               width="100%" height="300" style={{ border: 0, borderRadius: 12 }} allowFullScreen="" loading="lazy"
               referrerPolicy="no-referrer-when-downgrade" title="Ha Giang Map" />
           </div>

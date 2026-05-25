@@ -244,6 +244,40 @@ export default function DiscoverPage() {
                 </div>
             </section>
 
+            {/* ══ REVIEWS ══ */}
+            <section className="dc-reviews-section container">
+                <h2 className="dc-section-title" style={{ textAlign: 'center', marginBottom: 8 }}>{t('dc_reviews_title')}</h2>
+                <p style={{ textAlign: 'center', color: '#64748b', marginBottom: 40 }}>{t('dc_reviews_sub')}</p>
+                <div className="dc-review-grid">
+                    {REVIEWS.map((r, i) => (
+                        <div key={i} className="dc-review-card">
+                            <div className="dc-review-stars">{'⭐'.repeat(r.stars)}</div>
+                            <p className="dc-review-text">"{lang === 'en' ? r.text : r.text_vi}"</p>
+                            <div className="dc-review-author">
+                                <strong>{r.name}</strong><span>{r.country}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* ══ REVIEWS ══ */}
+            <section className="dc-reviews-section container">
+                <h2 className="dc-section-title" style={{ textAlign: 'center', marginBottom: 8 }}>{t('dc_reviews_title')}</h2>
+                <p style={{ textAlign: 'center', color: '#64748b', marginBottom: 40 }}>{t('dc_reviews_sub')}</p>
+                <div className="dc-review-grid">
+                    {REVIEWS.map((r, i) => (
+                        <div key={i} className="dc-review-card">
+                            <div className="dc-review-stars">{'⭐'.repeat(r.stars)}</div>
+                            <p className="dc-review-text">"{lang === 'en' ? r.text : r.text_vi}"</p>
+                            <div className="dc-review-author">
+                                <strong>{r.name}</strong><span>{r.country}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
             {/* ══ BUCKWHEAT BANNER ══ */}
             <div className="dc-bw-banner">
                 <div className="dc-bw-flowers">🌸🌸🌸🌸🌸🌸🌸</div>

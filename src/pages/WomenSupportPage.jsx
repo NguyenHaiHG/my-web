@@ -130,6 +130,38 @@ function SupportCard({ item, onContact }) {
 }
 
 /* ── Contact modal ── */
+const SAFETY_CHECKLIST = [
+    {
+        phase: 'Trước chuyến đi', phase_en: 'Before Your Trip', icon: '📋',
+        items: [
+            { vi: 'Lưu số HTX 0385.737.705 và 113 vào điện thoại', en: 'Save HTX 0385.737.705 and 113 in your phone' },
+            { vi: 'Chia sẻ lịch trình với gia đình hoặc bạn bè', en: 'Share your itinerary with family or friends' },
+            { vi: 'Tải bản đồ Hà Giang offline (Maps.me hoặc OsmAnd)', en: 'Download Ha Giang offline map (Maps.me or OsmAnd)' },
+            { vi: 'Đặt tour qua HTX để có hướng dẫn viên tin cậy', en: 'Book tours through HTX for trusted guides' },
+            { vi: 'Yêu cầu hướng dẫn viên nữ nếu muốn', en: 'Request a female guide if preferred' },
+        ],
+    },
+    {
+        phase: 'Trong chuyến đi', phase_en: 'During Your Trip', icon: '🗺️',
+        items: [
+            { vi: 'Bật chia sẻ vị trí cho người thân trong suốt hành trình', en: 'Enable location sharing with loved ones throughout the trip' },
+            { vi: 'Tránh chạy xe máy trên đèo sau 18:00', en: 'Avoid riding mountain passes after 6 PM' },
+            { vi: 'Tin vào linh cảm — nếu không thoải mái, hãy rời đi', en: 'Trust your instincts — if uncomfortable, leave the situation' },
+            { vi: 'Check in với gia đình ít nhất 1 lần/ngày', en: 'Check in with family at least once per day' },
+        ],
+    },
+    {
+        phase: 'Khi cần giúp đỡ', phase_en: 'If You Need Help', icon: '🆘',
+        items: [
+            { vi: 'Gọi 113 ngay nếu có nguy hiểm', en: 'Call 113 immediately if in danger' },
+            { vi: 'Nhắn vị trí GPS cho HTX qua WhatsApp/Zalo', en: 'Send your GPS location to HTX via WhatsApp/Zalo' },
+            { vi: 'Gọi 1800 599 920 nếu bị bạo lực hoặc quấy rối (miễn phí)', en: 'Call 1800 599 920 for violence or harassment (free)' },
+            { vi: 'Đến trụ sở công an phường gần nhất', en: 'Go to the nearest local police station' },
+        ],
+    },
+]
+
+/* ── Contact modal ── */
 function ContactModal({ item, onClose }) {
     const { showToast } = useUI()
     const [form, setForm] = useState({ name: '', phone: '', message: '', anonymous: false })
@@ -211,6 +243,22 @@ export default function WomenSupportPage() {
             </div>
 
             <div className="container py-section">
+                {/* SOS banner */}
+                <div className="ws-sos-banner">
+                    <div className="ws-sos-left">
+                        <span className="ws-sos-icon">🆘</span>
+                        <div>
+                            <div className="ws-sos-title">{lang === 'en' ? 'In Danger? Call Now!' : 'Đang gặp nguy hiểm?'}</div>
+                            <div className="ws-sos-sub">{lang === 'en' ? 'Free · 24/7 · Confidential' : 'Miễn phí · 24/7 · Bảo mật tuyệt đối'}</div>
+                        </div>
+                    </div>
+                    <div className="ws-sos-btns">
+                        <a href="tel:113" className="ws-sos-btn ws-sos-red">📞 113 — Cảnh sát</a>
+                        <a href="tel:1800599920" className="ws-sos-btn ws-sos-purple">📞 1800 599 920</a>
+                        <a href={`https://wa.me/84385737705?text=${encodeURIComponent('🆘 Cần giúp đỡ khẩn cấp — vị trí: ')}`} target="_blank" rel="noreferrer" className="ws-sos-btn ws-sos-green">💬 WhatsApp HTX</a>
+                    </div>
+                </div>
+
                 {/* Emergency banner */}
                 <div className="supp-emergency-bar">
                     <ShieldAlert size={20} color="#dc2626" />
@@ -244,6 +292,26 @@ export default function WomenSupportPage() {
                     ))}
                 </div>
 
+                {/* Safety checklist */}
+                <section className="ws-checklist-section">
+                    <h2 className="section-title">{lang === 'en' ? '🛡️ Solo Female Traveler Safety Guide' : '🛡️ Cẩm nang an toàn du khách nữ'}</h2>
+                    <p className="section-sub">{lang === 'en' ? 'Compiled by HTX Truong Hai for solo female travelers' : 'Được HTX Trường Hải biên soạn cho phụ nữ đi một mình'}</p>
+                    <div className="ws-checklist-grid">
+                        {SAFETY_CHECKLIST.map(group => (
+                            <div key={group.phase} className="ws-checklist-group">
+                                <div className="ws-cg-header">
+                                    <span className="ws-cg-icon">{group.icon}</span>
+                                    <h3>{lang === 'en' ? group.phase_en : group.phase}</h3>
+                                </div>
+                                <ul className="ws-cg-list">
+                                    {group.items.map((item, i) => (
+                                        <li key={i}>{lang === 'en' ? item.en : item.vi}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                </section>
 
             </div>
 
