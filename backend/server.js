@@ -17,14 +17,20 @@ const PORT = process.env.PORT || 5000
 
 // Cho phép frontend gọi API
 app.use(cors({
-    origin: [
-        'http://localhost:5173',
-        'http://localhost:4173',
-        'https://htxtruonghai.com',
-        'https://www.htxtruonghai.com',
-        'https://nguyenhaiHG.github.io',
-        process.env.FRONTEND_URL,
-    ].filter(Boolean),
+    origin: (origin, cb) => {
+        const allowed = [
+            'http://localhost:5173',
+            'http://localhost:4173',
+            'https://htxtruonghai.com',
+            'https://www.htxtruonghai.com',
+            'https://nguyenhaiHG.github.io',
+            process.env.FRONTEND_URL,
+        ].filter(Boolean)
+        // Cho phép request không có origin (Postman, health check...)
+        if (!origin || allowed.includes(origin)) return cb(null, true)
+        cb(new Error('CORS blocked: ' + origin))
+    },
+    credentials: true,
 }))
 
 // Parse JSON body, giới hạn 10mb để hỗ trợ ảnh base64

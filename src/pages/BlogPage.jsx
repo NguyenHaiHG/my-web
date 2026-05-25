@@ -43,7 +43,7 @@ export default function BlogPage() {
               {post.img && (
                 <div
                   className="blog-card-img"
-                  style={{ backgroundImage: `url(${post.img})`, cursor: 'pointer' }}
+                  style={{ backgroundImage: `url(${post.img || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80'})`, cursor: 'pointer' }}
                   onClick={() => navigate(`/blog/${post.id}`)}
                 />
               )}
