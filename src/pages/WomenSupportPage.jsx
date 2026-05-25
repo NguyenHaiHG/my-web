@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { useData } from '../context/DataContext'
 import { useUI } from '../context/UIContext'
-import { Phone, ShieldAlert, Heart, Radio, Send, Mic, Volume2, ChevronRight, AlertCircle } from 'lucide-react'
+import { Send, ShieldAlert, Heart, Radio, Volume2, ChevronRight, AlertCircle } from 'lucide-react'
 
 /* ── Emergency hotlines ── */
 const HOTLINES = [
@@ -77,40 +76,33 @@ const SUPPORT_ITEMS = [
     },
 ]
 
-/* ── Radio section ── */
+/* ── Lịch phát sóng theo ngày ── */
+const SCHEDULE = [
+    { day: 1, dayLabel: 'Thứ Hai', time: '20:00–20:30', icon: '💌', title: 'Tình cảm đôi lứa', desc: 'Những câu chuyện yêu thương, nhớ nhung và gắn kết.' },
+    { day: 2, dayLabel: 'Thứ Ba', time: '20:00–20:30', icon: '👨‍👩‍👧', title: 'Mái ấm gia đình', desc: 'Chuyện bố mẹ, con cái và những khoảnh khắc đáng nhớ.' },
+    { day: 3, dayLabel: 'Thứ Tư', time: '20:00–20:30', icon: '🌱', title: 'Vượt khó — Truyền cảm hứng', desc: 'Hành trình vươn lên của những người bình thường.' },
+    { day: 4, dayLabel: 'Thứ Năm', time: '20:00–20:30', icon: '🤝', title: 'Tình người', desc: 'Những nghĩa cử cao đẹp và lòng tốt quanh ta.' },
+    { day: 5, dayLabel: 'Thứ Sáu', time: '20:00–20:30', icon: '🏔️', title: 'Quê hương & Ký ức', desc: 'Nỗi nhớ quê, tiếng làng, bữa cơm gia đình.' },
+    { day: 6, dayLabel: 'Thứ Bảy', time: '19:00–20:00', icon: '🌸', title: 'Phụ nữ & Cuộc sống', desc: 'Chuyên đề đặc biệt: sức mạnh, vẻ đẹp và bản lĩnh phụ nữ.' },
+    { day: 0, dayLabel: 'Chủ Nhật', time: '19:00–19:30', icon: '📰', title: 'Tin tức cộng đồng', desc: 'Điểm tin hoạt động, sự kiện và thông báo địa phương.' },
+]
+
+function isOnAir(prog) {
+    const now = new Date()
+    if (now.getDay() !== prog.day) return false
+    const [startStr, endStr] = prog.time.split('–')
+    const [sh, sm] = startStr.split(':').map(Number)
+    const [eh, em] = endStr.split(':').map(Number)
+    const mins = now.getHours() * 60 + now.getMinutes()
+    return mins >= sh * 60 + sm && mins < eh * 60 + em
+}
+
+/* ── Radio section — lịch hẹn giờ + nghe trực tuyến ── */
 function RadioSection() {
-    const { addItem, reviews } = useData()
-    const { showToast } = useUI()
-    const [tab, setTab] = useState('listen') // 'listen' | 'share'
-    const [form, setForm] = useState({ name: '', content: '', category: 'radio', anonymous: false })
-    const [sent, setSent] = useState(false)
-
-    // Radio stories are reviews with category='radio'
-    const stories = (reviews || []).filter(r => r.category === 'radio' && r.approved)
-
-    const categories = [
-        { icon: '💌', label: 'Tình cảm đôi lứa' },
-        { icon: '👨‍👩‍👧', label: 'Gia đình' },
-        { icon: '🌱', label: 'Vượt khó' },
-        { icon: '🤝', label: 'Tình người' },
-        { icon: '🏔️', label: 'Quê hương' },
-    ]
-
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        try {
-            await addItem('review', {
-                ...form,
-                name: form.anonymous ? 'Ẩn danh 🎭' : (form.name || 'Người chia sẻ'),
-                category: 'radio',
-                approved: false,
-                date: new Date().toLocaleDateString('vi-VN'),
-                program: 'radio',
-            })
-            setSent(true)
-            showToast('📻 Câu chuyện của bạn đã được gửi! Sẽ lên sóng sau khi duyệt.')
-        } catch { showToast('❌ Gửi thất bại, thử lại nhé') }
-    }
+    const [tab, setTab] = useState('schedule') // 'schedule' | 'listen'
+    const now = new Date()
+    const todayDow = now.getDay()
+    const currentlyOnAir = SCHEDULE.find(isOnAir)
 
     return (
         <div className="radio-section">
@@ -118,90 +110,80 @@ function RadioSection() {
                 <div className="radio-logo">
                     <Radio size={28} />
                     <div>
-                        <div className="radio-name">📻 Đài phát thanh Trường Hải FM</div>
-                        <div className="radio-tagline">Nơi những câu chuyện được lắng nghe</div>
+                        <div className="radio-name">📻 Trường Hải FM</div>
+                        <div className="radio-tagline">Phát sóng mỗi tối — Lắng nghe &amp; Đồng hành</div>
                     </div>
                 </div>
-                <div className="radio-on-air">
-                    <Volume2 size={14} /> ON AIR
-                </div>
+                {currentlyOnAir ? (
+                    <div className="radio-on-air"><Volume2 size={14} /> ON AIR</div>
+                ) : (
+                    <div className="radio-off-air">📅 Xem lịch phát sóng</div>
+                )}
             </div>
 
-            <div className="radio-tabs">
-                <button className={`radio-tab ${tab === 'listen' ? 'radio-tab-active' : ''}`} onClick={() => setTab('listen')}>
-                    🎧 Nghe câu chuyện
-                </button>
-                <button className={`radio-tab ${tab === 'share' ? 'radio-tab-active' : ''}`} onClick={() => setTab('share')}>
-                    <Mic size={14} /> Chia sẻ câu chuyện
-                </button>
-            </div>
-
-            {tab === 'listen' && (
-                <div className="radio-stories">
-                    {stories.length === 0 ? (
-                        <div className="radio-empty">
-                            <p>📭 Chưa có câu chuyện nào lên sóng.</p>
-                            <p style={{ fontSize: 14, color: '#94a3b8' }}>Hãy là người đầu tiên chia sẻ — câu chuyện của bạn có thể chạm đến trái tim ai đó.</p>
-                        </div>
-                    ) : (
-                        stories.map((s, i) => (
-                            <div key={i} className="radio-story-card">
-                                <div className="radio-story-ep">Tập {stories.length - i}</div>
-                                <p className="radio-story-content">"{s.content}"</p>
-                                <div className="radio-story-meta">
-                                    <span>— {s.name}</span>
-                                    <span>{s.date}</span>
-                                </div>
-                            </div>
-                        ))
-                    )}
+            {currentlyOnAir && (
+                <div className="radio-now-playing">
+                    <span className="radio-live-dot" /> Đang phát: <strong>{currentlyOnAir.icon} {currentlyOnAir.title}</strong>
+                    <span style={{ marginLeft: 8, opacity: .8 }}>{currentlyOnAir.time}</span>
                 </div>
             )}
 
-            {tab === 'share' && (
-                <div className="radio-share">
-                    {sent ? (
-                        <div className="radio-sent">
-                            <div style={{ fontSize: 48 }}>🎙️</div>
-                            <h4>Câu chuyện đã được gửi!</h4>
-                            <p>Ban biên tập sẽ xem xét và lên sóng trong 1–2 ngày. Cảm ơn bạn đã tin tưởng chia sẻ.</p>
-                            <button className="btn3d btn3d-green" onClick={() => { setSent(false); setForm({ name: '', content: '', category: 'radio', anonymous: false }) }}>
-                                Chia sẻ thêm
-                            </button>
-                        </div>
-                    ) : (
-                        <>
-                            <p className="radio-share-intro">
-                                Câu chuyện của bạn — dù buồn hay vui, dù về tình yêu hay cuộc sống — đều có giá trị.<br />
-                                <strong>Bạn có thể ẩn danh hoàn toàn.</strong>
-                            </p>
-                            <div className="radio-cats">
-                                {categories.map(c => (
-                                    <button key={c.label} className="radio-cat-btn" onClick={() =>
-                                        setForm(f => ({ ...f, content: f.content + (f.content ? ' ' : '') + `[${c.label}] ` }))}>
-                                        {c.icon} {c.label}
-                                    </button>
-                                ))}
+            <div className="radio-tabs">
+                <button className={`radio-tab ${tab === 'schedule' ? 'radio-tab-active' : ''}`} onClick={() => setTab('schedule')}>
+                    📅 Lịch phát sóng
+                </button>
+                <button className={`radio-tab ${tab === 'listen' ? 'radio-tab-active' : ''}`} onClick={() => setTab('listen')}>
+                    <Volume2 size={14} /> Nghe trực tuyến
+                </button>
+            </div>
+
+            {tab === 'schedule' && (
+                <div className="radio-schedule">
+                    {SCHEDULE.map(prog => {
+                        const onAir = isOnAir(prog)
+                        const isToday = prog.day === todayDow
+                        return (
+                            <div key={prog.day} className={`radio-sched-row${onAir ? ' radio-sched-onair' : ''}${isToday && !onAir ? ' radio-sched-today' : ''}`}>
+                                <div className="radio-sched-day">
+                                    <span className="radio-sched-daylabel">{prog.dayLabel}</span>
+                                    <span className="radio-sched-time">{prog.time}</span>
+                                </div>
+                                <div className="radio-sched-icon">{prog.icon}</div>
+                                <div className="radio-sched-info">
+                                    <div className="radio-sched-title">
+                                        {prog.title}
+                                        {onAir && <span className="radio-live-badge"><span className="radio-live-dot" />ĐANG PHÁT</span>}
+                                        {isToday && !onAir && <span className="radio-today-badge">Hôm nay</span>}
+                                    </div>
+                                    <div className="radio-sched-desc">{prog.desc}</div>
+                                </div>
                             </div>
-                            <form onSubmit={handleSubmit} className="login-form">
-                                <label style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, cursor: 'pointer' }}>
-                                    <input type="checkbox" checked={form.anonymous}
-                                        onChange={e => setForm(f => ({ ...f, anonymous: e.target.checked }))} />
-                                    <span style={{ fontSize: 14 }}>🎭 Ẩn danh (không hiển thị tên)</span>
-                                </label>
-                                {!form.anonymous && (
-                                    <input className="form-input" placeholder="Tên của bạn (hoặc bút danh)"
-                                        value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-                                )}
-                                <textarea className="form-input form-textarea" style={{ minHeight: 120 }}
-                                    placeholder="Kể câu chuyện của bạn… Tình cảm, gia đình, vượt khó, hay bất cứ điều gì bạn muốn chia sẻ."
-                                    value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} required />
-                                <button type="submit" className="btn3d btn3d-orange btn-full">
-                                    <Send size={15} /> Gửi lên sóng
-                                </button>
-                            </form>
-                        </>
-                    )}
+                        )
+                    })}
+                </div>
+            )}
+
+            {tab === 'listen' && (
+                <div className="radio-listen">
+                    <div className="radio-player-wrap">
+                        <div className="radio-player-art">
+                            <Radio size={44} />
+                            <div className="radio-wave"><span /><span /><span /><span /><span /></div>
+                        </div>
+                        <p className="radio-player-title">📻 Trường Hải FM — Phát sóng trực tiếp</p>
+                        <p className="radio-player-sub">Nghe miễn phí · Không cần đăng ký</p>
+                        {/* Thay src bằng URL stream thực tế của bạn */}
+                        <audio
+                            controls
+                            style={{ width: '100%', marginTop: 12, borderRadius: 8 }}
+                            src=""
+                        >
+                            Trình duyệt của bạn không hỗ trợ audio.
+                        </audio>
+                        <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 10, textAlign: 'center' }}>
+                            💡 Đài phát sóng theo lịch cố định. Nếu không nghe được, hãy kiểm tra tab <strong>Lịch phát sóng</strong> và thử lại đúng giờ.
+                        </p>
+                    </div>
                 </div>
             )}
         </div>
