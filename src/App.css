@@ -5319,8 +5319,9 @@ select.form-input {
    border: 1px solid #e2e8f0;
    transition: box-shadow .15s, transform .15s
 }
+
 .qm-tour-card:hover {
-   box-shadow: 0 6px 20px rgba(0,0,0,.1);
+   box-shadow: 0 6px 20px rgba(0, 0, 0, .1);
    transform: translateY(-2px)
 }
 
@@ -5439,4 +5440,89 @@ select.form-input {
    font-size: 14px;
    color: #2d6a4f;
    margin-top: 12px
+}
+
+/* ====================================================
+   HOME NAV BAR — thanh nav thu gọn trên trang chủ
+   ==================================================== */
+.hnb-wrap {
+   background: #fff;
+   border-bottom: 1px solid #e2e8f0;
+   display: flex;
+   align-items: center;
+   gap: 0;
+   padding: 0 12px;
+   height: 44px;
+   position: sticky;
+   top: 62px;        /* chiều cao header */
+   z-index: 900;
+   box-shadow: 0 2px 8px rgba(0,0,0,.06);
+   overflow: hidden;
+   transition: height .25s ease
+}
+.hnb-wrap.hnb-open {
+   height: auto;
+   min-height: 44px;
+   flex-wrap: wrap;
+   padding: 6px 12px
+}
+
+.hnb-toggle {
+   flex-shrink: 0;
+   width: 34px;
+   height: 34px;
+   border-radius: 8px;
+   border: none;
+   background: #f1f5f9;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: #1b4332;
+   transition: background .15s;
+   margin-right: 8px
+}
+.hnb-toggle:hover { background: #dcfce7 }
+
+/* Collapsed: items hidden */
+.hnb-items {
+   display: none;
+   flex-wrap: wrap;
+   gap: 4px
+}
+.hnb-open .hnb-items {
+   display: flex
+}
+
+.hnb-item {
+   display: flex;
+   align-items: center;
+   gap: 6px;
+   padding: 6px 12px;
+   border-radius: 20px;
+   border: none;
+   background: #f8fafc;
+   cursor: pointer;
+   font-size: 13px;
+   font-weight: 600;
+   color: #1e293b;
+   transition: background .15s, color .15s;
+   white-space: nowrap
+}
+.hnb-item:hover {
+   background: #dcfce7;
+   color: #1b4332
+}
+.hnb-icon { font-size: 16px }
+.hnb-label { font-size: 13px }
+
+/* On wider screens show a hint label next to toggle */
+@media (min-width: 640px) {
+   .hnb-wrap:not(.hnb-open)::after {
+      content: 'Menu';
+      font-size: 12px;
+      color: #94a3b8;
+      letter-spacing: .5px;
+      margin-left: 2px
+   }
 }

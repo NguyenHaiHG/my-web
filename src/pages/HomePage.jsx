@@ -1,9 +1,40 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, MapPin, Heart, Leaf, Users, ArrowRight, Calendar, User, CheckCircle } from 'lucide-react'
+import { ChevronRight, MapPin, Heart, Leaf, Users, ArrowRight, Calendar, User, CheckCircle, Menu, X } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useLang } from '../context/LanguageContext'
 import QuickMenu from '../components/QuickMenu'
+
+const HOME_NAV = [
+  { icon: '🗺️', label: 'Discover', path: '/tours' },
+  { icon: '🎨', label: 'Create', path: '/workshop' },
+  { icon: '🛍️', label: 'Shop', path: '/san-pham' },
+  { icon: '🤝', label: 'Cộng đồng', path: '/cong-dong' },
+  { icon: '📚', label: 'Thư viện', path: '/thu-vien' },
+  { icon: '❤️', label: 'Tình nguyện', path: '/tinh-nguyen' },
+  { icon: '📝', label: 'Blog', path: '/blog' },
+  { icon: '📞', label: 'Liên hệ', path: '/lien-he' },
+]
+
+function HomeNavBar() {
+  const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
+  return (
+    <div className={`hnb-wrap ${open ? 'hnb-open' : ''}`}>
+      <button className="hnb-toggle" onClick={() => setOpen(o => !o)} aria-label="Menu">
+        {open ? <X size={18} /> : <Menu size={18} />}
+      </button>
+      <div className="hnb-items">
+        {HOME_NAV.map(item => (
+          <button key={item.path} className="hnb-item" onClick={() => { navigate(item.path); setOpen(false) }}>
+            <span className="hnb-icon">{item.icon}</span>
+            <span className="hnb-label">{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 const AVATAR_COLORS = ['#1b4332', '#7c3aed', '#db2777', '#d97706', '#0891b2', '#c05621', '#2563eb', '#16a34a']
 function getAvatarColor(name) {
@@ -161,6 +192,9 @@ export default function HomePage() {
           <div className="scroll-arrow" />
         </div>
       </section>
+
+      {/* ═══ HOME NAV BAR ═══ */}
+      <HomeNavBar />
 
       {/* ═══ IMPACT NUMBERS ═══ */}
       <section id="impact" className="ng-impact">
