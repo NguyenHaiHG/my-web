@@ -9,7 +9,7 @@ import { useLang } from '../context/LanguageContext'
 export default function BlogPage() {
   const { posts, deleteItem } = useData()
   const { isMod, isAdmin } = useAuth()
-  const { setAdminModal, showToast } = useUI()
+  const { setAdminModal, setEditItem, showToast } = useUI()
   const { t } = useLang()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
@@ -61,7 +61,7 @@ export default function BlogPage() {
                     {t('blog_read_more')}
                   </button>
                   {isMod && (
-                    <button className="btn3d btn3d-orange btn-sm" onClick={() => navigate(`/blog/${post.id}`)}>
+                    <button className="btn3d btn3d-orange btn-sm" onClick={() => setEditItem({ type: 'post', item: post })}>
                       <Edit2 size={14} /> {t('blog_edit')}
                     </button>
                   )}

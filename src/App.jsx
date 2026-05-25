@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Routes, Route, NavLink, Link, useNavigate } from 'react-router-dom'
 import {
   User, LogOut, Menu, X,
-  Upload, Plus, LayoutDashboard, WifiOff
+  Upload, Plus, LayoutDashboard, WifiOff, Save
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider, useData } from './context/DataContext'
@@ -187,6 +187,133 @@ function AdminModal() {
 }
 
 /* ──────────────────────────────────────────────────────
+   EDIT MODAL – Sửa nội dung (global, dùng ở mọi trang)
+────────────────────────────────────────────────────── */
+const EDIT_FIELDS = {
+  post: ['title', 'content', 'author', 'img'],
+  product: ['title', 'desc', 'price', 'img'],
+  tour: ['title', 'desc', 'price', 'duration', 'img'],
+  workshop: ['title', 'content', 'date', 'time', 'category', 'capacity', 'status', 'instructor', 'img'],
+  library: ['title', 'content', 'category', 'ethnic', 'pronunciation', 'translation', 'img'],
+  review: ['name', 'country', 'rating', 'content'],
+}
+const EDIT_META = {
+  title: { label: 'Tiêu đề', type: 'text', required: true },
+  content: { label: 'Nội dung', type: 'textarea' },
+  desc: { label: 'Mô tả', type: 'textarea' },
+  author: { label: 'Tác giả', type: 'text' },
+  date: { label: 'Ngày', type: 'text' },
+  time: { label: 'Giờ', type: 'text' },
+  category: { label: 'Danh mục', type: 'text' },
+  capacity: { label: 'Sức chứa', type: 'number' },
+  status: { label: 'Trạng thái', type: 'text' },
+  instructor: { label: 'Giảng viên', type: 'text' },
+  ethnic: { label: 'Dân tộc', type: 'text' },
+  pronunciation: { label: 'Phát âm', type: 'text' },
+  translation: { label: 'Dịch nghĩa', type: 'text' },
+  price: { label: 'Giá', type: 'text' },
+  duration: { label: 'Thời gian', type: 'text' },
+  name: { label: 'Tên', type: 'text' },
+  country: { label: 'Quốc gia', type: 'text' },
+  rating: { label: 'Đánh giá (1–5)', type: 'number' },
+  img: { label: 'Ảnh', type: 'image' },
+}
+const EDIT_LABEL = { post: 'Bài viết', product: 'Sản phẩm', tour: 'Discover', workshop: 'Workshop', library: 'Thư viện', review: 'Review' }
+
+function EditModal() {
+  const { editItem, setEditItem, showToast } = useUI()
+  const { updateItem } = useData()
+  const { type, item } = editItem
+  const fields = EDIT_FIELDS[type] || Object.keys(item).filter(k => k !== 'id' && k !== '_id')
+  const [form, setForm] = useState(() => {
+    const f = {}; fields.forEach(k => { f[k] = item[k] ?? '' }); return f
+  })
+  const [preview, setPreview] = useState(item.img || '')
+  const [saving, setSaving] = useState(false)
+
+  const handleFile = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 20 * 1024 * 1024) { showToast('❌ Ảnh quá lớn (tối đa 20MB)'); return }
+    try {
+      const compressed = await compressImage(file)
+      setPreview(compressed)
+      setForm(f => ({ ...f, img: compressed }))
+    } catch { showToast('❌ Không đọc được ảnh, thử file khác') }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setSaving(true)
+    try {
+      await updateItem(type, item.id, form)
+      showToast(`✅ Đã lưu ${EDIT_LABEL[type] || type}!`)
+      setEditItem(null)
+    } catch (err) {
+      showToast('❌ Lỗi: ' + (err?.message || 'Không lưu được'))
+    }
+    setSaving(false)
+  }
+
+  return (
+    <div className="modal-backdrop" onClick={() => setEditItem(null)}>
+      <div className="modal modal-large edit-modal" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={() => setEditItem(null)}><X size={16} /></button>
+        <h2 className="modal-title">✏️ Chỉnh sửa {EDIT_LABEL[type] || type}</h2>
+        <form onSubmit={handleSubmit} className="login-form">
+          {fields.map(key => {
+            const meta = EDIT_META[key] || { label: key, type: 'text' }
+            if (meta.type === 'image') return (
+              <div key={key} className="img-upload-area">
+                <p className="img-upload-title"><Upload size={14} /> Ảnh</p>
+                {preview && (
+                  <div className="edit-img-current">
+                    <img src={preview} alt="preview" />
+                    <button type="button" className="edit-img-remove"
+                      onClick={() => { setPreview(''); setForm(f => ({ ...f, img: '' })) }}>
+                      <X size={12} /> Xoá ảnh
+                    </button>
+                  </div>
+                )}
+                <label className="img-upload-box">
+                  <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={handleFile} />
+                  <div className="img-upload-placeholder" style={{ padding: '14px' }}>
+                    <Upload size={22} color="#94a3b8" />
+                    <span style={{ fontSize: 13 }}>{preview ? 'Thay ảnh mới' : 'Tải ảnh lên'}</span>
+                    <small>PNG · JPG · WEBP</small>
+                  </div>
+                </label>
+                <div className="img-or">hoặc dán URL</div>
+                <input className="form-input" placeholder="https://…" value={form.img}
+                  onChange={e => { setForm(f => ({ ...f, img: e.target.value })); setPreview(e.target.value) }} />
+              </div>
+            )
+            if (meta.type === 'textarea') return (
+              <div key={key}>
+                <label className="edit-field-label">{meta.label}</label>
+                <textarea className="form-input form-textarea" value={form[key]}
+                  onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
+              </div>
+            )
+            return (
+              <div key={key}>
+                <label className="edit-field-label">{meta.label}</label>
+                <input className="form-input" type={meta.type || 'text'} required={!!meta.required}
+                  value={form[key]}
+                  onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
+              </div>
+            )
+          })}
+          <button type="submit" className="btn3d btn3d-green btn-full" disabled={saving}>
+            <Save size={15} /> {saving ? 'Đang lưu…' : 'Lưu thay đổi'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+/* ──────────────────────────────────────────────────────
    HEADER
 ────────────────────────────────────────────────────── */
 function Header() {
@@ -268,13 +395,14 @@ function Header() {
    APP INNER
 ────────────────────────────────────────────────────── */
 function AppInner() {
-  const { toast, showLogin, adminModal } = useUI()
+  const { toast, showLogin, adminModal, editItem } = useUI()
   const { t } = useLang()
   return (
     <div className="app">
       {toast && <div className="toast">{toast}</div>}
       {showLogin && <LoginModal />}
       {adminModal && <AdminModal />}
+      {editItem && <EditModal />}
       <Header />
       <main>
         <Routes>
