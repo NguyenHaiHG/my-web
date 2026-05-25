@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Routes, Route, NavLink, Link, useNavigate } from 'react-router-dom'
 import {
   User, LogOut, Menu, X,
-  Upload, Plus, LayoutDashboard
+  Upload, Plus, LayoutDashboard, WifiOff
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider, useData } from './context/DataContext'
@@ -193,6 +193,7 @@ function Header() {
   const { user, logout, isMod } = useAuth()
   const { setShowLogin } = useUI()
   const { lang, t, toggleLang } = useLang()
+  const { offline } = useData()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
@@ -241,6 +242,11 @@ function Header() {
         </nav>
 
         <div className="header-actions">
+          {offline && (
+            <span className="offline-badge" title="Backend không kết nối — đang lưu dữ liệu local">
+              <WifiOff size={13} /> Local
+            </span>
+          )}
           <button className="lang-toggle" onClick={toggleLang} title={lang === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}>
             {lang === 'vi' ? '🇺🇸 EN' : '🇻🇳 VI'}
           </button>
