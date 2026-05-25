@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { usePassport, STAMP_DEFS, CERT_TYPES } from '../context/PassportContext'
+import { useLang } from '../context/LanguageContext'
 import { Edit2, Check, Download, ArrowLeft, Star } from 'lucide-react'
 
 /* ══════════════════════════════════════════════════════
@@ -157,10 +158,11 @@ function StarRating({ value, onChange }) {
    BASIC TAB — 6 original stamps
    ══════════════════════════════════════════════════════ */
 function BasicTab({ passport, hasStamp, handleDownloadBasic }) {
+    const { t, lang } = useLang()
     const progress = (passport.stamps.length / Object.keys(STAMP_DEFS).length) * 100
     return (
         <div>
-            <h2 className="pp-section-title">🎖️ Bộ sưu tập tem cơ bản</h2>
+            <h2 className="pp-section-title">{t('pp_basic_title')}</h2>
             <div className="pp-stamps-grid">
                 {Object.entries(STAMP_DEFS).map(([type, def]) => {
                     const earned = hasStamp(type)
@@ -171,22 +173,22 @@ function BasicTab({ passport, hasStamp, handleDownloadBasic }) {
                                 <span className="pp-stamp-icon">{def.icon}</span>
                                 {earned && <div className="pp-stamp-check-badge">✓</div>}
                             </div>
-                            <div className="pp-stamp-label">{def.label}</div>
-                            {earned ? <div className="pp-stamp-date">{stamp.earnedAt}</div> : <div className="pp-stamp-how">{def.how}</div>}
+                            <div className="pp-stamp-label">{lang === 'en' ? (def.label_en || def.label) : def.label}</div>
+                            {earned ? <div className="pp-stamp-date">{stamp.earnedAt}</div> : <div className="pp-stamp-how">{lang === 'en' ? (def.how_en || def.how) : def.how}</div>}
                         </div>
                     )
                 })}
             </div>
             {/* howto list */}
             <div className="pp-howto">
-                <h3>Cách kiếm tem</h3>
+                <h3>{t('pp_howto_title')}</h3>
                 <div className="pp-howto-grid">
                     {Object.entries(STAMP_DEFS).map(([type, def]) => (
                         <Link key={type}
                             to={type === 'tour' ? '/tours' : type === 'product' ? '/san-pham' : type === 'training' ? '/dao-tao' : type === 'radio' ? '/ho-tro' : '/'}
                             className={`pp-howto-item ${hasStamp(type) ? 'pp-howto-done' : ''}`}
                         >
-                            <span>{def.icon}</span><span>{def.how}</span>
+                            <span>{def.icon}</span><span>{lang === 'en' ? (def.how_en || def.how) : def.how}</span>
                             {hasStamp(type) && <span className="pp-howto-check">✓</span>}
                         </Link>
                     ))}
@@ -194,12 +196,12 @@ function BasicTab({ passport, hasStamp, handleDownloadBasic }) {
             </div>
             <div className="pp-cert-box">
                 <div className="pp-cert-left">
-                    <h3>🏆 Chứng nhận Trải nghiệm</h3>
-                    <p>{passport.stamps.length === 0 ? 'Hãy kiếm ít nhất 1 tem để xuất chứng nhận.' : `Bạn có ${passport.stamps.length} tem. Tải xuống chứng nhận PNG.`}</p>
+                    <h3>{t('pp_cert_title_basic')}</h3>
+                    <p>{passport.stamps.length === 0 ? t('pp_cert_no_stamps') : t('pp_cert_has').replace('{n}', passport.stamps.length)}</p>
                 </div>
                 <button className={`pp-cert-btn ${passport.stamps.length === 0 ? 'pp-cert-btn-disabled' : ''}`}
                     onClick={handleDownloadBasic} disabled={passport.stamps.length === 0 || !passport.holderName}>
-                    <Download size={18} /> Tải PNG
+                    <Download size={18} /> {t('pp_cert_dl')}
                 </button>
             </div>
         </div>
@@ -210,6 +212,7 @@ function BasicTab({ passport, hasStamp, handleDownloadBasic }) {
    CERT TAB — Loop / Culture / Volunteer / Products
    ══════════════════════════════════════════════════════ */
 function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCount, addReview, getReviews, holderName, addStamp }) {
+    const { t, lang } = useLang()
     const earnedCount = getCertStampCount(certDef.id)
     const totalCount = Object.keys(certDef.stamps).length
     const progress = (earnedCount / totalCount) * 100
@@ -253,8 +256,8 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
             <div className="pp-cert-tab-header" style={{ background: certDef.bgGrad }}>
                 <span className="pp-ct-icon">{certDef.icon}</span>
                 <div>
-                    <h2 className="pp-ct-title">{certDef.title}</h2>
-                    <p className="pp-ct-sub">Cần {certDef.minStamps}/{totalCount} địa danh để nhận chứng nhận</p>
+                    <h2 className="pp-ct-title">{lang === 'en' ? (certDef.title_en || certDef.title) : certDef.title}</h2>
+                    <p className="pp-ct-sub">{t('pp_ct_need').replace('{min}', certDef.minStamps).replace('{total}', totalCount)}</p>
                 </div>
                 <div className="pp-ct-count">{earnedCount}<span>/{totalCount}</span></div>
             </div>
@@ -264,7 +267,7 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
                 <div className="pp-progress-bar" style={{ width: `${progress}%`, background: `linear-gradient(90deg,${certDef.color},#f59e0b)` }} />
             </div>
             <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
-                {canDownload ? '🎉 Đủ điều kiện nhận chứng nhận!' : `Còn ${certDef.minStamps - earnedCount} tem nữa để nhận chứng nhận.`}
+                {canDownload ? t('pp_ct_enough') : t('pp_ct_more').replace('{n}', certDef.minStamps - earnedCount)}
             </p>
 
             {/* Stamps grid with claim buttons */}
@@ -278,14 +281,14 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
                                 <span>{def.icon}</span>
                                 {earned && <div className="pp-cs-check">✓</div>}
                             </div>
-                            <div className="pp-cs-label">{def.label}</div>
+                            <div className="pp-cs-label">{lang === 'en' ? (def.label_en || def.label) : def.label}</div>
                             {earned
                                 ? <div className="pp-cs-date">{earnedData?.earnedAt}</div>
                                 : (
                                     <div>
-                                        <div className="pp-cs-how">{def.how}</div>
+                                        <div className="pp-cs-how">{lang === 'en' ? (def.how_en || def.how) : def.how}</div>
                                         <button className="pp-claim-btn" style={{ borderColor: def.color, color: def.color }} onClick={() => handleClaim(type)}>
-                                            Tôi đã đến! ✓
+                                            {t('pp_ct_claim')}
                                         </button>
                                     </div>
                                 )
@@ -298,37 +301,37 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
             {/* Certificate download */}
             <div className="pp-cert-box" style={{ marginTop: 24 }}>
                 <div className="pp-cert-left">
-                    <h3>🏆 {certDef.certTitle}</h3>
-                    <p>{canDownload ? 'Xuất chứng nhận của bạn dưới dạng ảnh PNG.' : `Cần thêm ${Math.max(0, certDef.minStamps - earnedCount)} địa danh nữa.`}</p>
+                    <h3>🏆 {lang === 'en' ? (certDef.certTitle_en || certDef.certTitle) : certDef.certTitle}</h3>
+                    <p>{canDownload ? t('pp_ct_cert_ready') : t('pp_ct_cert_locked').replace('{n}', Math.max(0, certDef.minStamps - earnedCount))}</p>
                 </div>
                 <button className={`pp-cert-btn ${!canDownload ? 'pp-cert-btn-disabled' : ''}`}
                     onClick={handleDownload} disabled={!canDownload || !holderName}
-                    title={!holderName ? 'Nhập tên trước' : ''}>
-                    <Download size={18} /> {downloading ? '✅ Đã tải!' : 'Tải PNG'}
+                    title={!holderName ? t('pp_ct_name_req') : ''}>
+                    <Download size={18} /> {downloading ? t('pp_ct_downloaded') : t('pp_ct_dl')}
                 </button>
             </div>
 
             {/* ── Reviews section (all cert types) ── */}
             <div className="pp-reviews-section">
-                <h3 className="pp-section-title" style={{ fontSize: 18, marginTop: 32 }}>📝 Đánh giá trải nghiệm</h3>
+                <h3 className="pp-section-title" style={{ fontSize: 18, marginTop: 32 }}>{t('pp_rev_title')}</h3>
 
                 {/* Review form */}
                 {reviewSent ? (
-                    <div className="pp-review-sent">✅ Cảm ơn bạn đã chia sẻ! Đánh giá đã được lưu. <span style={{ color: '#7c3aed' }}>+1 tem 🗣️</span></div>
+                    <div className="pp-review-sent">{t('pp_rev_sent')} <span style={{ color: '#7c3aed' }}>+1 tem 🗣️</span></div>
                 ) : (
                     <form className="pp-review-form" onSubmit={handleReviewSubmit}>
                         <div className="pp-rf-row">
-                            <label className="pp-rf-label">Đánh giá của bạn</label>
+                            <label className="pp-rf-label">{t('pp_rev_rating_label')}</label>
                             <StarRating value={reviewForm.rating} onChange={r => setReviewForm(p => ({ ...p, rating: r }))} />
                         </div>
-                        <input className="form-input" placeholder="Địa danh / hoạt động bạn đã trải nghiệm..."
+                        <input className="form-input" placeholder={t('pp_rev_loc_ph')}
                             value={reviewForm.location} onChange={e => setReviewForm(p => ({ ...p, location: e.target.value }))} />
                         <textarea className="form-input form-textarea" rows={3}
-                            placeholder="Chia sẻ cảm nhận của bạn về trải nghiệm tại Hà Giang..."
+                            placeholder={t('pp_rev_comment_ph')}
                             value={reviewForm.comment} onChange={e => setReviewForm(p => ({ ...p, comment: e.target.value }))} />
                         <button type="submit" className="btn3d btn3d-orange"
                             disabled={reviewForm.rating === 0 || !reviewForm.comment.trim()}>
-                            Gửi đánh giá
+                            {t('pp_rev_submit')}
                         </button>
                     </form>
                 )}
@@ -364,6 +367,7 @@ export default function PassportPage() {
         addCertStamp, hasCertStamp, getCertStamps, getCertStampCount,
         addReview, getReviews,
     } = usePassport()
+    const { t, lang } = useLang()
 
     const [activeTab, setActiveTab] = useState('basic')
     const [editingName, setEditingName] = useState(!passport.holderName)
@@ -384,14 +388,14 @@ export default function PassportPage() {
     const totalBasicProgress = (passport.stamps.length / Object.keys(STAMP_DEFS).length) * 100
 
     const TABS = [
-        { id: 'basic', icon: '🎖️', label: 'Tem cơ bản' },
-        ...Object.values(CERT_TYPES).map(c => ({ id: c.id, icon: c.icon, label: c.shortTitle, color: c.color })),
+        { id: 'basic', icon: '🎖️', label: t('pp_tab_basic') },
+        ...Object.values(CERT_TYPES).map(c => ({ id: c.id, icon: c.icon, label: lang === 'en' ? (c.shortTitle_en || c.shortTitle) : c.shortTitle, color: c.color })),
     ]
 
     return (
         <div className="page-enter pp-page">
             <div className="container" style={{ paddingTop: 24, paddingBottom: 0 }}>
-                <Link to="/" className="btn-back"><ArrowLeft size={16} /> Trang khám phá</Link>
+                <Link to="/" className="btn-back"><ArrowLeft size={16} /> {t('pp_back')}</Link>
             </div>
 
             <div className="pp-layout container">
@@ -400,22 +404,22 @@ export default function PassportPage() {
                 <div className="pp-left">
                     <div className="pp-cover">
                         <div className="pp-cover-top">
-                            <p className="pp-cover-country">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+                            <p className="pp-cover-country">{t('pp_cover_country')}</p>
                             <div className="pp-cover-emblem">🌸</div>
-                            <h2 className="pp-cover-title">HỘ CHIẾU<br />TRẢI NGHIỆM</h2>
-                            <p className="pp-cover-org">HTX Trường Hải · Tuyên Quang</p>
+                            <h2 className="pp-cover-title">{t('pp_cover_title1')}<br />{t('pp_cover_title2')}</h2>
+                            <p className="pp-cover-org">{t('pp_cover_org')}</p>
                         </div>
                         <div className="pp-cover-strip"><span>HG-EXPERIENCE-PASSPORT</span></div>
                     </div>
 
                     <div className="pp-data-page">
-                        <h3 className="pp-dp-title">📋 THÔNG TIN NGƯỜI DÙNG</h3>
+                        <h3 className="pp-dp-title">{t('pp_dp_title')}</h3>
                         {editingName ? (
                             <div className="pp-name-edit">
-                                <input className="form-input" placeholder="Nhập tên của bạn..."
+                                <input className="form-input" placeholder={t('pp_name_ph')}
                                     value={nameInput} onChange={e => setNameInput(e.target.value)}
                                     onKeyDown={e => e.key === 'Enter' && saveName()} autoFocus />
-                                <button className="btn3d btn3d-orange btn-sm" onClick={saveName}><Check size={14} /> Lưu</button>
+                                <button className="btn3d btn3d-orange btn-sm" onClick={saveName}><Check size={14} /> {t('pp_save')}</button>
                             </div>
                         ) : (
                             <div className="pp-name-display">
@@ -423,24 +427,24 @@ export default function PassportPage() {
                                 <button className="pp-name-edit-btn" onClick={() => setEditingName(true)} title="Sửa tên"><Edit2 size={12} /></button>
                             </div>
                         )}
-                        <div className="pp-dp-row"><span>Cấp bởi</span><span>HTX Trường Hải</span></div>
-                        <div className="pp-dp-row"><span>Ngày tạo</span><span>{new Date(passport.createdAt).toLocaleDateString('vi-VN')}</span></div>
-                        <div className="pp-dp-row"><span>Tem cơ bản</span><span><strong>{passport.stamps.length}</strong> / {Object.keys(STAMP_DEFS).length}</span></div>
+                        <div className="pp-dp-row"><span>{t('pp_dp_issued')}</span><span>HTX Trường Hải</span></div>
+                        <div className="pp-dp-row"><span>{t('pp_dp_created')}</span><span>{new Date(passport.createdAt).toLocaleDateString('vi-VN')}</span></div>
+                        <div className="pp-dp-row"><span>{t('pp_dp_stamps')}</span><span><strong>{passport.stamps.length}</strong> / {Object.keys(STAMP_DEFS).length}</span></div>
                         <div className="pp-progress-wrap"><div className="pp-progress-bar" style={{ width: `${totalBasicProgress}%` }} /></div>
                         <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
-                            {totalBasicProgress === 100 ? '🎉 Hoàn thành tất cả tem!' : `${Math.round(totalBasicProgress)}% hành trình cơ bản`}
+                            {totalBasicProgress === 100 ? t('pp_progress_done') : `${Math.round(totalBasicProgress)}${t('pp_progress_pct')}`}
                         </p>
 
                         {/* Summary of cert progress */}
                         <div style={{ marginTop: 16, borderTop: '1px solid #f0e8d8', paddingTop: 12 }}>
-                            <p style={{ fontSize: 10, color: '#94a3b8', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Chứng nhận đặc biệt</p>
+                            <p style={{ fontSize: 10, color: '#94a3b8', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>{t('pp_cert_spec')}</p>
                             {Object.values(CERT_TYPES).map(ct => {
                                 const n = getCertStampCount(ct.id)
                                 const total = Object.keys(ct.stamps).length
                                 return (
                                     <div key={ct.id} className="pp-cert-mini-row" onClick={() => setActiveTab(ct.id)}>
                                         <span>{ct.icon}</span>
-                                        <span style={{ flex: 1, fontSize: 12, color: '#475569' }}>{ct.shortTitle}</span>
+                                        <span style={{ flex: 1, fontSize: 12, color: '#475569' }}>{lang === 'en' ? (ct.shortTitle_en || ct.shortTitle) : ct.shortTitle}</span>
                                         <span style={{ fontSize: 12, color: n >= ct.minStamps ? '#059669' : '#94a3b8', fontWeight: 600 }}>
                                             {n >= ct.minStamps ? '🏆' : `${n}/${total}`}
                                         </span>
@@ -491,7 +495,7 @@ export default function PassportPage() {
 
                     {!passport.holderName && (
                         <p style={{ color: '#94a3b8', fontSize: 13, textAlign: 'center', marginTop: 16 }}>
-                            💡 Nhập tên của bạn ở trái để nhận tem đầu tiên 🌸
+                            {t('pp_no_name_hint')}
                         </p>
                     )}
                 </div>
