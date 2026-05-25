@@ -1,7 +1,118 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, MapPin, Heart, Leaf, Users, ArrowRight, Calendar, User } from 'lucide-react'
+import { ChevronRight, MapPin, Heart, Leaf, Users, ArrowRight, Calendar, User, CheckCircle } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useLang } from '../context/LanguageContext'
+import QuickMenu from '../components/QuickMenu'
+
+const AVATAR_COLORS = ['#1b4332', '#7c3aed', '#db2777', '#d97706', '#0891b2', '#c05621', '#2563eb', '#16a34a']
+function getAvatarColor(name) {
+  const code = (name || 'A').charCodeAt(0)
+  return AVATAR_COLORS[code % AVATAR_COLORS.length]
+}
+
+function ReviewForm() {
+  const { addItem } = useData()
+  const [rating, setRating] = useState(5)
+  const [hover, setHover] = useState(0)
+  const [form, setForm] = useState({ name: '', gmail: '', country: '', content: '' })
+  const [done, setDone] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      await addItem('review', {
+        name: form.name,
+        country: form.country,
+        rating,
+        content: form.content,
+        img: form.gmail ? `gmail:${form.gmail}` : '',
+        approved: false,
+      })
+    } catch (_) { /* offline — still show success UI */ }
+    setDone(true)
+    setLoading(false)
+  }
+
+  if (done) return (
+    <div className="ng-review-form-wrap">
+      <div className="ng-rf-pending">
+        <CheckCircle size={20} color="#40916c" />
+        <div>
+          <strong>Cảm ơn bạn đã chia sẻ!</strong>
+          <span style={{ marginLeft: 6, color: '#64748b', fontSize: 13 }}>Đánh giá sẽ hiển thị sau khi admin duyệt.</span>
+        </div>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="ng-review-form-wrap">
+      <h3>✍️ Viết đánh giá của bạn</h3>
+      <p className="ng-rf-sub">Chia sẻ trải nghiệm — sẽ hiển thị sau khi admin duyệt</p>
+      {/* Star picker */}
+      <div className="ng-star-picker">
+        {[1, 2, 3, 4, 5].map(s => (
+          <button
+            key={s}
+            type="button"
+            className={`ng-star-btn ${(hover || rating) >= s ? 'ng-star-active' : ''}`}
+            onMouseEnter={() => setHover(s)}
+            onMouseLeave={() => setHover(0)}
+            onClick={() => setRating(s)}
+          >⭐</button>
+        ))}
+        <span style={{ fontSize: 13, color: '#94a3b8', alignSelf: 'center', marginLeft: 6 }}>{rating}/5</span>
+      </div>
+      <form onSubmit={submit} className="login-form">
+        <div className="ng-rf-gmail-row">
+          <input
+            className="form-input"
+            placeholder="Tên của bạn *"
+            value={form.name}
+            onChange={e => setForm({ ...form, name: e.target.value })}
+            required
+          />
+          <input
+            className="form-input"
+            placeholder="Gmail (không bắt buộc)"
+            type="email"
+            value={form.gmail}
+            onChange={e => setForm({ ...form, gmail: e.target.value })}
+          />
+        </div>
+        <input
+          className="form-input"
+          placeholder="Quốc gia / Tỉnh thành"
+          value={form.country}
+          onChange={e => setForm({ ...form, country: e.target.value })}
+        />
+        <textarea
+          className="form-input form-textarea"
+          placeholder="Cảm nhận của bạn về chuyến đi, workshop, sản phẩm... *"
+          value={form.content}
+          onChange={e => setForm({ ...form, content: e.target.value })}
+          required
+          rows={3}
+        />
+        {/* Preview avatar */}
+        {form.name && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, fontSize: 13, color: '#64748b' }}>
+            <div className="ng-rf-avatar" style={{ background: getAvatarColor(form.name) }}>
+              {form.name[0]}
+            </div>
+            Hiển thị là: <strong>{form.name}</strong>{form.country ? ` · ${form.country}` : ''}
+          </div>
+        )}
+        <button type="submit" className="btn3d btn3d-orange btn-full" disabled={loading}>
+          {loading ? 'Đang gửi…' : '⭐ Gửi đánh giá'}
+        </button>
+      </form>
+    </div>
+  )
+}
 
 const PROGRAM_ICONS = ['🪡', '📚', '🌿', '🙋']
 const PROGRAM_LINKS = ['/workshop', '/thu-vien', '/tours', '/tinh-nguyen']
@@ -19,6 +130,7 @@ export default function HomePage() {
   const navigate = useNavigate()
   const { posts, reviews } = useData()
   const { t } = useLang()
+
 
   const recentPosts = posts.slice(0, 3)
   const approvedReviews = reviews.filter(r => r.approved).slice(0, 3)
@@ -160,15 +272,22 @@ export default function HomePage() {
               { id: 'r3', name: 'Nguyễn A. (Hà Nội)', rating: 5, content: 'Lên đây mới hiểu tại sao người ta nói Hà Giang Loop đẹp nhất Việt Nam. Bản làng này là viên ngọc ẩn.', country: 'Việt Nam' },
             ]).map(r => (
               <div key={r.id} className="ng-review-card">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                  <div className="ng-rf-avatar" style={{ background: getAvatarColor(r.name), width: 32, height: 32, fontSize: 14 }}>
+                    {(r.name || '?')[0]}
+                  </div>
+                  <div>
+                    <strong style={{ fontSize: 14 }}>{r.name}</strong>
+                    {r.country && <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 4 }}> · {r.country}</span>}
+                  </div>
+                </div>
                 <div className="ng-review-stars">{'⭐'.repeat(r.rating || 5)}</div>
                 <p>"{r.content}"</p>
-                <div className="ng-review-author">
-                  <strong>{r.name}</strong>
-                  {r.country && <span> · {r.country}</span>}
-                </div>
               </div>
             ))}
           </div>
+          {/* Review form */}
+          <ReviewForm />
         </div>
       </section>
 
@@ -193,6 +312,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      <QuickMenu />
     </div>
   )
 }
