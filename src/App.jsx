@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Routes, Route, NavLink, Link, useNavigate } from 'react-router-dom'
 import {
-  User, LogOut, Menu, X,
+  User, LogOut, Menu, X, MessageCircle,
   Upload, Plus, LayoutDashboard, WifiOff, Save
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'

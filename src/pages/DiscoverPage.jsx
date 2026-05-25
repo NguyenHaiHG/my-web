@@ -10,6 +10,13 @@ export default function DiscoverPage() {
     const { t, lang } = useLang()
     const stampCount = passport.stamps.length
 
+    const REVIEWS = [
+        { name: 'Sarah M.', country: '🇦🇺 Australia', stars: 5, text: 'The loop was absolutely breathtaking. Our guide from HTX Truong Hai was incredible — knowledgeable, patient, and made us feel safe the whole time.', text_vi: 'Cung đường tuyệt đẹp. Hướng dẫn viên HTX Trường Hải rất giỏi, kiên nhẫn và khiến chúng tôi luôn cảm thấy an toàn.' },
+        { name: 'Trần Ngọc H.', country: '🇻🇳 Hà Nội', stars: 5, text: 'Tôi đã đi loop 3 lần và lần với HTX là hay nhất. Nhà giữa vườn cây ăn quả, yên bình khó tả.', text_vi: 'Tôi đã đi loop 3 lần và lần với HTX là hay nhất. Nhà giữa vườn cây ăn quả, yên bình khó tả.' },
+        { name: 'James K.', country: '🇨🇦 Canada', stars: 5, text: 'As a solo female traveler I felt completely safe. HTX arranged a female guide and checked in with me every day. Highly recommend!', text_vi: 'Là nữ đi một mình, tôi cảm thấy hoàn toàn an toàn. HTX sắp xếp hướng dẫn viên nữ và hỏi thăm hàng ngày.' },
+        { name: 'Minh T.', country: '🇫🇷 France', stars: 5, text: 'The local products — honey, rice wine, dried fruits — are authentic and wonderful. Bought so many gifts to bring back to Paris!', text_vi: 'Các sản phẩm địa phương — mật ong, rượu, hoa quả sấy — rất xịn. Mua cả túi về Paris làm quà!' },
+    ]
+
     const HG_HIGHLIGHTS = [
         { icon: '🏔️', label: t('dc_hl1'), sub: t('dc_hl1s') },
         { icon: '🛣️', label: t('dc_hl2'), sub: t('dc_hl2s') },
@@ -239,23 +246,6 @@ export default function DiscoverPage() {
                                 <strong>{t('dc_loop_includes')}</strong> {lang === 'en' ? pkg.includes_en : pkg.includes_vi}
                             </div>
                             <Link to="/tours" className="dc-loop-book-btn">{t('dc_loop_book')}</Link>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* ══ REVIEWS ══ */}
-            <section className="dc-reviews-section container">
-                <h2 className="dc-section-title" style={{ textAlign: 'center', marginBottom: 8 }}>{t('dc_reviews_title')}</h2>
-                <p style={{ textAlign: 'center', color: '#64748b', marginBottom: 40 }}>{t('dc_reviews_sub')}</p>
-                <div className="dc-review-grid">
-                    {REVIEWS.map((r, i) => (
-                        <div key={i} className="dc-review-card">
-                            <div className="dc-review-stars">{'⭐'.repeat(r.stars)}</div>
-                            <p className="dc-review-text">"{lang === 'en' ? r.text : r.text_vi}"</p>
-                            <div className="dc-review-author">
-                                <strong>{r.name}</strong><span>{r.country}</span>
-                            </div>
                         </div>
                     ))}
                 </div>
