@@ -71,7 +71,7 @@ export default function DiscoverPage() {
             <section className="dc-hero">
                 <img
                     className="dc-hero-img"
-                    src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1400&q=80"
+                    src="https://images.unsplash.com/photo-1562920618-c427d9252d7a?w=1600&q=85&auto=format&fit=crop"
                     alt="Hà Giang"
                 />
                 <div className="dc-hero-overlay" />
