@@ -237,7 +237,8 @@ export const translations = {
 
         // ── HomePage NGO
         hp_eyebrow: 'Tổ 5 Quang Trung · Phường Hà Giang 2 · Tuyên Quang',
-        hp_h1_pre: '', hp_h1_hl: 'Nhà trong rừng', hp_h1_post: '— làng Tày 4 thế hệ giữa lòng thành phố',
+        hp_h1_pre: '', hp_h1_hl: 'Nhà Trong rừng, hồn phố', hp_h1_post: '— làng Tày 4 thế hệ giữa lòng thành phố',
+
         hp_hero_sub: '500m khỏi cửa ngõ Hà Giang Loop — vườn cây trăm năm, chưa bị đô thị hoá, workshop phụ nữ Tày, thư viện số',
         hp_hero_btn1: 'Khám phá dự án', hp_hero_btn2: 'Trở thành TNV',
         hp_story_badge: '~1000m · 500m khỏi Hà Giang Loop',
@@ -654,7 +655,8 @@ export const translations = {
 
         // ── HomePage NGO
         hp_eyebrow: 'Commune 5, Quang Trung · Phuong Ha Giang 2 · Tuyen Quang',
-        hp_h1_pre: '', hp_h1_hl: 'House in the Forest', hp_h1_post: '— 4 generations of Tày in the heart of the city',
+        hp_h1_pre: '', hp_h1_hl: 'House in the Forest, Soul of the City', hp_h1_post: '— 4 generations of Tày in the heart of the city',
+
         hp_hero_sub: '500m from Ha Giang Loop — century-old fruit garden, untouched by urbanization, Tày women\'s workshops, digital library',
         hp_hero_btn1: 'Explore projects', hp_hero_btn2: 'Become a volunteer',
         hp_story_badge: '~1000m · 500m from Ha Giang Loop',
