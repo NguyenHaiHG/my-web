@@ -6511,3 +6511,126 @@ select.form-input {
   white-space: nowrap; transition: opacity .2s;
 }
 .pp-cert-btn-disabled { opacity: .4; cursor: not-allowed; }
+
+/* ══════════════════════════════════════════════════════
+   PASSPORT PAGE — TABS + CERT STAMPS + REVIEWS
+   ══════════════════════════════════════════════════════ */
+
+/* Tab bar */
+.pp-tabs {
+  display: flex; gap: 4px; border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 24px; overflow-x: auto; padding-bottom: 0;
+  scrollbar-width: none;
+}
+.pp-tabs::-webkit-scrollbar { display: none; }
+.pp-tab {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 10px 14px; background: none; border: none;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  cursor: pointer; color: #64748b; font-size: 13px; white-space: nowrap;
+  transition: color .2s, border-color .2s;
+}
+.pp-tab:hover { color: #1e293b; }
+.pp-tab-active { color: #1a3a4a; border-bottom-color: #c8963e; font-weight: 700; }
+.pp-tab-label { font-size: 12px; }
+.pp-tab-content { min-height: 400px; }
+
+/* Cert tab header banner */
+.pp-cert-tab-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px 24px; border-radius: 16px; color: #fff; margin-bottom: 4px;
+}
+.pp-ct-icon { font-size: 42px; flex-shrink: 0; }
+.pp-ct-title { font-size: 22px; font-weight: 800; margin: 0 0 4px; }
+.pp-ct-sub { font-size: 13px; color: rgba(255,255,255,.75); margin: 0; }
+.pp-ct-count { margin-left: auto; font-size: 40px; font-weight: 900; line-height: 1; }
+.pp-ct-count span { font-size: 20px; opacity: .7; }
+
+/* Cert stamps grid (4 cols) */
+.pp-cert-stamps-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 8px;
+}
+@media (max-width: 1200px) { .pp-cert-stamps-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px)  { .pp-cert-stamps-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.pp-cs-card {
+  border-radius: 14px; padding: 16px 10px; text-align: center;
+  transition: transform .15s, box-shadow .15s;
+}
+.pp-cs-card:hover { transform: translateY(-2px); }
+.pp-cs-earned {
+  background: linear-gradient(135deg, #fef9ec, #fef3c7);
+  border: 2px solid var(--cc, #c8963e);
+  box-shadow: 0 4px 12px rgba(200,150,62,.15);
+}
+.pp-cs-locked { background: #f8fafc; border: 2px dashed #e2e8f0; }
+.pp-cs-circle {
+  position: relative; width: 56px; height: 56px; margin: 0 auto 8px;
+  border-radius: 50%; border: 3px solid var(--cc, #94a3b8);
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.8); font-size: 24px;
+}
+.pp-cs-check {
+  position: absolute; bottom: -4px; right: -4px;
+  width: 18px; height: 18px; background: #22c55e; color: #fff;
+  border-radius: 50%; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #fff;
+}
+.pp-cs-label { font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+.pp-cs-date  { font-size: 11px; color: #059669; }
+.pp-cs-how   { font-size: 11px; color: #94a3b8; margin-bottom: 8px; }
+
+/* Claim button */
+.pp-claim-btn {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 5px 10px; border-radius: 8px;
+  background: none; border: 1.5px solid;
+  cursor: pointer; transition: background .15s;
+}
+.pp-claim-btn:hover { background: #f0fdf4; }
+
+/* Cert mini row in passport left sidebar */
+.pp-cert-mini-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: 8px; cursor: pointer;
+  transition: background .15s;
+}
+.pp-cert-mini-row:hover { background: #f8fafc; }
+
+/* ── STAR RATING ── */
+.pp-stars { display: flex; gap: 4px; }
+.pp-star-btn {
+  font-size: 28px; background: none; border: none; cursor: pointer;
+  color: #d1d5db; line-height: 1; transition: color .1s, transform .1s;
+  padding: 0;
+}
+.pp-star-btn:hover, .pp-star-on { color: #f59e0b; transform: scale(1.1); }
+
+/* ── REVIEWS SECTION ── */
+.pp-reviews-section { margin-top: 8px; }
+.pp-review-form {
+  background: #f8fafc; border-radius: 16px; padding: 20px;
+  display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+}
+.pp-rf-row { display: flex; align-items: center; justify-content: space-between; }
+.pp-rf-label { font-size: 14px; font-weight: 600; color: #374151; }
+.pp-review-sent {
+  background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px;
+  padding: 16px 20px; color: #166534; font-size: 14px; text-align: center;
+  margin-bottom: 24px;
+}
+.pp-reviews-list { display: flex; flex-direction: column; gap: 12px; }
+.pp-review-item {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 16px 18px;
+}
+.pp-ri-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;
+}
+.pp-ri-header strong { font-size: 14px; color: #1e293b; }
+.pp-ri-stars { color: #f59e0b; font-size: 15px; letter-spacing: 1px; }
+.pp-ri-date  { font-size: 11px; color: #94a3b8; margin-left: auto; }
+.pp-ri-location { font-size: 12px; color: #6366f1; margin-bottom: 6px; }
+.pp-ri-comment { font-size: 14px; color: #475569; margin: 0; line-height: 1.6; }

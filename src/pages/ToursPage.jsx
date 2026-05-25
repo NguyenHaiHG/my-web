@@ -164,153 +164,153 @@ function BookingModal({ tour, onClose, addStampFn }) {
   const STEPS = [t('book_step1'), t('book_step2'), t('book_step3')]
 
   return (
-  <div className="modal-backdrop" onClick={onClose}>
-    <div className="modal modal-large booking-modal" onClick={e => e.stopPropagation()}>
-      <button className="modal-close" onClick={onClose}>✕</button>
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal modal-large booking-modal" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
 
-      <h2 className="modal-title">{t('book_title')}</h2>
-      <p className="modal-hint">{tour.title} · {tour.price}{t('card_per_person')}</p>
+        <h2 className="modal-title">{t('book_title')}</h2>
+        <p className="modal-hint">{tour.title} · {tour.price}{t('card_per_person')}</p>
 
-      {/* Step indicator */}
-      <div className="booking-steps">
-        {STEPS.map((label, i) => {
-          const s = i + 1
-          return (
-            <div key={s} className={`booking-step${step === s ? ' bstep-active' : ''}${step > s ? ' bstep-done' : ''}`}>
-              <div className="bstep-circle">
-                {step > s ? <Check size={12} /> : s}
+        {/* Step indicator */}
+        <div className="booking-steps">
+          {STEPS.map((label, i) => {
+            const s = i + 1
+            return (
+              <div key={s} className={`booking-step${step === s ? ' bstep-active' : ''}${step > s ? ' bstep-done' : ''}`}>
+                <div className="bstep-circle">
+                  {step > s ? <Check size={12} /> : s}
+                </div>
+                <span className="bstep-label">{label}</span>
+                {s < 3 && <div className="bstep-line" />}
               </div>
-              <span className="bstep-label">{label}</span>
-              {s < 3 && <div className="bstep-line" />}
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
 
-      {/* ── Step 1 ── */}
-      {step === 1 && (
-        <div className="booking-body">
-          <div className="book-field">
-            <label className="book-label">
-              <Calendar size={14} /> {t('book_departure_date')}
-            </label>
-            <input
-              className="form-input"
-              type="date"
-              value={form.date}
-              min={new Date().toISOString().split('T')[0]}
-              onChange={e => setForm({ ...form, date: e.target.value })}
-            />
-          </div>
-          <div className="book-field">
-            <label className="book-label">
-              <Users size={14} /> {t('book_guest_count')}
-            </label>
-            <div className="guest-row">
-              <div className="guest-item">
-                <span className="guest-type">{t('book_adults')}</span>
-                <div className="guest-counter">
-                  <button className="gc-btn" onClick={() => adjGuest('adults', -1)}>−</button>
-                  <span className="gc-val">{form.adults}</span>
-                  <button className="gc-btn" onClick={() => adjGuest('adults', 1)}>+</button>
+        {/* ── Step 1 ── */}
+        {step === 1 && (
+          <div className="booking-body">
+            <div className="book-field">
+              <label className="book-label">
+                <Calendar size={14} /> {t('book_departure_date')}
+              </label>
+              <input
+                className="form-input"
+                type="date"
+                value={form.date}
+                min={new Date().toISOString().split('T')[0]}
+                onChange={e => setForm({ ...form, date: e.target.value })}
+              />
+            </div>
+            <div className="book-field">
+              <label className="book-label">
+                <Users size={14} /> {t('book_guest_count')}
+              </label>
+              <div className="guest-row">
+                <div className="guest-item">
+                  <span className="guest-type">{t('book_adults')}</span>
+                  <div className="guest-counter">
+                    <button className="gc-btn" onClick={() => adjGuest('adults', -1)}>−</button>
+                    <span className="gc-val">{form.adults}</span>
+                    <button className="gc-btn" onClick={() => adjGuest('adults', 1)}>+</button>
+                  </div>
+                </div>
+                <div className="guest-item">
+                  <span className="guest-type">{t('book_children')}</span>
+                  <div className="guest-counter">
+                    <button className="gc-btn" onClick={() => adjGuest('children', -1)}>−</button>
+                    <span className="gc-val">{form.children}</span>
+                    <button className="gc-btn" onClick={() => adjGuest('children', 1)}>+</button>
+                  </div>
                 </div>
               </div>
-              <div className="guest-item">
-                <span className="guest-type">{t('book_children')}</span>
-                <div className="guest-counter">
-                  <button className="gc-btn" onClick={() => adjGuest('children', -1)}>−</button>
-                  <span className="gc-val">{form.children}</span>
-                  <button className="gc-btn" onClick={() => adjGuest('children', 1)}>+</button>
-                </div>
+            </div>
+            <button className="btn3d btn3d-orange btn-full" onClick={goNext}>
+              {t('book_next')}
+            </button>
+          </div>
+        )}
+
+        {/* ── Step 2 ── */}
+        {step === 2 && (
+          <div className="booking-body">
+            <div className="login-form">
+              <input className="form-input" placeholder={t('book_full_name')}
+                value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+              <input className="form-input" type="tel" placeholder={t('book_phone')}
+                value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+              <input className="form-input" type="email" placeholder={t('book_email')}
+                value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+              <textarea className="form-input form-textarea" style={{ minHeight: 80 }}
+                placeholder={t('book_notes_ph')}
+                value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} />
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button className="btn3d btn3d-blue" style={{ flex: 1 }} onClick={() => setStep(1)}>
+                  {t('book_back')}
+                </button>
+                <button className="btn3d btn3d-orange" style={{ flex: 2 }} onClick={goNext}>
+                  {t('book_next')}
+                </button>
               </div>
             </div>
           </div>
-          <button className="btn3d btn3d-orange btn-full" onClick={goNext}>
-            {t('book_next')}
-          </button>
-        </div>
-      )}
+        )}
 
-      {/* ── Step 2 ── */}
-      {step === 2 && (
-        <div className="booking-body">
-          <div className="login-form">
-            <input className="form-input" placeholder={t('book_full_name')}
-              value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-            <input className="form-input" type="tel" placeholder={t('book_phone')}
-              value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
-            <input className="form-input" type="email" placeholder={t('book_email')}
-              value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-            <textarea className="form-input form-textarea" style={{ minHeight: 80 }}
-              placeholder={t('book_notes_ph')}
-              value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} />
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn3d btn3d-blue" style={{ flex: 1 }} onClick={() => setStep(1)}>
-                {t('book_back')}
-              </button>
-              <button className="btn3d btn3d-orange" style={{ flex: 2 }} onClick={goNext}>
-                {t('book_next')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Step 3 ── */}
-      {step === 3 && (
-        <div className="booking-body">
-          <div className="book-summary">
-            <div className="book-sum-row">
-              <span>{t('book_tour_label')}</span>
-              <strong>{tour.title}</strong>
-            </div>
-            <div className="book-sum-row">
-              <span>{t('book_date_label')}</span>
-              <strong>{form.date}</strong>
-            </div>
-            <div className="book-sum-row">
-              <span>{t('book_total_guests')}</span>
-              <strong>
-                {form.adults} {t('book_adults_label')}
-                {form.children > 0 && ` ${t('book_and')} ${form.children} ${t('book_children_label')}`}
-              </strong>
-            </div>
-            <div className="book-sum-row">
-              <span>{t('book_price_per')}</span>
-              <strong className="book-price-hl">{tour.price}</strong>
-            </div>
-            <div className="book-sum-row">
-              <span>{t('book_contact_label')}</span>
-              <strong>{form.name} · {form.phone}</strong>
-            </div>
-            {form.note && (
+        {/* ── Step 3 ── */}
+        {step === 3 && (
+          <div className="booking-body">
+            <div className="book-summary">
               <div className="book-sum-row">
-                <span>{t('book_note_label')}</span>
-                <span className="book-note-txt">{form.note}</span>
+                <span>{t('book_tour_label')}</span>
+                <strong>{tour.title}</strong>
               </div>
-            )}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn3d btn3d-blue" style={{ flex: 1 }} onClick={() => setStep(2)}>
-                {t('book_back')}
-              </button>
-              <button className="btn3d btn3d-orange" style={{ flex: 2 }} onClick={handleConfirm}>
-                {t('book_confirm')}
-              </button>
+              <div className="book-sum-row">
+                <span>{t('book_date_label')}</span>
+                <strong>{form.date}</strong>
+              </div>
+              <div className="book-sum-row">
+                <span>{t('book_total_guests')}</span>
+                <strong>
+                  {form.adults} {t('book_adults_label')}
+                  {form.children > 0 && ` ${t('book_and')} ${form.children} ${t('book_children_label')}`}
+                </strong>
+              </div>
+              <div className="book-sum-row">
+                <span>{t('book_price_per')}</span>
+                <strong className="book-price-hl">{tour.price}</strong>
+              </div>
+              <div className="book-sum-row">
+                <span>{t('book_contact_label')}</span>
+                <strong>{form.name} · {form.phone}</strong>
+              </div>
+              {form.note && (
+                <div className="book-sum-row">
+                  <span>{t('book_note_label')}</span>
+                  <span className="book-note-txt">{form.note}</span>
+                </div>
+              )}
             </div>
-            <a href="tel:0385737705" className="btn3d btn3d-green btn-full" style={{ textAlign: 'center' }}>
-              <Phone size={15} /> {t('book_call')}
-            </a>
-            <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer" className="btn3d btn3d-blue btn-full" style={{ textAlign: 'center' }}>
-              💬 {t('whatsapp_btn')} 0385.737.705
-            </a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button className="btn3d btn3d-blue" style={{ flex: 1 }} onClick={() => setStep(2)}>
+                  {t('book_back')}
+                </button>
+                <button className="btn3d btn3d-orange" style={{ flex: 2 }} onClick={handleConfirm}>
+                  {t('book_confirm')}
+                </button>
+              </div>
+              <a href="tel:0385737705" className="btn3d btn3d-green btn-full" style={{ textAlign: 'center' }}>
+                <Phone size={15} /> {t('book_call')}
+              </a>
+              <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer" className="btn3d btn3d-blue btn-full" style={{ textAlign: 'center' }}>
+                💬 {t('whatsapp_btn')} 0385.737.705
+              </a>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
-  </div>
-)
+  )
 }
 
 /* ════════════════════════════════════════════════════
