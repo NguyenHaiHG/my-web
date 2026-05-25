@@ -17,6 +17,39 @@ export default function DiscoverPage() {
         { icon: '👘', label: t('dc_hl4'), sub: t('dc_hl4s') },
     ]
 
+    const LOOP_PKGS = [
+        {
+            id: '2n1d', label: '2N1Đ', label_en: '2D1N', price: '3.500.000', badge: null,
+            includes_vi: 'Xe máy · Xăng · Hướng dẫn · Homestay · Bữa sáng',
+            includes_en: 'Motorbike · Fuel · Guide · Homestay · Breakfast',
+            days: [
+                { d: 'Ngày 1', d_en: 'Day 1', pts: ['HTX → Quản Bạ → Đồng Văn', 'Cột cờ Lũng Cú', 'Đêm tại Đồng Văn'], pts_en: ['HTX → Quan Ba → Dong Van', 'Lung Cu Flag Tower', 'Night in Dong Van'] },
+                { d: 'Ngày 2', d_en: 'Day 2', pts: ['Đèo Mã Pí Lèng', 'Sông Nho Quế', 'Về HTX buổi tối'], pts_en: ['Ma Pi Leng Pass', 'Nho Que River', 'Return to HTX by evening'] },
+            ],
+        },
+        {
+            id: '3n2d', label: '3N2Đ', label_en: '3D2N', price: '4.500.000', badge: 'popular',
+            includes_vi: 'Xe máy · Xăng · Hướng dẫn · Homestay 2 đêm · Bữa sáng',
+            includes_en: 'Motorbike · Fuel · Guide · 2 nights homestay · Breakfast',
+            days: [
+                { d: 'Ngày 1', d_en: 'Day 1', pts: ['HTX → Quản Bạ → Yên Minh', 'Đồng Văn phố cổ', 'Đêm tại Đồng Văn'], pts_en: ['HTX → Quan Ba → Yen Minh', 'Dong Van Old Quarter', 'Night in Dong Van'] },
+                { d: 'Ngày 2', d_en: 'Day 2', pts: ['Lũng Cú + Đèo Mã Pí Lèng', 'Mèo Vạc chợ phiên', 'Đêm tại Mèo Vạc'], pts_en: ['Lung Cu + Ma Pi Leng Pass', 'Meo Vac Sunday Market', 'Night in Meo Vac'] },
+                { d: 'Ngày 3', d_en: 'Day 3', pts: ['Sông Nho Quế kayak', "Bản H'Mông Lũng Tám", 'Về HTX chiều'], pts_en: ['Nho Que River kayak', "H'Mong village Lung Tam", 'Return to HTX afternoon'] },
+            ],
+        },
+        {
+            id: '4n3d', label: '4N3Đ', label_en: '4D3N', price: '5.300.000', badge: null,
+            includes_vi: 'Xe máy · Xăng · Hướng dẫn · Homestay 3 đêm · Bữa sáng + Tối',
+            includes_en: 'Motorbike · Fuel · Guide · 3 nights homestay · Breakfast + Dinner',
+            days: [
+                { d: 'Ngày 1', d_en: 'Day 1', pts: ['HTX → Quản Bạ', 'Thác Tiên + Núi Đôi', 'Đêm tại Yên Minh'], pts_en: ['HTX → Quan Ba', 'Fairy Falls + Twin Mountains', 'Night in Yen Minh'] },
+                { d: 'Ngày 2', d_en: 'Day 2', pts: ['Cao nguyên đá Đồng Văn', 'Lũng Cú cột cờ', 'Đêm tại Đồng Văn'], pts_en: ['Dong Van Stone Plateau', 'Lung Cu Flag Tower', 'Night in Dong Van'] },
+                { d: 'Ngày 3', d_en: 'Day 3', pts: ['Đèo Mã Pí Lèng', 'Sông Nho Quế thuyền', 'Đêm tại Mèo Vạc'], pts_en: ['Ma Pi Leng Pass', 'Nho Que River boat', 'Night in Meo Vac'] },
+                { d: 'Ngày 4', d_en: 'Day 4', pts: ["Bản Lũng Tám H'Mông", 'Chợ Đồng Văn phiên', 'Về HTX cuối chiều'], pts_en: ["Lung Tam H'Mong village", 'Dong Van weekly market', 'Return to HTX late afternoon'] },
+            ],
+        },
+    ]
+
     const EXPERIENCES = [
         { to: '/tours', icon: '🏍️', title: t('dc_exp1t'), desc: t('dc_exp1d'), color: '#f97316', bg: 'linear-gradient(135deg,#7c2d12,#9a3412)', stamp: 'tour' },
         { to: '/san-pham', icon: '🧵', title: t('dc_exp2t'), desc: t('dc_exp2d'), color: '#059669', bg: 'linear-gradient(135deg,#064e3b,#065f46)', stamp: 'product' },
@@ -170,6 +203,44 @@ export default function DiscoverPage() {
                             </Link>
                         )
                     })}
+                </div>
+            </section>
+
+            {/* ══ HA GIANG LOOP PACKAGES ══ */}
+            <section className="dc-loop-section">
+                <div className="dc-loop-header">
+                    <h2>{t('dc_loop_title')}</h2>
+                    <p>{t('dc_loop_sub')}</p>
+                </div>
+                <div className="dc-loop-grid">
+                    {LOOP_PKGS.map(pkg => (
+                        <div key={pkg.id} className={`dc-loop-card${pkg.badge === 'popular' ? ' dc-loop-card-popular' : ''}`}>
+                            {pkg.badge === 'popular' && (
+                                <div className="dc-loop-pop-badge">{t('dc_loop_popular')}</div>
+                            )}
+                            <div className="dc-loop-duration">
+                                <span className="dc-loop-dur-pill">{lang === 'en' ? pkg.label_en : pkg.label}</span>
+                            </div>
+                            <div className="dc-loop-price">{pkg.price}đ</div>
+                            <div className="dc-loop-price-note">{t('dc_loop_per_person')}</div>
+                            <div className="dc-loop-days">
+                                {pkg.days.map((day, i) => (
+                                    <div key={i} className="dc-loop-day">
+                                        <div className="dc-loop-day-title">{lang === 'en' ? day.d_en : day.d}</div>
+                                        <ul className="dc-loop-points">
+                                            {(lang === 'en' ? day.pts_en : day.pts).map((pt, j) => (
+                                                <li key={j}>{pt}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="dc-loop-includes">
+                                <strong>{t('dc_loop_includes')}</strong> {lang === 'en' ? pkg.includes_en : pkg.includes_vi}
+                            </div>
+                            <Link to="/tours" className="dc-loop-book-btn">{t('dc_loop_book')}</Link>
+                        </div>
+                    ))}
                 </div>
             </section>
 
