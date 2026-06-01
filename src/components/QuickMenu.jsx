@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
     X, ArrowRight, Calendar, ChevronRight, Phone,
@@ -38,6 +38,7 @@ const TABS = [
     { id: 'discover', label: 'Discover', icon: '🗺️' },
     { id: 'create', label: 'Create', icon: '🎨' },
     { id: 'shop', label: 'Shop', icon: '🛍️' },
+    { id: 'sales', label: 'Bán hàng', icon: '💵' },
     { id: 'service', label: 'Service', icon: '🛎️' },
     { id: 'blog', label: 'Blog', icon: '📝' },
 ]
@@ -259,8 +260,17 @@ export default function QuickMenu() {
     const [open, setOpen] = useState(false)
     const [tab, setTab] = useState('discover')
     const [booking, setBooking] = useState(null)
+    const [heroSection, setHeroSection] = useState(null)
     const navigate = useNavigate()
     const { tours, products, posts } = useData()
+
+    // Lấy dữ liệu hero section từ API
+    useEffect(() => {
+        fetch('/api/hero-section')
+            .then(res => res.json())
+            .then(data => setHeroSection(data))
+            .catch(err => console.error('Lỗi khi lấy hero section:', err))
+    }, [])
 
     const go = (path) => { navigate(path); setOpen(false) }
 
@@ -318,11 +328,23 @@ export default function QuickMenu() {
                     {tab === 'discover' && (
                         <div className="qm-panel">
                             <div className="qm-panel-hero"
-                                style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=900&q=80)' }}>
+                                style={{ backgroundImage: 'url(' + (heroSection?.imageUrl || 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=900&q=80') + ')' }}>
                                 <div className="qm-panel-hero-overlay" />
                                 <div className="qm-panel-hero-text">
-                                    <h3>🗺️ Hà Giang Loop</h3>
-                                    <p>Cao nguyên đá huyền thoại · Ruộng bậc thang · Mã Pí Lèng</p>
+                                    <h3>{heroSection?.title || '🏙️ Hà Giang thành phố'}</h3>
+                                    <p>{heroSection?.subtitle || 'Không gian đô thị biên viễn · văn hóa bản địa · trải nghiệm địa phương'}</p>
+                                    {heroSection?.buttonLabel && (
+                                        <button className="btn3d btn3d-orange" style={{ marginTop: 12 }}
+                                            onClick={() => {
+                                                if (heroSection.buttonLink === '/book') {
+                                                    setBooking(displayTours[0] || { title: 'Hà Giang thành phố', price: '1.200.000đ' })
+                                                } else {
+                                                    go(heroSection.buttonLink)
+                                                }
+                                            }}>
+                                            {heroSection.buttonLabel}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                             <div className="qm-tour-list">
@@ -382,6 +404,23 @@ export default function QuickMenu() {
                         </div>
                     )}
 
+                    {/* ─── SALES ─── */}
+                    {tab === 'sales' && (
+                        <div className="qm-panel">
+                            <p className="qm-panel-desc">💵 Bán hàng: Đặt mua sản phẩm, thanh toán và quản lý đơn hàng trực tuyến.</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                <button className="btn3d btn3d-orange btn-full" onClick={() => go('/san-pham')}>
+                                    Xem sản phẩm <ArrowRight size={15} />
+                                </button>
+                                <button className="btn3d btn3d-green btn-full" onClick={() => go('/order')}>
+                                    Đơn hàng của tôi <ArrowRight size={15} />
+                                </button>
+                                <button className="btn3d btn3d-blue btn-full" onClick={() => go('/manage-cart')}>
+                                    Quản lý giỏ hàng <ArrowRight size={15} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     {/* ─── SERVICE ─── */}
                     {tab === 'service' && (
                         <div className="qm-panel">

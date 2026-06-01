@@ -4,6 +4,7 @@ import { useOrder } from '../context/OrderContext'
 import { useData } from '../context/DataContext'
 import { useUI } from '../context/UIContext'
 import { useLang } from '../context/LanguageContext'
+import AdminWorkshopRegs from '../components/AdminWorkshopRegs'
 
 const CAT_COLORS = {
     sewing: '#7c3aed', embroidery: '#db2777', english: '#2563eb',
@@ -205,6 +206,9 @@ export default function WorkshopPage() {
             </div>
 
             {regWs && <RegisterModal ws={regWs} onClose={() => setRegWs(null)} />}
+
+            {/* ADMIN: Quản lý đăng ký workshop */}
+            <AdminWorkshopRegs />
         </div>
     )
 }

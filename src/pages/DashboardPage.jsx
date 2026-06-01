@@ -2,14 +2,19 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
     FileText, Package, MapPin, BookOpen, Users, Heart,
-    Star, Plus, Trash2, Check, X, Edit2, LayoutDashboard,
-    ChevronDown, ChevronRight, Bell, LogOut, Upload, Save
+    Star, Plus, Trash2, Check, X, Edit2, LayoutDashboard, Bus,
+    ChevronDown, ChevronRight, Bell, LogOut, Upload, Save, Image
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
 import { useOrder } from '../context/OrderContext'
 import { useUI } from '../context/UIContext'
 import { useLang } from '../context/LanguageContext'
+import HeroSectionEditor from '../components/HeroSectionEditor'
+import DiscoverContentEditor from '../components/DiscoverContentEditor'
+import AdminCommunityGallery from '../components/AdminCommunityGallery'
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 /* Nén ảnh bằng Canvas — tránh base64 vượt 10MB */
 function compressImage(file, maxW = 1200, quality = 0.82) {
@@ -35,6 +40,9 @@ function compressImage(file, maxW = 1200, quality = 0.82) {
 
 const NAV_ITEMS = [
     { key: 'overview', icon: <LayoutDashboard size={18} />, label: 'Tổng quan' },
+    { key: 'hero-section', icon: <Image size={18} />, label: 'Hero Section' },
+    { key: 'discover-content', icon: <MapPin size={18} />, label: 'Discover CMS' },
+    { key: 'community-gallery', icon: <Image size={18} />, label: 'Ảnh nông dân' },
     { key: 'workshops', icon: <Users size={18} />, label: 'Workshop' },
     { key: 'workshop-regs', icon: <Check size={18} />, label: 'Đăng ký WS' },
     { key: 'library', icon: <BookOpen size={18} />, label: 'Thư viện số' },
@@ -42,6 +50,7 @@ const NAV_ITEMS = [
     { key: 'products', icon: <Package size={18} />, label: 'Sản phẩm' },
     { key: 'tours', icon: <MapPin size={18} />, label: 'Discover' },
     { key: 'tour-bookings', icon: <MapPin size={18} />, label: 'Đặt lịch' },
+    { key: 'city-orders', icon: <Bus size={18} />, label: 'Đơn Stay/Bus' },
     { key: 'volunteers', icon: <Heart size={18} />, label: 'Tình nguyện' },
     { key: 'reviews', icon: <Star size={18} />, label: 'Reviews' },
 ]
@@ -184,6 +193,13 @@ function AppTable({ title, items, statusKey, onStatusChange, onDelete }) {
     )
 }
 
+function classifyCityOrder(order) {
+    const itemName = String(order?.items?.[0]?.name || '').toUpperCase()
+    if (itemName.includes('[STAY]')) return 'stay'
+    if (itemName.includes('[BUS]')) return 'bus'
+    return 'other'
+}
+
 /* ── EDIT MODAL ── */
 const FIELD_DEFS = {
     post: ['title', 'content', 'author', 'img'],
@@ -315,6 +331,93 @@ export default function DashboardPage() {
     const [activeTab, setActiveTab] = useState('overview')
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [editState, setEditState] = useState(null) // { type, item }
+    const [cityOrders, setCityOrders] = useState([])
+    const [cityFilter, setCityFilter] = useState('all')
+    const [cityLoading, setCityLoading] = useState(false)
+
+    const loadCityOrders = async () => {
+        setCityLoading(true)
+        try {
+            const res = await fetch(`${API}/api/orders`)
+            const list = await res.json()
+            const filtered = Array.isArray(list) ? list.filter(o => classifyCityOrder(o) !== 'other') : []
+            setCityOrders(filtered)
+        } catch {
+            showToast('Không tải được đơn Stay/Bus từ backend')
+        } finally {
+            setCityLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        if (activeTab === 'city-orders') loadCityOrders()
+    }, [activeTab])
+
+    const updateCityOrderStatus = async (id, status) => {
+        try {
+            const res = await fetch(`${API}/api/orders/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status }),
+            })
+            if (!res.ok) throw new Error('update failed')
+            setCityOrders(prev => prev.map(o => (o._id === id ? { ...o, status } : o)))
+            showToast('Đã cập nhật trạng thái đơn')
+        } catch {
+            showToast('Không cập nhật được trạng thái đơn')
+        }
+    }
+
+    const createTestCityOrder = async (kind = 'bus') => {
+        const now = new Date()
+        const stamp = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`
+        const isStay = kind === 'stay'
+        const payload = {
+            items: [
+                {
+                    id: Date.now(),
+                    name: isStay ? '[STAY] Demo Homestay' : '[BUS] Demo Ha Giang ↔ Ha Noi',
+                    price: isStay ? 650000 : 320000,
+                    qty: isStay ? 2 : 1,
+                    img: '/hg-city-1.svg',
+                },
+            ],
+            address: isStay
+                ? `Hà Giang 2 · Demo stay · KH: Test ${stamp}`
+                : `Hà Giang ↔ Hà Nội · 12:30 · KH: Test ${stamp}`,
+            phone: '0900000000',
+            location: isStay ? 'Hà Giang 2' : 'Hà Giang ↔ Hà Nội',
+            pickup: false,
+            isTest: true,
+        }
+
+        try {
+            const res = await fetch(`${API}/api/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+            if (!res.ok) throw new Error('create failed')
+            showToast(isStay ? 'Đã tạo đơn test Stay' : 'Đã tạo đơn test Bus')
+            await loadCityOrders()
+        } catch {
+            showToast('Không tạo được đơn test')
+        }
+    }
+
+    const clearTestCityOrders = async () => {
+        if (!window.confirm('Xóa toàn bộ đơn test Stay/Bus?')) return
+
+        try {
+            const res = await fetch(`${API}/api/orders/test`, { method: 'DELETE' })
+            if (!res.ok) throw new Error('delete failed')
+            const result = await res.json()
+            showToast(`Đã xóa ${result.deletedCount || 0} đơn test`)
+            await loadCityOrders()
+        } catch {
+            showToast('Không xóa được đơn test')
+        }
+    }
 
     const openEdit = (type, item) => setEditState({ type, item })
     const closeEdit = () => setEditState(null)
@@ -339,6 +442,14 @@ export default function DashboardPage() {
             showToast('Lỗi: ' + e.message)
         }
     }
+
+    const cityCounts = {
+        all: cityOrders.length,
+        stay: cityOrders.filter(o => classifyCityOrder(o) === 'stay').length,
+        bus: cityOrders.filter(o => classifyCityOrder(o) === 'bus').length,
+    }
+
+    const cityPending = cityOrders.filter(o => o.status === 'pending').length
 
     const renderContent = () => {
         switch (activeTab) {
@@ -404,6 +515,71 @@ export default function DashboardPage() {
             case 'volunteers':
                 return <AppTable title="Đơn Tình Nguyện" items={orders.volunteerApps}
                     statusKey="volunteer" onStatusChange={orders.updateOrderStatus} onDelete={orders.deleteOrder} />
+            case 'city-orders': {
+                const visible = cityOrders.filter(o => cityFilter === 'all' ? true : classifyCityOrder(o) === cityFilter)
+                return (
+                    <div>
+                        <div className="db-table-header" style={{ alignItems: 'center' }}>
+                            <h2 className="db-section-title">Đơn Stay/Bus từ website</h2>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                <button className="btn3d btn3d-green btn-sm" onClick={() => createTestCityOrder('stay')}>+ Test Stay</button>
+                                <button className="btn3d btn3d-orange btn-sm" onClick={() => createTestCityOrder('bus')}>+ Test Bus</button>
+                                <button className="btn3d btn3d-red btn-sm" onClick={clearTestCityOrders}>Xóa đơn test</button>
+                                <button className="btn3d btn3d-blue btn-sm" onClick={loadCityOrders}>Làm mới</button>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+                            <button className={cityFilter === 'all' ? 'shop387-tab-active' : 'shop387-tab'} onClick={() => setCityFilter('all')}>
+                                Tất cả ({cityCounts.all})
+                            </button>
+                            <button className={cityFilter === 'stay' ? 'shop387-tab-active' : 'shop387-tab'} onClick={() => setCityFilter('stay')}>
+                                Stay ({cityCounts.stay})
+                            </button>
+                            <button className={cityFilter === 'bus' ? 'shop387-tab-active' : 'shop387-tab'} onClick={() => setCityFilter('bus')}>
+                                Bus ({cityCounts.bus})
+                            </button>
+                        </div>
+
+                        {cityLoading ? <p className="empty-state">Đang tải dữ liệu...</p> : null}
+                        {!cityLoading && visible.length === 0 ? <p className="empty-state">Chưa có đơn phù hợp bộ lọc.</p> : null}
+
+                        {!cityLoading && visible.length > 0 && (
+                            <div className="db-app-list">
+                                {visible.map((order) => {
+                                    const item = order.items?.[0]
+                                    const type = classifyCityOrder(order)
+                                    return (
+                                        <div key={order._id} className="db-app-card">
+                                            <div className="db-app-info">
+                                                <strong>{item?.name || 'Đơn hàng'} {order.isTest ? '(TEST)' : ''}</strong>
+                                                <span>📦 Loại: {type === 'stay' ? 'Stay' : 'Bus'}</span>
+                                                <span>📞 {order.phone || '—'}</span>
+                                                <span>📍 {order.location || '—'}</span>
+                                                <span>📝 {order.address || '—'}</span>
+                                                <span>👥 SL: {item?.qty || 1} · Giá: {(item?.price || 0).toLocaleString()}đ</span>
+                                                <span style={{ color: '#94a3b8', fontSize: 12 }}>🕐 {new Date(order.createdAt).toLocaleString('vi-VN')}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                                <select
+                                                    className={`status-select status-${order.status || 'pending'}`}
+                                                    value={order.status || 'pending'}
+                                                    onChange={e => updateCityOrderStatus(order._id, e.target.value)}
+                                                >
+                                                    <option value="pending">⏳ Chờ</option>
+                                                    <option value="confirmed">✅ Xác nhận</option>
+                                                    <option value="done">🏁 Hoàn tất</option>
+                                                    <option value="cancelled">❌ Huỷ</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                    </div>
+                )
+            }
             case 'reviews':
                 return (
                     <div>
@@ -439,7 +615,14 @@ export default function DashboardPage() {
                         )}
                     </div>
                 )
-            default: return null
+            case 'hero-section':
+                return <HeroSectionEditor />
+            case 'discover-content':
+                return <DiscoverContentEditor />
+            case 'community-gallery':
+                return <AdminCommunityGallery />
+            default:
+                return null
         }
     }
 
@@ -481,6 +664,9 @@ export default function DashboardPage() {
                             )}
                             {item.key === 'volunteers' && orders.volunteerApps.filter(a => a.status === 'pending').length > 0 && (
                                 <span className="db-badge">{orders.volunteerApps.filter(a => a.status === 'pending').length}</span>
+                            )}
+                            {item.key === 'city-orders' && cityPending > 0 && (
+                                <span className="db-badge">{cityPending}</span>
                             )}
                         </button>
                     ))}

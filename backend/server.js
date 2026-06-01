@@ -2,18 +2,30 @@ require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const { MongoMemoryServer } = require('mongodb-memory-server')
 
 const toursRouter = require('./routes/tours')
 const productsRouter = require('./routes/products')
 const postsRouter = require('./routes/posts')
 const workshopsRouter = require('./routes/workshops')
+const ordersRouter = require('./routes/orders')
 const libraryRouter = require('./routes/library')
 const reviewsRouter = require('./routes/reviews')
 const workshopRegsRouter = require('./routes/workshopRegs')
+
 const volunteersRouter = require('./routes/volunteers')
+const communityImagesRouter = require('./routes/communityImages')
+const heroSectionRouter = require('./routes/heroSection')
+const discoverContentRouter = require('./routes/discoverContent')
+const ecoSystemRouter = require('./routes/ecoSystem')
 
 const app = express()
 const PORT = process.env.PORT || 5000
+let dbConnected = false
+let memoryMongo = null
+
+// Khi DB offline, trả lỗi ngay thay vì treo request.
+mongoose.set('bufferCommands', false)
 
 // Cho phép frontend gọi API
 app.use(cors({
@@ -43,22 +55,57 @@ app.use('/api/posts', postsRouter)
 app.use('/api/workshops', workshopsRouter)
 app.use('/api/library', libraryRouter)
 app.use('/api/reviews', reviewsRouter)
+
 app.use('/api/workshop-regs', workshopRegsRouter)
+app.use('/api/orders', ordersRouter)
+
 app.use('/api/volunteers', volunteersRouter)
+app.use('/api/community-images', communityImagesRouter)
+app.use('/api/hero-section', heroSectionRouter)
+app.use('/api/discover-content', discoverContentRouter)
+app.use('/api/eco-system', ecoSystemRouter)
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', dbConnected })
+})
 
-// Kết nối MongoDB rồi mới lắng nghe request
-// Xoá appName rỗng nếu có trong URI (gây lỗi trên Render)
-const mongoURI = (process.env.MONGODB_URI || '').replace(/([&?])appName=(?=[&]|$)|[&?]appName=$/, '')
-mongoose
-    .connect(mongoURI)
-    .then(() => {
+// Lắng nghe request trước để frontend không bị CORS/network block khi DB đang khởi động.
+app.listen(PORT, () => console.log(`Backend đang chạy tại http://localhost:${PORT}`))
+
+async function connectDatabase() {
+    // Xoá appName rỗng nếu có trong URI (gây lỗi trên Render)
+    const mongoURI = (process.env.MONGODB_URI || '').replace(/([&?])appName=(?=[&]|$)|[&?]appName=$/, '')
+
+    try {
+        await mongoose.connect(mongoURI, {
+            serverSelectionTimeoutMS: 1500,
+            connectTimeoutMS: 1500,
+        })
+        dbConnected = true
         console.log('MongoDB connected')
-        app.listen(PORT, () => console.log(`Backend đang chạy tại http://localhost:${PORT}`))
-    })
-    .catch(err => {
-        console.error('Kết nối MongoDB thất bại:', err.message)
-        process.exit(1)
-    })
+        return
+    } catch (err) {
+        console.warn('MongoDB local chưa sẵn sàng:', err.message)
+    }
+
+    try {
+        memoryMongo = await MongoMemoryServer.create()
+        await mongoose.connect(memoryMongo.getUri(), {
+            serverSelectionTimeoutMS: 5000,
+            connectTimeoutMS: 5000,
+        })
+        dbConnected = true
+        console.log('Mongo Memory Server connected for local development')
+    } catch (err) {
+        dbConnected = false
+        console.error('Không thể khởi động Mongo Memory Server:', err.message)
+    }
+}
+
+connectDatabase()
+
+process.on('SIGINT', async () => {
+    if (memoryMongo) await memoryMongo.stop()
+    process.exit(0)
+})

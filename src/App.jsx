@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Routes, Route, NavLink, Link, useNavigate } from 'react-router-dom'
+import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
 import {
-  User, LogOut, Menu, X, MessageCircle,
+  User, LogOut, Menu, X, MessageCircle, House, Compass, UtensilsCrossed, BookOpen, Phone,
   Upload, Plus, LayoutDashboard, WifiOff, Save
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -27,6 +27,12 @@ import ManageCartPage from './pages/ManageCartPage'
 import TrainingPage from './pages/TrainingPage'
 import WomenSupportPage from './pages/WomenSupportPage'
 import FAQPage from './pages/FAQPage'
+import Shop387Page from './pages/Shop387Page'
+import EcoSystemPage from './pages/EcoSystemPage'
+import VerifyCertificatePage from './pages/VerifyCertificatePage'
+import ContributionLeaderboardPage from './pages/ContributionLeaderboardPage'
+import HomestayFarmstayPage from './pages/HomestayFarmstayPage'
+import BusStationPage from './pages/BusStationPage'
 import './App.css'
 
 /* ──────────────────────────────────────────────────────
@@ -40,6 +46,7 @@ function LoginModal() {
   const [p, setP] = useState('')
   const close = () => { setLoginError(''); setShowLogin(false) }
   const submit = (e) => { e.preventDefault(); if (login(u, p)) close() }
+
   return (
     <div className="modal-backdrop" onClick={close}>
       <div className="modal" onClick={e => e.stopPropagation()}>
@@ -327,17 +334,21 @@ function Header() {
   const { setShowLogin } = useUI()
   const { lang, t, toggleLang } = useLang()
   const { offline } = useData()
-  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
   const links = [
     { to: '/cong-dong', label: t('nav_du_an') },
-    { to: '/workshop', label: '🎓 Workshop' },
-    { to: '/dao-tao', label: '📚 Đào tạo' },
+    { to: '/eco-system', label: '🌐 Eco System' },
+    { to: '/workshop', label: t('nav_workshop') },
+    { to: '/dao-tao', label: t('nav_training') },
     { to: '/thu-vien', label: t('nav_thu_vien') },
     { to: '/tours', label: t('nav_kham_pha') },
+    { to: '/homestay-farmstay', label: t('nav_stays') },
+    { to: '/bus-station', label: t('nav_bus') },
     { to: '/san-pham', label: t('nav_san_pham') },
-    { to: '/ho-tro', label: '💜 Hỗ trợ' },
+    { to: '/shop387', label: t('nav_city_market') },
+    { to: '/xep-hang-sao', label: t('nav_star_rank') },
+    { to: '/ho-tro', label: t('nav_support') },
     { to: '/faq', label: t('nav_faq') },
     { to: '/blog', label: t('nav_blog') },
     { to: '/lien-he', label: t('nav_contact') },
@@ -420,7 +431,13 @@ function PassportBtn() {
 ────────────────────────────────────────────────────── */
 function FloatingContact() {
   const [open, setOpen] = useState(false)
+  const { pathname } = useLocation()
+  const showCityFoodQuick = pathname === '/'
   const CONTACTS = [
+    {
+      href: '/foodhg', label: 'CityFood', sub: 'Đặt đồ ăn thành phố', cls: 'float-btn-cityfood', internal: true,
+      icon: <span className="float-z">🍜</span>
+    },
     {
       href: 'https://wa.me/84385737705', label: 'WhatsApp', sub: '+84 385 737 705', cls: 'float-btn-wa',
       icon: <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
@@ -436,21 +453,66 @@ function FloatingContact() {
   ]
   return (
     <div className={`float-contact${open ? ' float-open' : ''}`}>
+      {showCityFoodQuick && (
+        <Link to="/foodhg" className="float-cityfood-quick" aria-label="CityFood đặt món nhanh">
+          <span>🍜</span>
+          <strong>CityFood</strong>
+          <small>Bạn có thể book đồ ăn ở Hà Giang City trong đây</small>
+        </Link>
+      )}
       <div className="float-options">
         {CONTACTS.map(c => (
-          <a key={c.href} href={c.href} target="_blank" rel="noreferrer" className={`float-btn ${c.cls}`}>
-            <span className="float-btn-icon">{c.icon}</span>
-            <span className="float-btn-text">
-              <strong>{c.label}</strong>
-              <span>{c.sub}</span>
-            </span>
-          </a>
+          c.internal ? (
+            <Link key={c.href} to={c.href} className={`float-btn ${c.cls}`} onClick={() => setOpen(false)}>
+              <span className="float-btn-icon">{c.icon}</span>
+              <span className="float-btn-text">
+                <strong>{c.label}</strong>
+                <span>{c.sub}</span>
+              </span>
+            </Link>
+          ) : (
+            <a key={c.href} href={c.href} target="_blank" rel="noreferrer" className={`float-btn ${c.cls}`} onClick={() => setOpen(false)}>
+              <span className="float-btn-icon">{c.icon}</span>
+              <span className="float-btn-text">
+                <strong>{c.label}</strong>
+                <span>{c.sub}</span>
+              </span>
+            </a>
+          )
         ))}
       </div>
       <button className="float-main" onClick={() => setOpen(o => !o)} aria-label="Liên hệ">
         {open ? <X size={22} /> : <MessageCircle size={22} />}
       </button>
     </div>
+  )
+}
+
+function MobileAppDock() {
+  const { pathname } = useLocation()
+  if (pathname === '/dashboard') return null
+
+  const items = [
+    { to: '/', label: 'Home', icon: <House size={18} />, match: p => p === '/' },
+    { to: '/gioi-thieu', label: 'Discover', icon: <Compass size={18} />, match: p => p === '/gioi-thieu' || p === '/tours' },
+    { to: '/foodhg', label: 'CityFood', icon: <UtensilsCrossed size={18} />, match: p => p === '/foodhg' || p === '/shop387' },
+    { to: '/ho-chieu', label: 'Passport', icon: <BookOpen size={18} />, match: p => p === '/ho-chieu' },
+    { to: '/lien-he', label: 'Liên hệ', icon: <Phone size={18} />, match: p => p === '/lien-he' },
+  ]
+
+  return (
+    <nav className="app-dock" aria-label="App navigation">
+      {items.map(item => (
+        <Link
+          key={item.to}
+          to={item.to}
+          className={`app-dock-item ${item.match(pathname) ? 'is-active' : ''}`}
+        >
+          {item.icon}
+          <span>{item.label}</span>
+        </Link>
+      ))}
+    </nav>
   )
 }
 
@@ -461,17 +523,17 @@ function AppInner() {
   const { toast, showLogin, adminModal, editItem } = useUI()
   const { t } = useLang()
   return (
-    <div className="app">
+    <div className="app app-shell">
       {toast && <div className="toast">{toast}</div>}
       {showLogin && <LoginModal />}
       {adminModal && <AdminModal />}
       {editItem && <EditModal />}
       <FloatingContact />
       <Header />
-      <main>
+      <main className="app-main">
         <Routes>
-          <Route path="/" element={<DiscoverPage />} />
-          <Route path="/gioi-thieu" element={<HomePage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/gioi-thieu" element={<DiscoverPage />} />
           <Route path="/ho-chieu" element={<PassportPage />} />
           <Route path="/cong-dong" element={<CommunityPage />} />
           <Route path="/workshop" element={<WorkshopPage />} />
@@ -487,9 +549,17 @@ function AppInner() {
           <Route path="/dao-tao" element={<TrainingPage />} />
           <Route path="/ho-tro" element={<WomenSupportPage />} />
           <Route path="/faq" element={<FAQPage />} />
+          <Route path="/eco-system" element={<EcoSystemPage />} />
+          <Route path="/verify/:certCode" element={<VerifyCertificatePage />} />
+          <Route path="/foodhg" element={<Shop387Page />} />
+          <Route path="/shop387" element={<Shop387Page />} />
+          <Route path="/xep-hang-sao" element={<ContributionLeaderboardPage />} />
+          <Route path="/homestay-farmstay" element={<HomestayFarmstayPage />} />
+          <Route path="/bus-station" element={<BusStationPage />} />
         </Routes>
       </main>
-      <footer className="footer">
+      <MobileAppDock />
+      <footer className="footer app-footer">
         <div className="footer-inner">
           <p>🌿 <strong>HTX Trường Hải</strong> – Tổ 5 Quang Trung · Phường Hà Giang 2 · Tuyên Quang</p>
           <div className="footer-links">

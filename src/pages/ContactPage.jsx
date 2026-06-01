@@ -6,6 +6,7 @@ import { useLang } from '../context/LanguageContext'
 export default function ContactPage() {
   const { showToast } = useUI()
   const { t } = useLang()
+  const mapLink = 'https://maps.app.goo.gl/Fm26ka14eoToFq68A'
   const [form, setForm] = useState({ name: '', phone: '', email: '', service: '', msg: '' })
   const [sent, setSent] = useState(false)
 
@@ -23,7 +24,7 @@ export default function ContactPage() {
     { icon: <Phone size={24} />, labelKey: 'contact_hotline', valueKey: 'contact_hotline_val', link: 'tel:0385737705', color: '#f97316' },
     { icon: <MessageSquare size={24} />, labelKey: 'contact_zalo', valueKey: 'contact_zalo_val', link: 'https://zalo.me/0385737705', color: '#2563eb' },
     { icon: <MessageCircle size={24} />, labelKey: 'contact_whatsapp', valueKey: 'contact_whatsapp_val', link: 'https://wa.me/84385737705', color: '#25d366' },
-    { icon: <MapPin size={24} />, labelKey: 'contact_addr', valueKey: 'contact_addr_val', link: '#', color: '#16a34a' },
+    { icon: <MapPin size={24} />, labelKey: 'contact_addr', valueKey: 'contact_addr_val', link: mapLink, color: '#16a34a' },
     { icon: <Clock size={24} />, labelKey: 'contact_hours', valueKey: 'contact_hours_val', link: '#', color: '#7c3aed' },
   ]
 
@@ -106,6 +107,9 @@ export default function ContactPage() {
             <p>🏔️ {t('contact_map1')}</p>
             <p>⏱️ {t('contact_map2')}</p>
             <p>✈️ {t('contact_map3')}</p>
+            <a href={mapLink} target="_blank" rel="noreferrer" className="btn3d btn3d-blue btn-sm" style={{ marginTop: 8 }}>
+              <MapPin size={14} /> Mở Google Maps
+            </a>
           </div>
         </div>
       </section>

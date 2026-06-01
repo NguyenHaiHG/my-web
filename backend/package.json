@@ -5,14 +5,16 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "dev": "nodemon server.js",
+        "dev": "sh -c 'PORT_TO_CLEAR=${PORT:-5001}; IDS=$(lsof -ti tcp:${PORT_TO_CLEAR}); if [ -n \"$IDS\" ]; then kill $IDS; fi; nodemon server.js'",
         "seed": "node seed.js"
     },
     "dependencies": {
         "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "express": "^4.18.2",
-        "mongoose": "^8.3.2"
+        "mongodb-memory-server": "^11.1.0",
+        "mongoose": "^8.3.2",
+        "nodemailer": "^8.0.9"
     },
     "devDependencies": {
         "nodemon": "^3.1.0"

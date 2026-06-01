@@ -1,6 +1,8 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const OrderContext = createContext(null)
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 export function OrderProvider({ children }) {
     /* ── CART ─────────────────────────────────────────────── */
@@ -27,9 +29,18 @@ export function OrderProvider({ children }) {
 
     /* ── 3 SEPARATE ORDER STORES ──────────────────────────── */
     const [cartOrders, setCartOrders] = useState([])
+    const [taobaoOrders, setTaobaoOrders] = useState([])
     const [tourBookings, setTourBookings] = useState([])
     const [workshopRegs, setWorkshopRegs] = useState([])
     const [volunteerApps, setVolunteerApps] = useState([])
+
+    /* ── Load cart orders from backend on mount ───────────── */
+    useEffect(() => {
+        fetch(`${API}/api/orders`)
+            .then(r => r.ok ? r.json() : [])
+            .then(data => setCartOrders(data.map(o => ({ ...o, id: o._id || o.id }))))
+            .catch(() => { })
+    }, [])
 
     /* ── NOTIFICATIONS ────────────────────────────────────── */
     const [notifications, setNotifications] = useState([])
@@ -48,16 +59,33 @@ export function OrderProvider({ children }) {
     const markAllRead = () => setNotifications(prev => prev.map(n => ({ ...n, read: true })))
 
     /* ── SUBMIT ORDERS ─────────────────────────────────────── */
-    const submitCartOrder = (orderData, items) => {
-        setCartOrders(prev => [{
+    const submitCartOrder = async (orderData, items) => {
+        const payload = { ...orderData, items }
+        let saved = { ...payload, id: Date.now(), date: new Date().toLocaleString('vi-VN'), status: 'pending' }
+        try {
+            const res = await fetch(`${API}/api/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+            if (res.ok) {
+                const data = await res.json()
+                saved = { ...data, id: data._id || data.id, date: new Date().toLocaleString('vi-VN') }
+            }
+        } catch { /* offline fallback – order still shows in session */ }
+        setCartOrders(prev => [saved, ...prev])
+        addNotif(`🛒 Đơn giỏ hàng mới từ ${orderData.name} – SĐT: ${orderData.phone}`, 'cart')
+        clearCart()
+    }
+
+    const submitTaobaoOrder = (orderData) => {
+        setTaobaoOrders(prev => [{
             ...orderData,
             id: Date.now(),
-            items: [...items],
             date: new Date().toLocaleString('vi-VN'),
             status: 'pending',
         }, ...prev])
-        addNotif(`🛒 Đơn giỏ hàng mới từ ${orderData.name} – SĐT: ${orderData.phone}`, 'cart')
-        clearCart()
+        addNotif(`🛍️ Đơn Taobao mới từ ${orderData.name} – SĐT: ${orderData.phone}`, 'taobao')
     }
 
     const submitTourBooking = (bookingData) => {
@@ -92,14 +120,26 @@ export function OrderProvider({ children }) {
 
     const updateOrderStatus = (type, id, status) => {
         const upd = list => list.map(o => o.id === id ? { ...o, status } : o)
-        if (type === 'cart') setCartOrders(upd)
+        if (type === 'cart') {
+            setCartOrders(upd)
+            fetch(`${API}/api/orders/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status }),
+            }).catch(() => { })
+        }
+        if (type === 'taobao') setTaobaoOrders(upd)
         if (type === 'tour') setTourBookings(upd)
         if (type === 'workshop') setWorkshopRegs(upd)
         if (type === 'volunteer') setVolunteerApps(upd)
     }
 
     const deleteOrder = (type, id) => {
-        if (type === 'cart') setCartOrders(p => p.filter(o => o.id !== id))
+        if (type === 'cart') {
+            setCartOrders(p => p.filter(o => o.id !== id))
+            fetch(`${API}/api/orders/${id}`, { method: 'DELETE' }).catch(() => { })
+        }
+        if (type === 'taobao') setTaobaoOrders(p => p.filter(o => o.id !== id))
         if (type === 'tour') setTourBookings(p => p.filter(o => o.id !== id))
         if (type === 'workshop') setWorkshopRegs(p => p.filter(o => o.id !== id))
         if (type === 'volunteer') setVolunteerApps(p => p.filter(o => o.id !== id))
@@ -108,8 +148,8 @@ export function OrderProvider({ children }) {
     return (
         <OrderContext.Provider value={{
             cart, addToCart, removeFromCart, updateQty, clearCart, totalCount,
-            cartOrders, tourBookings, workshopRegs, volunteerApps,
-            submitCartOrder, submitTourBooking, submitWorkshopReg, submitVolunteerApp,
+            cartOrders, taobaoOrders, tourBookings, workshopRegs, volunteerApps,
+            submitCartOrder, submitTaobaoOrder, submitTourBooking, submitWorkshopReg, submitVolunteerApp,
             updateOrderStatus, deleteOrder,
             notifications, unread, markRead, markAllRead,
         }}>

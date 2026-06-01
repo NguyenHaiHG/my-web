@@ -129,11 +129,21 @@ function RegisterModal({ prog, onClose }) {
     const { addWorkshopReg } = useOrder()
     const { addStamp } = usePassport()
     const { showToast } = useUI()
-    const [form, setForm] = useState({ name: '', phone: '', age: '', note: '' })
+    const [form, setForm] = useState({ name: '', phone: '', age: '', note: '', ethnicity: '', gender: '', isLocal: false })
     const [done, setDone] = useState(false)
+    const [error, setError] = useState('')
 
     const submit = (e) => {
         e.preventDefault()
+        // Kiểm tra điều kiện
+        if (!form.ethnicity || !form.gender || !form.isLocal) {
+            setError('Chỉ dành cho nữ, người dân tộc thiểu số và là người địa phương. Vui lòng điền đủ thông tin!')
+            return
+        }
+        if (form.gender !== 'female') {
+            setError('Chỉ dành cho nữ giới!')
+            return
+        }
         addWorkshopReg({
             ...form,
             workshopTitle: prog.title,
@@ -173,8 +183,30 @@ function RegisterModal({ prog, onClose }) {
                                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} required />
                             <input className="form-input" placeholder="Tuổi" value={form.age}
                                 onChange={e => setForm(f => ({ ...f, age: e.target.value }))} />
+                            <select className="form-input" value={form.ethnicity} required
+                                onChange={e => setForm(f => ({ ...f, ethnicity: e.target.value }))}>
+                                <option value="">Chọn dân tộc *</option>
+                                <option value="tay">Tày</option>
+                                <option value="dao">Dao</option>
+                                <option value="mong">Mông</option>
+                                <option value="nùng">Nùng</option>
+                                <option value="other">Khác</option>
+                            </select>
+                            <select className="form-input" value={form.gender} required
+                                onChange={e => setForm(f => ({ ...f, gender: e.target.value }))}>
+                                <option value="">Chọn giới tính *</option>
+                                <option value="female">Nữ</option>
+                                <option value="male">Nam</option>
+                                <option value="other">Khác</option>
+                            </select>
+                            <label style={{ display: 'block', margin: '8px 0' }}>
+                                <input type="checkbox" checked={form.isLocal}
+                                    onChange={e => setForm(f => ({ ...f, isLocal: e.target.checked }))} />
+                                &nbsp;Tôi xác nhận là người địa phương
+                            </label>
                             <textarea className="form-input form-textarea" placeholder="Ghi chú thêm (kinh nghiệm, mong muốn…)"
                                 value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} />
+                            {error && <div style={{ color: 'red', marginBottom: 8 }}>{error}</div>}
                             <button type="submit" className="btn3d btn3d-orange btn-full">
                                 <Send size={15} /> Gửi đăng ký
                             </button>

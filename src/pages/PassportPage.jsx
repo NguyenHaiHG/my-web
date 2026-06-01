@@ -1,17 +1,163 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { usePassport, STAMP_DEFS, CERT_TYPES } from '../context/PassportContext'
+import { usePassport, STAMP_DEFS, CERT_TYPES, GPS_LANDMARKS } from '../context/PassportContext'
 import { useLang } from '../context/LanguageContext'
-import { Edit2, Check, Download, ArrowLeft, Star } from 'lucide-react'
+import { Edit2, Check, Download, ArrowLeft, MapPin, RefreshCw, Home, BookOpen, Map, Shield, User, Phone } from 'lucide-react'
+import QRCode from 'qrcode'
+
+const MAP_LINK = 'https://maps.app.goo.gl/Fm26ka14eoToFq68A'
+
+const TODAY_ROUTE = {
+    title: 'TODAY\'S ROUTE',
+    route: 'Dong Van → Meo Vac',
+    weather: '18°C · Sương nhẹ',
+    distance: '148 km',
+    elevation: '1,620m',
+    fuel: '2 điểm tiếp nhiên liệu',
+    safeStops: '5 điểm female-safe',
+    timeline: ['Đồng Văn', 'Mã Pí Lèng', 'Nho Quế', 'Mèo Vạc'],
+}
+
+const WOMEN_RIDE_STORIES = [
+    { name: 'Linh Anh', nation: 'Việt Nam', badge: 'Sunrise Hunter', quote: 'Ride slow, feel deep. Hà Giang chữa lành mình theo cách rất nữ tính.', avatar: '🌄' },
+    { name: 'Mia', nation: 'Australia', badge: 'Rain Survivor', quote: 'I felt safe, supported and truly connected with local sisters.', avatar: '🏍️' },
+    { name: 'Yuna', nation: 'Japan', badge: 'Local Market Explorer', quote: 'Chợ phiên và những nụ cười bản địa là kỷ niệm đẹp nhất.', avatar: '🧺' },
+]
+
+const MEMORY_PROMPTS = [
+    'Ảnh khoảnh khắc đẹp nhất hôm nay',
+    'Voice note 30s về cảm xúc cung đường',
+    'Mùi vị món ăn địa phương bạn nhớ nhất',
+]
+
+const SISTERS_HELP_ACTIONS = [
+    { label: 'Emergency Call', href: 'tel:113', icon: Phone },
+    { label: 'Trusted Female Rider', href: '/ho-tro', icon: HeartHandshake },
+    { label: 'Safe Sleeping Places', href: '/ho-tro', icon: Shield },
+    { label: 'Local Women Network', href: '/lien-he', icon: User },
+]
 
 /* ══════════════════════════════════════════════════════
    CERTIFICATE CANVAS GENERATOR
    ══════════════════════════════════════════════════════ */
-function drawCertificate({ certDef, holder, earnedStamps, isBasic = false }) {
+function drawCircularText(ctx, text, x, y, radius, startAngle, letterSpace = 0.06, reverse = false) {
+    const chars = [...text]
+    const totalAngle = chars.length * letterSpace
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.rotate(startAngle)
+    if (reverse) ctx.scale(-1, 1)
+    chars.forEach((ch, i) => {
+        const angle = (i - (chars.length - 1) / 2) * letterSpace
+        ctx.save()
+        ctx.rotate(angle)
+        ctx.translate(0, -radius)
+        ctx.rotate(reverse ? Math.PI : 0)
+        ctx.fillText(ch, 0, 0)
+        ctx.restore()
+    })
+    ctx.restore()
+}
+
+function drawHaGiangSeal(ctx, { x, y, r = 48, color = '#c8963e', icon = '🌸', label = 'HA GIANG' }) {
+    const rimColor = color
+    const sealRed = '#9f1d1d'
+    const innerBg = ctx.createRadialGradient(x - r * 0.15, y - r * 0.2, 8, x, y, r)
+    innerBg.addColorStop(0, '#fff7e3')
+    innerBg.addColorStop(.62, '#fbe2b3')
+    innerBg.addColorStop(1, '#f4c774')
+
+    // Outer wax ring
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(x, y, r + 5, 0, Math.PI * 2)
+    ctx.fillStyle = 'rgba(17,34,53,0.08)'
+    ctx.fill()
+
+    // Decorative dots around ring
+    for (let i = 0; i < 18; i += 1) {
+        const a = (Math.PI * 2 * i) / 18
+        const dx = x + Math.cos(a) * (r - 2)
+        const dy = y + Math.sin(a) * (r - 2)
+        ctx.beginPath()
+        ctx.arc(dx, dy, 2.2, 0, Math.PI * 2)
+        ctx.fillStyle = rimColor
+        ctx.fill()
+    }
+
+    // Ring and core
+    ctx.beginPath()
+    ctx.arc(x, y, r, 0, Math.PI * 2)
+    ctx.strokeStyle = sealRed
+    ctx.lineWidth = 4.5
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.arc(x, y, r - 6, 0, Math.PI * 2)
+    ctx.fillStyle = innerBg
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'
+    ctx.lineWidth = 1
+    ctx.stroke()
+
+    // Local motif: stone mountains + terraced fields
+    ctx.strokeStyle = 'rgba(121, 27, 27, 0.2)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.moveTo(x - 24, y + 8)
+    ctx.lineTo(x - 12, y - 6)
+    ctx.lineTo(x - 2, y + 2)
+    ctx.lineTo(x + 7, y - 12)
+    ctx.lineTo(x + 18, y + 8)
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.arc(x, y + 16, 18, Math.PI * 1.05, Math.PI * 1.95)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(x - 2, y + 18, 12, Math.PI * 1.05, Math.PI * 1.9)
+    ctx.stroke()
+
+    // Center icon
+    ctx.font = '28px serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillStyle = sealRed
+    ctx.fillText(icon, x, y - 7)
+
+    // Circular seal text
+    ctx.fillStyle = sealRed
+    ctx.font = 'bold 7px Arial, sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    drawCircularText(ctx, 'HÀ GIANG', x, y, r - 8, Math.PI * 0.92, 0.11)
+    drawCircularText(ctx, 'HTX TRƯỜNG HẢI', x, y, r - 8, Math.PI * 1.9, 0.095, true)
+
+    // Stamp text lines
+    ctx.font = 'bold 8px Arial, sans-serif'
+    ctx.fillStyle = rimColor
+    const shortLabel = (label || 'HA GIANG').toUpperCase().slice(0, 18)
+    ctx.fillText(shortLabel, x, y + 21)
+    ctx.fillText('UNESCO GEOPARK STYLE', x, y - 24)
+    ctx.restore()
+}
+
+function makeCertCode(prefix = 'HG') {
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = String(now.getMonth() + 1).padStart(2, '0')
+    const d = String(now.getDate()).padStart(2, '0')
+    const rnd = Math.random().toString(36).slice(2, 7).toUpperCase()
+    return `${prefix}-${y}${m}${d}-${rnd}`
+}
+
+async function buildCertificateCanvas({ certDef, holder, earnedStamps, isBasic = false, passportPoints = 0 }) {
     const W = 1400, H = 960
     const canvas = document.createElement('canvas')
     canvas.width = W; canvas.height = H
     const ctx = canvas.getContext('2d')
+    const certCode = makeCertCode(certDef?.id || 'BASIC')
+    const verifyUrl = `${window.location.origin}/verify/${encodeURIComponent(certCode)}`
 
     // Background
     const bg = ctx.createLinearGradient(0, 0, 0, H)
@@ -84,20 +230,21 @@ function drawCertificate({ certDef, holder, earnedStamps, isBasic = false }) {
     // Stamps
     const stamps = earnedStamps
     if (stamps.length > 0) {
-        const perRow = Math.min(stamps.length, 7)
-        const startX = W / 2 - ((perRow - 1) * 170) / 2
         stamps.forEach((stamp, i) => {
             const row = Math.floor(i / 7)
             const col = i % 7
             const x = W / 2 - ((Math.min(stamps.length - row * 7, 7) - 1) * 170) / 2 + col * 170
             const y = 570 + row * 120
 
-            ctx.strokeStyle = stamp.color || '#c8963e'; ctx.lineWidth = 4
-            ctx.beginPath(); ctx.arc(x, y, 48, 0, Math.PI * 2); ctx.stroke()
-            ctx.fillStyle = '#fef3c7'
-            ctx.beginPath(); ctx.arc(x, y, 46, 0, Math.PI * 2); ctx.fill()
-            ctx.font = '32px serif'; ctx.textAlign = 'center'
-            ctx.fillText(stamp.icon || '🌸', x, y + 12)
+            drawHaGiangSeal(ctx, {
+                x,
+                y,
+                r: 48,
+                color: stamp.color || '#c8963e',
+                icon: stamp.icon || '🌸',
+                label: stamp.label || stamp.type,
+            })
+
             ctx.fillStyle = '#4a4a4a'; ctx.font = '11px Georgia, serif'
             const lbl = stamp.label || stamp.type
             const words = lbl.split(' ')
@@ -114,6 +261,61 @@ function drawCertificate({ certDef, holder, earnedStamps, isBasic = false }) {
     ctx.beginPath(); ctx.moveTo(80, 858); ctx.lineTo(W - 80, 858); ctx.stroke()
     ctx.fillStyle = '#4a4a4a'; ctx.font = '16px Georgia, serif'; ctx.textAlign = 'left'
     ctx.fillText(`Ngày cấp: ${new Date().toLocaleDateString('vi-VN')}`, 100, 892)
+    ctx.fillText(`Mã chứng nhận: ${certCode}`, 100, 916)
+    ctx.font = '13px Georgia, serif'
+    ctx.fillStyle = '#64748b'
+    ctx.fillText(`Điểm hộ chiếu: ${passportPoints}`, 100, 938)
+
+    // Competition submission wax-style mark
+    ctx.save()
+    ctx.translate(1130, 205)
+    ctx.rotate(-0.16)
+    ctx.fillStyle = 'rgba(155,44,44,0.10)'
+    ctx.beginPath()
+    ctx.arc(0, 0, 92, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.strokeStyle = '#9b2c2c'
+    ctx.lineWidth = 3
+    ctx.beginPath()
+    ctx.arc(0, 0, 82, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(0, 0, 66, 0, Math.PI * 2)
+    ctx.strokeStyle = 'rgba(155,44,44,0.45)'
+    ctx.lineWidth = 1.5
+    ctx.stroke()
+    ctx.fillStyle = '#9b2c2c'
+    ctx.font = 'bold 13px Arial, sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('COMPETITION', 0, -10)
+    ctx.fillText('SUBMISSION 2026', 0, 12)
+    ctx.restore()
+
+    let qrData = null
+    try {
+        qrData = await QRCode.toDataURL(verifyUrl, { width: 130, margin: 1 })
+    } catch {
+        qrData = null
+    }
+    if (qrData) {
+        const qrImg = new Image()
+        qrImg.src = qrData
+        await new Promise(resolve => {
+            qrImg.onload = resolve
+            qrImg.onerror = resolve
+        })
+        ctx.drawImage(qrImg, W - 255, 788, 120, 120)
+        ctx.fillStyle = '#334155'
+        ctx.font = '12px Georgia, serif'
+        ctx.textAlign = 'center'
+        ctx.fillText('Quét để xác thực', W - 195, 922)
+    }
+
+    ctx.textAlign = 'right'
+    ctx.fillStyle = '#64748b'
+    ctx.font = '12px Georgia, serif'
+    ctx.fillText('verify: ' + verifyUrl, W - 100, 938)
+
     ctx.textAlign = 'center'
     ctx.font = '36px serif'; ctx.fillText('🌸', W / 2, 898)
     ctx.fillStyle = '#1a3a4a'; ctx.font = 'bold 14px Georgia, serif'
@@ -127,10 +329,32 @@ function drawCertificate({ certDef, holder, earnedStamps, isBasic = false }) {
     ctx.fillText('Nguyễn Hải HG', W - 100, 916)
 
     const label = certDef ? certDef.shortTitle || certDef.id : 'Passport'
+    return { canvas, label, certCode, verifyUrl }
+}
+
+async function downloadCertificatePng(opts) {
+    const { holder } = opts
+    const { canvas, label, certCode, verifyUrl } = await buildCertificateCanvas(opts)
     const link = document.createElement('a')
     link.download = `HaGiang-${label}-${(holder || 'User').replace(/\s+/g, '-')}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
+    return { certCode, verifyUrl, label }
+}
+
+async function downloadCertificatePdf(opts) {
+    const { holder } = opts
+    const { canvas, label, certCode, verifyUrl } = await buildCertificateCanvas(opts)
+    const { jsPDF } = await import('jspdf')
+    const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height],
+    })
+    const image = canvas.toDataURL('image/png')
+    pdf.addImage(image, 'PNG', 0, 0, canvas.width, canvas.height)
+    pdf.save(`HaGiang-${label}-${(holder || 'User').replace(/\s+/g, '-')}.pdf`)
+    return { certCode, verifyUrl, label }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -155,9 +379,165 @@ function StarRating({ value, onChange }) {
 }
 
 /* ══════════════════════════════════════════════════════
+   GPS CHECK-IN TAB — real-location stamps
+   ══════════════════════════════════════════════════════ */
+function haversineMeters(lat1, lng1, lat2, lng2) {
+    const R = 6371000
+    const φ1 = lat1 * Math.PI / 180, φ2 = lat2 * Math.PI / 180
+    const Δφ = (lat2 - lat1) * Math.PI / 180
+    const Δλ = (lng2 - lng1) * Math.PI / 180
+    const a = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+function GpsCheckInTab({ passport, addGpsStamp, hasGpsStamp }) {
+    const { t, lang } = useLang()
+    const [gps, setGps] = useState(null) // null | 'loading' | { lat, lng } | 'error'
+    const [justDone, setJustDone] = useState(null) // landmark id just stamped
+
+    const requestGps = () => {
+        setGps('loading')
+        if (!navigator.geolocation) { setGps('error'); return }
+        navigator.geolocation.getCurrentPosition(
+            pos => setGps({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+            () => setGps('error'),
+            { enableHighAccuracy: true, timeout: 12000 }
+        )
+    }
+
+    const doCheckIn = (lm) => {
+        addGpsStamp(lm.id)
+        setJustDone(lm.id)
+        setTimeout(() => setJustDone(null), 3000)
+    }
+
+    const gpsStamps = passport.gpsStamps || []
+    const collected = gpsStamps.length
+
+    return (
+        <div className="ci-wrap">
+            <div className="ci-header">
+                <h2 className="ci-title">
+                    {lang === 'en' ? '📍 Real-Location Check-in' : '📍 Check in thực địa'}
+                </h2>
+                <p className="ci-sub">
+                    {lang === 'en'
+                        ? 'Travel to each landmark, enable GPS, and collect your stamp!'
+                        : 'Đến tận địa điểm, bật GPS và nhận stamp kỷ niệm!'}
+                </p>
+            </div>
+
+            {/* GPS Control Bar */}
+            <div className="ci-gps-bar">
+                {gps === null && (
+                    <button className="ci-gps-btn" onClick={requestGps}>
+                        <MapPin size={15} />
+                        {lang === 'en' ? 'Enable GPS' : 'Bật GPS định vị'}
+                    </button>
+                )}
+                {gps === 'loading' && (
+                    <div className="ci-gps-status ci-gps-loading">
+                        <span className="ci-spinner">⏳</span>
+                        {lang === 'en' ? 'Getting your location…' : 'Đang xác định vị trí…'}
+                    </div>
+                )}
+                {gps === 'error' && (
+                    <div className="ci-gps-status ci-gps-error">
+                        ❌ {lang === 'en'
+                            ? 'Location access denied. Allow in browser settings and try again.'
+                            : 'Không lấy được GPS. Hãy cho phép truy cập vị trí trong trình duyệt.'}
+                        <button className="ci-retry-btn" onClick={requestGps} title="Thử lại">
+                            <RefreshCw size={13} />
+                        </button>
+                    </div>
+                )}
+                {gps && gps.lat && (
+                    <div className="ci-gps-status ci-gps-ok">
+                        ✅ {lang === 'en' ? 'Location found' : 'Đã có vị trí'}
+                        <span className="ci-coords">{gps.lat.toFixed(4)}°N {gps.lng.toFixed(4)}°E</span>
+                        <button className="ci-retry-btn" onClick={requestGps} title="Làm mới GPS">
+                            <RefreshCw size={13} />
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Landmarks List */}
+            <div className="ci-list">
+                {GPS_LANDMARKS.map(lm => {
+                    const earned = hasGpsStamp(lm.id)
+                    const dist = gps && gps.lat ? haversineMeters(gps.lat, gps.lng, lm.lat, lm.lng) : null
+                    const inRange = dist !== null && dist <= lm.radius
+                    const isDone = justDone === lm.id
+                    const distLabel = dist === null ? null
+                        : dist < 1000 ? `${Math.round(dist)} m`
+                            : `${(dist / 1000).toFixed(1)} km`
+
+                    return (
+                        <div key={lm.id}
+                            className={`ci-item${earned ? ' ci-earned' : ''}${inRange && !earned ? ' ci-inrange' : ''}`}
+                        >
+                            <div className="ci-item-icon" style={{ background: earned ? lm.color + '22' : '#f8fafc', borderColor: earned ? lm.color : '#e2e8f0' }}>
+                                <span className="ci-icon-emoji">{lm.icon}</span>
+                                {earned && <span className="ci-icon-check" style={{ color: lm.color }}>✓</span>}
+                            </div>
+                            <div className="ci-item-body">
+                                <div className="ci-item-name">{lang === 'en' ? lm.label_en : lm.label}</div>
+                                {distLabel && (
+                                    <div className={`ci-item-dist${inRange ? ' ci-dist-near' : ''}`}>
+                                        {inRange ? `✅ ${distLabel} — ${lang === 'en' ? 'You\'re here!' : 'Bạn đang ở đây!'}` : `📍 ${distLabel} ${lang === 'en' ? 'away' : 'nữa'}`}
+                                    </div>
+                                )}
+                                {!distLabel && (
+                                    <div className="ci-item-hint">
+                                        {lang === 'en' ? 'Enable GPS to see distance' : 'Bật GPS để xem khoảng cách'}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="ci-item-cta">
+                                {earned ? (
+                                    <span className="ci-collected" style={{ color: lm.color }}>🏅 {lang === 'en' ? 'Collected' : 'Đã có'}</span>
+                                ) : inRange ? (
+                                    <button
+                                        className={`ci-checkin-btn${isDone ? ' ci-done' : ''}`}
+                                        style={{ '--lm-color': lm.color }}
+                                        onClick={() => doCheckIn(lm)}
+                                    >
+                                        {isDone ? '🎉' : <><MapPin size={13} /> {lang === 'en' ? 'Check in' : 'Nhận stamp'}</>}
+                                    </button>
+                                ) : (
+                                    <span className="ci-go-label">{lang === 'en' ? 'Go there' : 'Đến đây'} →</span>
+                                )}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+
+            {/* Progress footer */}
+            <div className="ci-footer">
+                <div className="ci-footer-stat">
+                    <span className="ci-footer-count">{collected}</span>
+                    <span className="ci-footer-total"> / {GPS_LANDMARKS.length}</span>
+                    <span className="ci-footer-label"> {lang === 'en' ? 'locations visited' : 'địa điểm đã đến'}</span>
+                </div>
+                <div className="ci-progress-track">
+                    <div className="ci-progress-fill" style={{ width: `${(collected / GPS_LANDMARKS.length) * 100}%` }} />
+                </div>
+                {collected === GPS_LANDMARKS.length && (
+                    <div className="ci-complete-msg">
+                        🏆 {lang === 'en' ? 'You conquered all Ha Giang landmarks!' : 'Bạn đã chinh phục tất cả địa điểm Hà Giang!'}
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
+/* ══════════════════════════════════════════════════════
    BASIC TAB — 6 original stamps
    ══════════════════════════════════════════════════════ */
-function BasicTab({ passport, hasStamp, handleDownloadBasic }) {
+function BasicTab({ passport, hasStamp, handleDownloadBasicPng, handleDownloadBasicPdf }) {
     const { t, lang } = useLang()
     const progress = (passport.stamps.length / Object.keys(STAMP_DEFS).length) * 100
     return (
@@ -179,30 +559,32 @@ function BasicTab({ passport, hasStamp, handleDownloadBasic }) {
                     )
                 })}
             </div>
-            {/* howto list */}
-            <div className="pp-howto">
-                <h3>{t('pp_howto_title')}</h3>
-                <div className="pp-howto-grid">
-                    {Object.entries(STAMP_DEFS).map(([type, def]) => (
-                        <Link key={type}
-                            to={type === 'tour' ? '/tours' : type === 'product' ? '/san-pham' : type === 'training' ? '/dao-tao' : type === 'radio' ? '/ho-tro' : '/'}
-                            className={`pp-howto-item ${hasStamp(type) ? 'pp-howto-done' : ''}`}
-                        >
-                            <span>{def.icon}</span><span>{lang === 'en' ? (def.how_en || def.how) : def.how}</span>
-                            {hasStamp(type) && <span className="pp-howto-check">✓</span>}
-                        </Link>
-                    ))}
-                </div>
+            <div className="pp-howto-chips">
+                {Object.entries(STAMP_DEFS).map(([type, def]) => (
+                    <Link key={type}
+                        to={type === 'tour' ? '/tours' : type === 'product' ? '/san-pham' : type === 'training' ? '/dao-tao' : type === 'radio' ? '/ho-tro' : '/'}
+                        className={`pp-chip ${hasStamp(type) ? 'pp-chip-done' : ''}`}
+                        style={{ '--sc': def.color }}
+                    >
+                        {def.icon} {hasStamp(type) ? '✓' : ''}
+                    </Link>
+                ))}
             </div>
             <div className="pp-cert-box">
                 <div className="pp-cert-left">
                     <h3>{t('pp_cert_title_basic')}</h3>
                     <p>{passport.stamps.length === 0 ? t('pp_cert_no_stamps') : t('pp_cert_has').replace('{n}', passport.stamps.length)}</p>
                 </div>
-                <button className={`pp-cert-btn ${passport.stamps.length === 0 ? 'pp-cert-btn-disabled' : ''}`}
-                    onClick={handleDownloadBasic} disabled={passport.stamps.length === 0 || !passport.holderName}>
-                    <Download size={18} /> {t('pp_cert_dl')}
-                </button>
+                <div className="pp-cert-actions">
+                    <button className={`pp-cert-btn ${passport.stamps.length === 0 ? 'pp-cert-btn-disabled' : ''}`}
+                        onClick={handleDownloadBasicPng} disabled={passport.stamps.length === 0 || !passport.holderName}>
+                        <Download size={18} /> PNG
+                    </button>
+                    <button className={`pp-cert-btn pp-cert-btn-pdf ${passport.stamps.length === 0 ? 'pp-cert-btn-disabled' : ''}`}
+                        onClick={handleDownloadBasicPdf} disabled={passport.stamps.length === 0 || !passport.holderName}>
+                        <Download size={18} /> PDF
+                    </button>
+                </div>
             </div>
         </div>
     )
@@ -211,25 +593,59 @@ function BasicTab({ passport, hasStamp, handleDownloadBasic }) {
 /* ══════════════════════════════════════════════════════
    CERT TAB — Loop / Culture / Volunteer / Products
    ══════════════════════════════════════════════════════ */
-function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCount, addReview, getReviews, holderName, addStamp }) {
+function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCount, addReview, getReviews, holderName, addStamp, passportPoints, registerCertificate }) {
     const { t, lang } = useLang()
     const earnedCount = getCertStampCount(certDef.id)
     const totalCount = Object.keys(certDef.stamps).length
     const progress = (earnedCount / totalCount) * 100
-    const canDownload = earnedCount >= certDef.minStamps
+    const minPoints = certDef.minPoints || (certDef.minStamps * 25)
+    const issuedAt = passport.certs[certDef.id]?.issuedAt
+    const canDownload = Boolean(issuedAt)
 
     const [downloading, setDownloading] = useState(false)
+    const [downloadingPdf, setDownloadingPdf] = useState(false)
     const [reviewForm, setReviewForm] = useState({ rating: 0, location: '', comment: '' })
     const [reviewSent, setReviewSent] = useState(false)
     const reviews = getReviews(certDef.id)
 
-    const handleDownload = () => {
+    const handleDownloadPng = async () => {
         const stamps = Object.entries(certDef.stamps)
             .filter(([type]) => hasCertStamp(certDef.id, type))
             .map(([, def]) => def)
-        drawCertificate({ certDef, holder: holderName, earnedStamps: stamps })
+        const meta = await downloadCertificatePng({ certDef, holder: holderName, earnedStamps: stamps, passportPoints })
+        registerCertificate({
+            certCode: meta.certCode,
+            verifyUrl: meta.verifyUrl,
+            certId: certDef.id,
+            certTitle: certDef.certTitle,
+            holder: holderName,
+            points: passportPoints,
+            stampsCount: stamps.length,
+            format: 'png',
+            issuedAt: new Date().toISOString(),
+        })
         setDownloading(true)
         setTimeout(() => setDownloading(false), 3000)
+    }
+
+    const handleDownloadPdf = async () => {
+        const stamps = Object.entries(certDef.stamps)
+            .filter(([type]) => hasCertStamp(certDef.id, type))
+            .map(([, def]) => def)
+        const meta = await downloadCertificatePdf({ certDef, holder: holderName, earnedStamps: stamps, passportPoints })
+        registerCertificate({
+            certCode: meta.certCode,
+            verifyUrl: meta.verifyUrl,
+            certId: certDef.id,
+            certTitle: certDef.certTitle,
+            holder: holderName,
+            points: passportPoints,
+            stampsCount: stamps.length,
+            format: 'pdf',
+            issuedAt: new Date().toISOString(),
+        })
+        setDownloadingPdf(true)
+        setTimeout(() => setDownloadingPdf(false), 3000)
     }
 
     const handleClaim = (type) => {
@@ -267,7 +683,9 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
                 <div className="pp-progress-bar" style={{ width: `${progress}%`, background: `linear-gradient(90deg,${certDef.color},#f59e0b)` }} />
             </div>
             <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
-                {canDownload ? t('pp_ct_enough') : t('pp_ct_more').replace('{n}', certDef.minStamps - earnedCount)}
+                {canDownload
+                    ? `${t('pp_ct_enough')} • ${lang === 'en' ? 'Issued:' : 'Cấp:'} ${new Date(issuedAt).toLocaleDateString('vi-VN')}`
+                    : `${t('pp_ct_more').replace('{n}', Math.max(0, certDef.minStamps - earnedCount))} • ${lang === 'en' ? 'Need points:' : 'Cần điểm:'} ${Math.max(0, minPoints - passportPoints)}`}
             </p>
 
             {/* Stamps grid with claim buttons */}
@@ -302,13 +720,24 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
             <div className="pp-cert-box" style={{ marginTop: 24 }}>
                 <div className="pp-cert-left">
                     <h3>🏆 {lang === 'en' ? (certDef.certTitle_en || certDef.certTitle) : certDef.certTitle}</h3>
-                    <p>{canDownload ? t('pp_ct_cert_ready') : t('pp_ct_cert_locked').replace('{n}', Math.max(0, certDef.minStamps - earnedCount))}</p>
+                    <p>
+                        {canDownload
+                            ? `${t('pp_ct_cert_ready')} (${lang === 'en' ? 'Auto issued' : 'Tự động cấp'})`
+                            : `${t('pp_ct_cert_locked').replace('{n}', Math.max(0, certDef.minStamps - earnedCount))} • ${lang === 'en' ? 'Need' : 'Cần'} ${Math.max(0, minPoints - passportPoints)} ${lang === 'en' ? 'points' : 'điểm'}`}
+                    </p>
                 </div>
-                <button className={`pp-cert-btn ${!canDownload ? 'pp-cert-btn-disabled' : ''}`}
-                    onClick={handleDownload} disabled={!canDownload || !holderName}
-                    title={!holderName ? t('pp_ct_name_req') : ''}>
-                    <Download size={18} /> {downloading ? t('pp_ct_downloaded') : t('pp_ct_dl')}
-                </button>
+                <div className="pp-cert-actions">
+                    <button className={`pp-cert-btn ${!canDownload ? 'pp-cert-btn-disabled' : ''}`}
+                        onClick={handleDownloadPng} disabled={!canDownload || !holderName}
+                        title={!holderName ? t('pp_ct_name_req') : ''}>
+                        <Download size={18} /> {downloading ? 'PNG ✓' : 'PNG'}
+                    </button>
+                    <button className={`pp-cert-btn pp-cert-btn-pdf ${!canDownload ? 'pp-cert-btn-disabled' : ''}`}
+                        onClick={handleDownloadPdf} disabled={!canDownload || !holderName}
+                        title={!holderName ? t('pp_ct_name_req') : ''}>
+                        <Download size={18} /> {downloadingPdf ? 'PDF ✓' : 'PDF'}
+                    </button>
+                </div>
             </div>
 
             {/* ── Reviews section (all cert types) ── */}
@@ -365,7 +794,11 @@ export default function PassportPage() {
         passport, setHolderName,
         addStamp, hasStamp,
         addCertStamp, hasCertStamp, getCertStamps, getCertStampCount,
+        markCertIssued,
         addReview, getReviews,
+        addGpsStamp, hasGpsStamp,
+        getEcoPoints,
+        registerCertificate,
     } = usePassport()
     const { t, lang } = useLang()
 
@@ -381,8 +814,90 @@ export default function PassportPage() {
         setEditingName(false)
     }
 
-    const handleDownloadBasic = () => {
-        drawCertificate({ isBasic: true, holder: passport.holderName, earnedStamps: passport.stamps })
+    const totalCertStamps = useMemo(
+        () => Object.values(passport.certs || {}).reduce((sum, cert) => sum + Object.keys(cert.stamps || {}).length, 0),
+        [passport.certs]
+    )
+    const ecoPoints = useMemo(() => getEcoPoints(), [passport.eco, getEcoPoints])
+    const totalReviews = useMemo(
+        () => Object.values(passport.certs || {}).reduce((sum, cert) => sum + (cert.reviews?.length || 0), 0),
+        [passport.certs]
+    )
+    const passportPoints = useMemo(
+        () => ecoPoints + (passport.stamps.length * 8) + (totalCertStamps * 10) + ((passport.gpsStamps || []).length * 15) + (totalReviews * 5),
+        [ecoPoints, passport.stamps.length, totalCertStamps, passport.gpsStamps, totalReviews]
+    )
+
+    useEffect(() => {
+        Object.values(CERT_TYPES).forEach(certDef => {
+            const stampCount = getCertStampCount(certDef.id)
+            const minPoints = certDef.minPoints || (certDef.minStamps * 25)
+            const alreadyIssued = Boolean(passport.certs?.[certDef.id]?.issuedAt)
+            if (!alreadyIssued && stampCount >= certDef.minStamps && passportPoints >= minPoints) {
+                markCertIssued(certDef.id, {
+                    auto: true,
+                    pointsAtIssue: passportPoints,
+                    stampsAtIssue: stampCount,
+                })
+            }
+        })
+    }, [passport.certs, passportPoints, getCertStampCount, markCertIssued])
+
+    const issuedCertCount = useMemo(
+        () => Object.values(passport.certs || {}).filter(cert => cert.issuedAt).length,
+        [passport.certs]
+    )
+
+    const passportNumber = useMemo(() => {
+        const dt = new Date(passport.createdAt)
+        const y = dt.getFullYear()
+        const m = String(dt.getMonth() + 1).padStart(2, '0')
+        const d = String(dt.getDate()).padStart(2, '0')
+        const initials = (passport.holderName || 'TRAVELER').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase() || '').join('') || 'HG'
+        return `HGLP-${y}${m}${d}-${initials}`
+    }, [passport.createdAt, passport.holderName])
+
+    const rareBadges = useMemo(() => {
+        const ecoScans = passport.eco?.scanEvents || []
+        const hasLoopIssued = Boolean(passport.certs?.loop?.issuedAt)
+        const hasEcoIssued = Boolean(passport.certs?.ecozone?.issuedAt)
+        return [
+            { key: 'sunrise', name: 'Sunrise Hunter', unlocked: (passport.gpsStamps || []).length >= 1 },
+            { key: 'supporter', name: 'Women Supporter', unlocked: hasEcoIssued || totalReviews >= 1 },
+            { key: 'full-loop', name: 'Full Loop Rider', unlocked: hasLoopIssued },
+            { key: 'rain', name: 'Rain Survivor', unlocked: (passport.gpsStamps || []).length >= 3 },
+            { key: 'market', name: 'Local Market Explorer', unlocked: ecoScans.some(e => e.siteCode === 'MK-CHO-LON-HG1' || e.siteCode === 'MK-CHO-PHIEN-HG2') },
+        ]
+    }, [passport.gpsStamps, passport.certs, passport.eco, totalReviews])
+
+    const handleDownloadBasicPng = async () => {
+        const meta = await downloadCertificatePng({ isBasic: true, holder: passport.holderName, earnedStamps: passport.stamps, passportPoints })
+        registerCertificate({
+            certCode: meta.certCode,
+            verifyUrl: meta.verifyUrl,
+            certId: 'basic',
+            certTitle: 'CHỨNG NHẬN TRẢI NGHIỆM HÀ GIANG',
+            holder: passport.holderName,
+            points: passportPoints,
+            stampsCount: passport.stamps.length,
+            format: 'png',
+            issuedAt: new Date().toISOString(),
+        })
+    }
+
+    const handleDownloadBasicPdf = async () => {
+        const meta = await downloadCertificatePdf({ isBasic: true, holder: passport.holderName, earnedStamps: passport.stamps, passportPoints })
+        registerCertificate({
+            certCode: meta.certCode,
+            verifyUrl: meta.verifyUrl,
+            certId: 'basic',
+            certTitle: 'CHỨNG NHẬN TRẢI NGHIỆM HÀ GIANG',
+            holder: passport.holderName,
+            points: passportPoints,
+            stampsCount: passport.stamps.length,
+            format: 'pdf',
+            issuedAt: new Date().toISOString(),
+        })
     }
 
     const totalBasicProgress = (passport.stamps.length / Object.keys(STAMP_DEFS).length) * 100
@@ -390,13 +905,81 @@ export default function PassportPage() {
     const TABS = [
         { id: 'basic', icon: '🎖️', label: t('pp_tab_basic') },
         ...Object.values(CERT_TYPES).map(c => ({ id: c.id, icon: c.icon, label: lang === 'en' ? (c.shortTitle_en || c.shortTitle) : c.shortTitle, color: c.color })),
+        { id: 'checkin', icon: '📍', label: lang === 'en' ? 'Check-in' : 'Thực địa', color: '#0ea5e9' },
     ]
+
+    // Chia sẻ link passport
+    const handleShare = () => {
+        const url = window.location.href
+        if (navigator.share) {
+            navigator.share({ title: 'Hà Giang Passport', url })
+        } else {
+            navigator.clipboard.writeText(url)
+            alert('Đã sao chép link, hãy gửi cho bạn bè!')
+        }
+    }
+
+    // Đặt in hộ chiếu (mở link hoặc popup, có thể thay đổi sau)
+    const handleOrderPrint = () => {
+        window.open('/lien-he', '_blank')
+    }
 
     return (
         <div className="page-enter pp-page">
             <div className="container" style={{ paddingTop: 24, paddingBottom: 0 }}>
                 <Link to="/" className="btn-back"><ArrowLeft size={16} /> {t('pp_back')}</Link>
             </div>
+
+            <section className="hgp-hero container">
+                <div className="hgp-hero-overlay" />
+                <div className="hgp-hero-content">
+                    <p className="hgp-overline">WELCOME TO</p>
+                    <h1>HA GIANG LOOP PASSPORT</h1>
+                    <p>Collect memories, stamps and sisterhood across the mountains.</p>
+                    <div className="hgp-hero-actions">
+                        <Link className="hgp-btn hgp-btn-primary" to="/eco-system"><Navigation size={16} /> Start Journey</Link>
+                        <Link className="hgp-btn hgp-btn-secondary" to="/eco-system"><Camera size={16} /> Scan QR</Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* ══ HOW IT WORKS ══ */}
+            <section className="pp-intro container">
+                <p className="pp-intro-desc">
+                    {lang === 'en'
+                        ? 'Ha Giang Passport is your digital travel diary. Complete activities, collect stamps, and earn a verified certificate of your journey.'
+                        : 'Hộ chiếu Hà Giang là nhật ký hành trình số của bạn. Hoàn thành trải nghiệm, thu thập tem và nhận chứng nhận hành trình thực tế.'}
+                </p>
+                <div className="pp-intro-steps">
+                    <div className="pp-intro-step">
+                        <div className="pp-is-num">1</div>
+                        <span className="pp-is-icon">✍️</span>
+                        <p>{lang === 'en' ? 'Enter your name to create your passport' : 'Nhập tên để tạo hộ chiếu'}</p>
+                    </div>
+                    <div className="pp-intro-arrow">›</div>
+                    <div className="pp-intro-step">
+                        <div className="pp-is-num">2</div>
+                        <span className="pp-is-icon">📸</span>
+                        <p>{lang === 'en' ? 'Scan QR at eco-sites or join activities' : 'Quét QR tại điểm sinh thái hoặc tham gia hoạt động'}</p>
+                    </div>
+                    <div className="pp-intro-arrow">›</div>
+                    <div className="pp-intro-step">
+                        <div className="pp-is-num">3</div>
+                        <span className="pp-is-icon">🏅</span>
+                        <p>{lang === 'en' ? 'Collect stamps & earn points' : 'Thu thập tem & tích điểm hành trình'}</p>
+                    </div>
+                    <div className="pp-intro-arrow">›</div>
+                    <div className="pp-intro-step">
+                        <div className="pp-is-num">4</div>
+                        <span className="pp-is-icon">🎓</span>
+                        <p>{lang === 'en' ? 'Download your certificate' : 'Tải chứng nhận làm kỷ niệm'}</p>
+                    </div>
+                </div>
+            </section>
+
+
+
+
 
             <div className="pp-layout container">
 
@@ -457,6 +1040,37 @@ export default function PassportPage() {
 
                 {/* ══ RIGHT: TABS + CONTENT ══ */}
                 <div className="pp-right">
+                    <div className="pp-kpi-row">
+                        <div className="pp-kpi-card">
+                            <span>✨</span>
+                            <div>
+                                <strong>{passportPoints}</strong>
+                                <p>{lang === 'en' ? 'Passport Points' : 'Điểm hộ chiếu'}</p>
+                            </div>
+                        </div>
+                        <div className="pp-kpi-card">
+                            <span>🌐</span>
+                            <div>
+                                <strong>{ecoPoints}</strong>
+                                <p>{lang === 'en' ? 'Eco QR Points' : 'Điểm QR hệ sinh thái'}</p>
+                            </div>
+                        </div>
+                        <div className="pp-kpi-card">
+                            <span>🏆</span>
+                            <div>
+                                <strong>{issuedCertCount}</strong>
+                                <p>{lang === 'en' ? 'Auto Issued Certificates' : 'Chứng nhận tự cấp'}</p>
+                            </div>
+                        </div>
+                        <div className="pp-kpi-card">
+                            <span>📍</span>
+                            <div>
+                                <strong>{(passport.gpsStamps || []).length}</strong>
+                                <p>{lang === 'en' ? 'Real Check-ins' : 'Check-in thực địa'}</p>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Tab bar */}
                     <div className="pp-tabs">
                         {TABS.map(tab => (
@@ -474,7 +1088,12 @@ export default function PassportPage() {
                     {/* Tab content */}
                     <div className="pp-tab-content">
                         {activeTab === 'basic' && (
-                            <BasicTab passport={passport} hasStamp={hasStamp} handleDownloadBasic={handleDownloadBasic} />
+                            <BasicTab
+                                passport={passport}
+                                hasStamp={hasStamp}
+                                handleDownloadBasicPng={handleDownloadBasicPng}
+                                handleDownloadBasicPdf={handleDownloadBasicPdf}
+                            />
                         )}
                         {Object.values(CERT_TYPES).map(certDef =>
                             activeTab === certDef.id && (
@@ -488,18 +1107,37 @@ export default function PassportPage() {
                                     getReviews={getReviews}
                                     holderName={passport.holderName}
                                     addStamp={addStamp}
+                                    passportPoints={passportPoints}
+                                    registerCertificate={registerCertificate}
                                 />
                             )
                         )}
+                        {activeTab === 'checkin' && (
+                            <GpsCheckInTab
+                                passport={passport}
+                                addGpsStamp={addGpsStamp}
+                                hasGpsStamp={hasGpsStamp}
+                            />
+                        )}
                     </div>
 
+
+
                     {!passport.holderName && (
-                        <p style={{ color: '#94a3b8', fontSize: 13, textAlign: 'center', marginTop: 16 }}>
+                        <p className="pp-no-name-hint">
                             {t('pp_no_name_hint')}
                         </p>
                     )}
                 </div>
             </div>
+
+            <nav className="hgp-bottom-nav" aria-label="Passport mobile navigation">
+                <Link to="/" className="hgp-nav-item"><Home size={16} /><span>Home</span></Link>
+                <Link to="/ho-chieu" className="hgp-nav-item is-active"><BookOpen size={16} /><span>Passport</span></Link>
+                <Link to="/eco-system" className="hgp-nav-item"><Map size={16} /><span>Map</span></Link>
+                <Link to="/ho-tro" className="hgp-nav-item"><Shield size={16} /><span>Sisters</span></Link>
+                <button type="button" className="hgp-nav-item" onClick={() => window.location.hash = '#passport-profile'}><User size={16} /><span>Profile</span></button>
+            </nav>
         </div>
     )
 }

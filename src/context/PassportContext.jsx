@@ -22,10 +22,11 @@ export const CERT_TYPES = {
         id: 'loop',
         icon: '🏍️',
         title: 'Cung đường Ha Giang Loop', title_en: 'Ha Giang Loop Road',
-        shortTitle: 'HG Loop', shortTitle_en: 'HG Loop',
+        shortTitle: 'Hagiangloop Passport', shortTitle_en: 'Hagiangloop Passport',
         color: '#f97316',
         bgGrad: 'linear-gradient(135deg,#7c2d12,#c2410c)',
         minStamps: 5,
+        minPoints: 120,
         certTitle: 'CHINH PHỤC CUNG ĐƯỜNG HA GIANG LOOP', certTitle_en: 'CONQUERING THE HA GIANG LOOP',
         stamps: {
             dongvan: { icon: '🏯', label: 'Phố Đồng Văn', label_en: 'Dong Van Town', color: '#f97316', how: 'Đến thăm phố cổ Đồng Văn', how_en: 'Visit the historic Dong Van old quarter' },
@@ -46,6 +47,7 @@ export const CERT_TYPES = {
         color: '#ec4899',
         bgGrad: 'linear-gradient(135deg,#701a75,#a21caf)',
         minStamps: 3,
+        minPoints: 90,
         certTitle: 'NGƯỜI KHÁM PHÁ VĂN HÓA HÀ GIANG', certTitle_en: 'HA GIANG CULTURAL EXPLORER',
         stamps: {
             painting: { icon: '🖌️', label: 'Vẽ tranh', label_en: 'Ethnic Painting', color: '#ec4899', how: 'Tham gia lớp vẽ tranh dân tộc', how_en: 'Join an ethnic painting class' },
@@ -64,6 +66,7 @@ export const CERT_TYPES = {
         color: '#059669',
         bgGrad: 'linear-gradient(135deg,#064e3b,#065f46)',
         minStamps: 2,
+        minPoints: 70,
         certTitle: 'TÌNH NGUYỆN VIÊN HÀ GIANG', certTitle_en: 'HA GIANG VOLUNTEER',
         stamps: {
             volunteer: { icon: '🙋', label: 'Tình nguyện viên', label_en: 'Volunteer', color: '#059669', how: 'Đăng ký tình nguyện với HTX', how_en: 'Register as a volunteer with HTX' },
@@ -81,6 +84,7 @@ export const CERT_TYPES = {
         color: '#c8963e',
         bgGrad: 'linear-gradient(135deg,#78350f,#92400e)',
         minStamps: 3,
+        minPoints: 85,
         certTitle: 'NGƯỜI TIÊU DÙNG SẢN PHẨM BẢN ĐỊA HÀ GIANG', certTitle_en: 'HA GIANG LOCAL PRODUCT AMBASSADOR',
         stamps: {
             honey: { icon: '🍯', label: 'Mật ong bạc hà', label_en: 'Mint Honey', color: '#f59e0b', how: 'Mua mật ong bạc hà HTX', how_en: 'Buy HTX mint honey' },
@@ -91,7 +95,89 @@ export const CERT_TYPES = {
             herb: { icon: '🌿', label: 'Thuốc nam', label_en: 'Herbal Medicine', color: '#10b981', how: 'Sử dụng thuốc nam bản địa', how_en: 'Use local herbal remedies' },
         },
     },
+    ecozone: {
+        id: 'ecozone',
+        icon: '🌱',
+        title: 'Quang Trung Cultural Eco Zone', title_en: 'Quang Trung Cultural Eco Zone',
+        shortTitle: 'Eco Zone', shortTitle_en: 'Eco Zone',
+        color: '#16a34a',
+        bgGrad: 'linear-gradient(135deg,#14532d,#15803d)',
+        minStamps: 4,
+        minPoints: 130,
+        certTitle: 'ĐẠI SỨ QUANG TRUNG CULTURAL ECO ZONE', certTitle_en: 'QUANG TRUNG CULTURAL ECO ZONE AMBASSADOR',
+        stamps: {
+            qt_farm: {
+                icon: '🌾',
+                label: 'Nông nghiệp trải nghiệm Tổ 5',
+                label_en: 'To 5 Agriculture Experience',
+                color: '#16a34a',
+                how: 'Tham gia trải nghiệm nông nghiệp tại Quang Trung Cultural Eco Zone',
+                how_en: 'Join agriculture experience at Quang Trung Cultural Eco Zone',
+            },
+            qt_landscape: {
+                icon: '🏞️',
+                label: 'Bảo tồn cảnh quan văn hóa',
+                label_en: 'Cultural Landscape Conservation',
+                color: '#0ea5e9',
+                how: 'Check-in hoạt động bảo tồn cảnh quan văn hóa khu Tổ 5',
+                how_en: 'Check in to cultural landscape conservation activity in To 5',
+            },
+            qt_environment: {
+                icon: '♻️',
+                label: 'Bảo vệ môi trường cộng đồng',
+                label_en: 'Community Environment Protection',
+                color: '#22c55e',
+                how: 'Tham gia hoạt động phân loại rác hoặc làm sạch điểm công cộng',
+                how_en: 'Join waste sorting or community cleanup activity',
+            },
+            chua_trien: {
+                icon: '🛕',
+                label: 'Điểm lịch sử Chùa Triền',
+                label_en: 'Chua Trien Historical Site',
+                color: '#d97706',
+                how: 'Quét QR tại điểm lịch sử Chùa Triền Hà Giang 1',
+                how_en: 'Scan QR at Chua Trien historical site in Ha Giang 1',
+            },
+            cho_lon: {
+                icon: '🏬',
+                label: 'Chợ Lớn Hà Giang 1',
+                label_en: 'Ha Giang 1 Big Market',
+                color: '#2563eb',
+                how: 'Quét QR tại Chợ Lớn Hà Giang 1',
+                how_en: 'Scan QR at Ha Giang 1 Big Market',
+            },
+            cho_phien: {
+                icon: '🧺',
+                label: 'Chợ Phiên Hà Giang 2',
+                label_en: 'Ha Giang 2 Weekend Market',
+                color: '#0ea5e9',
+                how: 'Quét QR tại Chợ Phiên Hà Giang 2',
+                how_en: 'Scan QR at Ha Giang 2 weekend market',
+            },
+            hg2_history: {
+                icon: '🏛️',
+                label: 'Không gian lịch sử cộng đồng HG2',
+                label_en: 'Ha Giang 2 Community History Space',
+                color: '#7c3aed',
+                how: 'Quét QR tại không gian lịch sử cộng đồng Hà Giang 2',
+                how_en: 'Scan QR at Ha Giang 2 community history space',
+            },
+        },
+    },
 }
+
+/* ══════════════════════════════════════════════════════
+   GPS LANDMARKS – check-in thực địa
+   ══════════════════════════════════════════════════════ */
+export const GPS_LANDMARKS = [
+    { id: 'km0', icon: '🚩', label: 'Cột mốc số 0 – HTX Trường Hải', label_en: 'Km0 – HTX Truong Hai', color: '#dc2626', lat: 22.8228, lng: 104.9882, radius: 300 },
+    { id: 'cong_chao', icon: '🏛️', label: 'Cổng chào Hà Giang', label_en: 'Ha Giang Welcome Gate', color: '#f97316', lat: 22.8012, lng: 104.9780, radius: 400 },
+    { id: 'quan_ba', icon: '🏞️', label: 'Núi Đôi Quản Bạ – Cổng Trời', label_en: "Quan Ba Twin Peaks – Heaven's Gate", color: '#10b981', lat: 23.0567, lng: 105.0785, radius: 600 },
+    { id: 'mapi_leng', icon: '🏔️', label: 'Đỉnh đèo Mã Pí Lèng', label_en: 'Ma Pi Leng Pass Summit', color: '#ef4444', lat: 23.1383, lng: 105.3500, radius: 600 },
+    { id: 'dong_van', icon: '🏯', label: 'Phố cổ Đồng Văn', label_en: 'Dong Van Old Quarter', color: '#c8963e', lat: 23.2754, lng: 105.3638, radius: 500 },
+    { id: 'lung_cu', icon: '🚩', label: 'Cột cờ Lũng Cú', label_en: 'Lung Cu Flag Tower', color: '#dc2626', lat: 23.3704, lng: 105.3316, radius: 400 },
+    { id: 'hsp', icon: '🌾', label: 'Ruộng bậc thang Hoàng Su Phì', label_en: 'Hoang Su Phi Terraces', color: '#16a34a', lat: 22.7083, lng: 104.7133, radius: 800 },
+]
 
 /* ══════════════════════════════════════════════════════
    CONTEXT
@@ -103,6 +189,12 @@ const fresh = () => ({
     holderName: '',
     stamps: [],
     certs: {},      // { [certId]: { stamps: { [type]: {earnedAt} }, reviews: [] } }
+    gpsStamps: [],  // [{ id, earnedAt }]
+    certRegistry: [], // [{ certCode, verifyUrl, certId, certTitle, holder, issuedAt, points, stampsCount }]
+    eco: {
+        scanEvents: [],   // [{ siteCode, siteName, pointsEarned, earnedAt }]
+        storeEvents: [],  // [{ storeCode, storeName, visitDateKey, pointsEarned, earnedAt }]
+    },
     createdAt: new Date().toISOString(),
 })
 
@@ -110,7 +202,12 @@ const load = () => {
     try {
         const raw = JSON.parse(localStorage.getItem(LS_KEY))
         if (!raw) return null
-        if (!raw.certs) return { ...raw, certs: {} }  // migrate old passport
+        if (!raw.certs) raw.certs = {}
+        if (!raw.gpsStamps) raw.gpsStamps = []
+        if (!raw.certRegistry) raw.certRegistry = []
+        if (!raw.eco) raw.eco = { scanEvents: [], storeEvents: [] }
+        if (!raw.eco.scanEvents) raw.eco.scanEvents = []
+        if (!raw.eco.storeEvents) raw.eco.storeEvents = []
         return raw
     } catch { return null }
 }
@@ -118,6 +215,13 @@ const save = (p) => { try { localStorage.setItem(LS_KEY, JSON.stringify(p)) } ca
 
 export function PassportProvider({ children }) {
     const [passport, setPassport] = useState(() => load() || fresh())
+    const ECO_CERT_SITE_MAP = {
+        'CS-CHUA-TRIEN-HG1': 'chua_trien',
+        'MK-CHO-LON-HG1': 'cho_lon',
+        'MK-CHO-PHIEN-HG2': 'cho_phien',
+        'CS-BAOTANG-HG2': 'hg2_history',
+        'EZ-QUANGTRUNG-T5': 'qt_landscape',
+    }
 
     const update = (next) => { setPassport(next); save(next) }
     const setHolderName = (name) => update({ ...passport, holderName: name })
@@ -165,6 +269,29 @@ export function PassportProvider({ children }) {
     const getCertStamps = (certId) => passport.certs[certId]?.stamps || {}
     const getCertStampCount = (certId) => Object.keys(passport.certs[certId]?.stamps || {}).length
 
+    const markCertIssued = useCallback((certId, payload = {}) => {
+        setPassport(prev => {
+            const certData = prev.certs[certId] || { stamps: {}, reviews: [] }
+            if (certData.issuedAt) return prev
+            const next = {
+                ...prev,
+                certs: {
+                    ...prev.certs,
+                    [certId]: {
+                        ...certData,
+                        issuedAt: new Date().toISOString(),
+                        issueMeta: {
+                            ...(certData.issueMeta || {}),
+                            ...payload,
+                        },
+                    },
+                },
+            }
+            save(next)
+            return next
+        })
+    }, [])
+
     /* ── Reviews ── */
     const addReview = useCallback((certId, { rating, location, comment }) => {
         setPassport(prev => {
@@ -192,13 +319,151 @@ export function PassportProvider({ children }) {
     }, [])
     const getReviews = (certId) => passport.certs[certId]?.reviews || []
 
+    /* ── GPS check-in stamps ── */
+    const addGpsStamp = useCallback((id) => {
+        setPassport(prev => {
+            const gpsStamps = prev.gpsStamps || []
+            if (gpsStamps.some(s => s.id === id)) return prev
+            const next = {
+                ...prev,
+                gpsStamps: [...gpsStamps, { id, earnedAt: new Date().toISOString() }],
+            }
+            save(next); return next
+        })
+    }, [])
+    const hasGpsStamp = (id) => (passport.gpsStamps || []).some(s => s.id === id)
+
+    const registerCertificate = useCallback((record) => {
+        if (!record?.certCode) return
+        setPassport(prev => {
+            const registry = prev.certRegistry || []
+            const idx = registry.findIndex(r => r.certCode === record.certCode)
+            const nextRegistry = idx === -1
+                ? [record, ...registry].slice(0, 300)
+                : registry.map((r, i) => (i === idx ? { ...r, ...record } : r))
+
+            const next = {
+                ...prev,
+                certRegistry: nextRegistry,
+            }
+            save(next)
+            return next
+        })
+    }, [])
+
+    const findCertificateByCode = useCallback((certCode) => {
+        if (!certCode) return null
+        return (passport.certRegistry || []).find(r => r.certCode === certCode) || null
+    }, [passport.certRegistry])
+
+    const getEcoPoints = () => {
+        const scanPts = (passport.eco?.scanEvents || []).reduce((sum, e) => sum + (Number(e.pointsEarned) || 0), 0)
+        const storePts = (passport.eco?.storeEvents || []).reduce((sum, e) => sum + (Number(e.pointsEarned) || 0), 0)
+        return scanPts + storePts
+    }
+
+    const recordEcoScan = useCallback(({ siteCode, siteName = '', pointsEarned = 0 }) => {
+        if (!siteCode) return
+        setPassport(prev => {
+            const eco = prev.eco || { scanEvents: [], storeEvents: [] }
+            if ((eco.scanEvents || []).some(e => e.siteCode === siteCode)) return prev
+
+            const ecoStampType = ECO_CERT_SITE_MAP[siteCode]
+            const certData = ecoStampType ? (prev.certs.ecozone || { stamps: {}, reviews: [] }) : null
+            const certDef = ecoStampType ? CERT_TYPES.ecozone?.stamps?.[ecoStampType] : null
+
+            const next = {
+                ...prev,
+                eco: {
+                    ...eco,
+                    scanEvents: [
+                        ...(eco.scanEvents || []),
+                        {
+                            siteCode,
+                            siteName,
+                            pointsEarned: Number(pointsEarned) || 0,
+                            earnedAt: new Date().toISOString(),
+                        },
+                    ],
+                },
+                certs: ecoStampType ? {
+                    ...prev.certs,
+                    ecozone: {
+                        ...certData,
+                        stamps: certData.stamps?.[ecoStampType]
+                            ? certData.stamps
+                            : {
+                                ...(certData.stamps || {}),
+                                [ecoStampType]: { earnedAt: new Date().toLocaleDateString('vi-VN'), source: siteCode },
+                            },
+                    },
+                } : prev.certs,
+                stamps: certDef && !prev.stamps.some(s => s.type === 'tour')
+                    ? [...prev.stamps, {
+                        type: 'tour',
+                        icon: STAMP_DEFS.tour.icon,
+                        label: STAMP_DEFS.tour.label,
+                        color: STAMP_DEFS.tour.color,
+                        earnedAt: new Date().toLocaleDateString('vi-VN'),
+                    }]
+                    : prev.stamps,
+            }
+            save(next)
+            return next
+        })
+    }, [])
+
+    const recordStoreVisit = useCallback(({ storeCode, storeName = '', pointsEarned = 0 }) => {
+        if (!storeCode) return
+        setPassport(prev => {
+            const eco = prev.eco || { scanEvents: [], storeEvents: [] }
+            const now = new Date()
+            const visitDateKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`
+            if ((eco.storeEvents || []).some(e => e.storeCode === storeCode && e.visitDateKey === visitDateKey)) return prev
+
+            const hasProductStamp = prev.stamps.some(s => s.type === 'product')
+            const next = {
+                ...prev,
+                eco: {
+                    ...eco,
+                    storeEvents: [
+                        ...(eco.storeEvents || []),
+                        {
+                            storeCode,
+                            storeName,
+                            visitDateKey,
+                            pointsEarned: Number(pointsEarned) || 0,
+                            earnedAt: now.toISOString(),
+                        },
+                    ],
+                },
+                stamps: hasProductStamp ? prev.stamps : [
+                    ...prev.stamps,
+                    {
+                        type: 'product',
+                        icon: STAMP_DEFS.product.icon,
+                        label: STAMP_DEFS.product.label,
+                        color: STAMP_DEFS.product.color,
+                        earnedAt: new Date().toLocaleDateString('vi-VN'),
+                    },
+                ],
+            }
+            save(next)
+            return next
+        })
+    }, [])
+
     return (
         <PassportContext.Provider value={{
             passport,
             setHolderName,
             addStamp, hasStamp,
             addCertStamp, hasCertStamp, getCertStamps, getCertStampCount,
+            markCertIssued,
             addReview, getReviews,
+            addGpsStamp, hasGpsStamp,
+            recordEcoScan, recordStoreVisit, getEcoPoints,
+            registerCertificate, findCertificateByCode,
             STAMP_DEFS, CERT_TYPES,
         }}>
             {children}

@@ -13,6 +13,7 @@ const ENDPOINTS = {
   workshop: 'workshops',
   library: 'library',
   review: 'reviews',
+  communityImage: 'community-images',
 }
 
 /* ── localStorage helpers ── */
@@ -46,6 +47,7 @@ export function DataProvider({ children }) {
   const [workshops, setWorkshops] = useState([])
   const [libraryItems, setLibraryItems] = useState([])
   const [reviews, setReviews] = useState([])
+  const [communityImages, setCommunityImages] = useState([])
   const [loading, setLoading] = useState(true)
   const [offline, setOffline] = useState(false)
 
@@ -58,7 +60,7 @@ export function DataProvider({ children }) {
     review: setReviews,
   }
 
-  const TYPE_KEYS = ['post', 'product', 'tour', 'workshop', 'library', 'review']
+  const TYPE_KEYS = ['post', 'product', 'tour', 'workshop', 'library', 'review', 'communityImage']
 
   useEffect(() => {
     // Load localStorage data immediately so UI isn't empty
@@ -79,10 +81,10 @@ export function DataProvider({ children }) {
       if (allFailed) {
         setOffline(true)
       } else {
-        const [postsData, productsData, toursData, workshopsData, libraryData, reviewsData] = results
-        const sets = [setPosts, setProducts, setTours, setWorkshops, setLibraryItems, setReviews]
+        const [postsData, productsData, toursData, workshopsData, libraryData, reviewsData, communityImagesData] = results
+        const sets = [setPosts, setProducts, setTours, setWorkshops, setLibraryItems, setReviews, setCommunityImages]
         const types = TYPE_KEYS
-          ;[postsData, productsData, toursData, workshopsData, libraryData, reviewsData].forEach((data, i) => {
+          ;[postsData, productsData, toursData, workshopsData, libraryData, reviewsData, communityImagesData].forEach((data, i) => {
             if (data) {
               const mapped = data.map(mapId)
               sets[i](mapped)
@@ -150,7 +152,7 @@ export function DataProvider({ children }) {
 
   return (
     <DataContext.Provider value={{
-      posts, products, tours, workshops, libraryItems, reviews,
+      posts, products, tours, workshops, libraryItems, reviews, communityImages,
       loading, offline, addItem, updateItem, deleteItem,
     }}>
       {children}
