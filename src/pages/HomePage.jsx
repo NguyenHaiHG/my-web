@@ -13,33 +13,19 @@ const QUICK_CARDS = [
         highlight: true,
     },
     {
-        emoji: '🍜',
-        title: 'CityFood — Đặt món',
-        desc: 'Gọi đồ ăn từ các shop trong thành phố Hà Giang, giao tận nơi nhanh chóng.',
-        path: '/foodhg',
-        cta: 'Đặt món ngay →',
+        emoji: '🗺️',
+        title: 'Tour Hà Giang',
+        desc: 'Khám phá cung đường loop, tour theo ngày, đặt lịch trực tiếp qua web.',
+        path: '/tours',
+        cta: 'Đặt tour ngay →',
         highlight: true,
     },
     {
-        emoji: '🗺️',
-        title: 'Tour Hà Giang',
-        desc: 'Khám phá cung đường loop, tour theo ngày, trải nghiệm văn hóa địa phương.',
-        path: '/tours',
-        cta: 'Xem tour',
-    },
-    {
-        emoji: '🌿',
-        title: 'Nhật ký nông dân',
-        desc: 'Xem truy xuất nguồn gốc, nhật ký theo ngày và sản vật bản địa.',
-        path: '/san-pham',
-        cta: 'Xem sản phẩm',
-    },
-    {
-        emoji: '🏡',
-        title: 'Homestay & Farmstay',
-        desc: 'Tìm chỗ ở trong lòng bản làng vùng cao, gửi yêu cầu ngay từ điện thoại.',
-        path: '/homestay-farmstay',
-        cta: 'Xem lưu trú',
+        emoji: '📖',
+        title: 'Blog du lịch',
+        desc: 'Cẩm nang, kinh nghiệm và câu chuyện từ Hà Giang Loop.',
+        path: '/blog',
+        cta: 'Đọc blog',
     },
 ]
 
@@ -99,11 +85,11 @@ export default function HomePage() {
                     <h1>{t('hp_h1_pre')} <span className="ng-hl">{t('hp_h1_hl')}</span><br />{t('hp_h1_post')}</h1>
                     <p>{t('hp_hero_sub')}</p>
                     <div className="ng-hero-btns">
-                        <button className="btn3d btn3d-orange" onClick={() => navigate('/san-pham')}>
-                            Xem nhật ký nông dân <ArrowRight size={16} />
+                        <button className="btn3d btn3d-orange" onClick={() => navigate('/tours')}>
+                            Đặt tour Hà Giang <ArrowRight size={16} />
                         </button>
-                        <button className="btn3d btn3d-outline-white" onClick={() => navigate('/tours')}>
-                            Khám phá Hà Giang
+                        <button className="btn3d btn3d-outline-white" onClick={() => navigate('/blog')}>
+                            Đọc blog du lịch
                         </button>
                     </div>
                 </div>
@@ -137,14 +123,14 @@ export default function HomePage() {
                     <h2>{t('hp_cta_h2')}</h2>
                     <p>{t('hp_cta_sub')}</p>
                     <div className="ng-cta-btns">
-                        <button className="btn3d btn3d-orange" onClick={() => navigate('/tinh-nguyen')}>
-                            <Heart size={16} /> {t('hp_cta_btn1')}
-                        </button>
-                        <button className="btn3d btn3d-green" onClick={() => navigate('/workshop')}>
-                            <Users size={16} /> {t('hp_cta_btn2')}
+                        <button className="btn3d btn3d-orange" onClick={() => navigate('/ho-chieu')}>
+                            <Heart size={16} /> Tạo hộ chiếu du lịch
                         </button>
                         <button className="btn3d btn3d-blue" onClick={() => navigate('/tours')}>
-                            <Leaf size={16} /> {t('hp_cta_btn3')}
+                            <Leaf size={16} /> Đặt tour ngay
+                        </button>
+                        <button className="btn3d btn3d-green" onClick={() => navigate('/blog')}>
+                            <Users size={16} /> Đọc blog Hà Giang
                         </button>
                     </div>
                 </div>
