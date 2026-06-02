@@ -7,36 +7,6 @@ import QRCode from 'qrcode'
 
 const MAP_LINK = 'https://maps.app.goo.gl/Fm26ka14eoToFq68A'
 
-const TODAY_ROUTE = {
-    title: 'TODAY\'S ROUTE',
-    route: 'Dong Van → Meo Vac',
-    weather: '18°C · Sương nhẹ',
-    distance: '148 km',
-    elevation: '1,620m',
-    fuel: '2 điểm tiếp nhiên liệu',
-    safeStops: '5 điểm female-safe',
-    timeline: ['Đồng Văn', 'Mã Pí Lèng', 'Nho Quế', 'Mèo Vạc'],
-}
-
-const WOMEN_RIDE_STORIES = [
-    { name: 'Linh Anh', nation: 'Việt Nam', badge: 'Sunrise Hunter', quote: 'Ride slow, feel deep. Hà Giang chữa lành mình theo cách rất nữ tính.', avatar: '🌄' },
-    { name: 'Mia', nation: 'Australia', badge: 'Rain Survivor', quote: 'I felt safe, supported and truly connected with local sisters.', avatar: '🏍️' },
-    { name: 'Yuna', nation: 'Japan', badge: 'Local Market Explorer', quote: 'Chợ phiên và những nụ cười bản địa là kỷ niệm đẹp nhất.', avatar: '🧺' },
-]
-
-const MEMORY_PROMPTS = [
-    'Ảnh khoảnh khắc đẹp nhất hôm nay',
-    'Voice note 30s về cảm xúc cung đường',
-    'Mùi vị món ăn địa phương bạn nhớ nhất',
-]
-
-const SISTERS_HELP_ACTIONS = [
-    { label: 'Emergency Call', href: 'tel:113', icon: Phone },
-    { label: 'Trusted Female Rider', href: '/ho-tro', icon: HeartHandshake },
-    { label: 'Safe Sleeping Places', href: '/ho-tro', icon: Shield },
-    { label: 'Local Women Network', href: '/lien-he', icon: User },
-]
-
 /* ══════════════════════════════════════════════════════
    CERTIFICATE CANVAS GENERATOR
    ══════════════════════════════════════════════════════ */
@@ -358,6 +328,226 @@ async function downloadCertificatePdf(opts) {
 }
 
 /* ══════════════════════════════════════════════════════
+   SHARE CARD GENERATOR — Instagram Story 1080×1920
+   ══════════════════════════════════════════════════════ */
+function rrect(ctx, x, y, w, h, r) {
+    ctx.beginPath()
+    ctx.moveTo(x + r, y)
+    ctx.lineTo(x + w - r, y)
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+    ctx.lineTo(x + w, y + h - r)
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+    ctx.lineTo(x + r, y + h)
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+    ctx.lineTo(x, y + r)
+    ctx.quadraticCurveTo(x, y, x + r, y)
+    ctx.closePath()
+}
+
+async function generateShareCard({ holder, passportNumber, stamps = [], gpsCount = 0, passportPoints = 0, issuedCertCount = 0, rareBadges = [] }) {
+    const W = 1080, H = 1920
+    const canvas = document.createElement('canvas')
+    canvas.width = W; canvas.height = H
+    const ctx = canvas.getContext('2d')
+
+    // Sky background
+    const sky = ctx.createLinearGradient(0, 0, 0, H)
+    sky.addColorStop(0, '#030712')
+    sky.addColorStop(0.28, '#0c1445')
+    sky.addColorStop(0.52, '#7c2d12')
+    sky.addColorStop(0.74, '#c2410c')
+    sky.addColorStop(0.90, '#f97316')
+    sky.addColorStop(1, '#fbbf24')
+    ctx.fillStyle = sky
+    ctx.fillRect(0, 0, W, H)
+
+    // Stars (deterministic, seeded by holder name)
+    const seed = [...(holder || 'HG')].reduce((a, c, i) => a + c.charCodeAt(0) * (i + 1), 0)
+    const rng = (n) => { const v = Math.sin(seed + n) * 10000; return v - Math.floor(v) }
+    for (let i = 0; i < 130; i++) {
+        ctx.globalAlpha = 0.3 + rng(i * 3) * 0.6
+        ctx.fillStyle = '#ffffff'
+        ctx.beginPath()
+        ctx.arc(rng(i) * W, rng(i + 1) * H * 0.38, rng(i + 2) * 1.8 + 0.4, 0, Math.PI * 2)
+        ctx.fill()
+    }
+    ctx.globalAlpha = 1
+
+    // Mountain back layer
+    ctx.fillStyle = '#111827'
+    ctx.beginPath()
+    ctx.moveTo(0, H); ctx.lineTo(0, H * 0.68)
+    ctx.lineTo(90, H * 0.55); ctx.lineTo(180, H * 0.63); ctx.lineTo(270, H * 0.46)
+    ctx.bezierCurveTo(310, H * 0.40, 350, H * 0.40, 390, H * 0.46)
+    ctx.lineTo(490, H * 0.57); ctx.lineTo(570, H * 0.43)
+    ctx.bezierCurveTo(610, H * 0.38, 650, H * 0.38, 690, H * 0.43)
+    ctx.lineTo(780, H * 0.54); ctx.lineTo(870, H * 0.45)
+    ctx.lineTo(960, H * 0.58); ctx.lineTo(W, H * 0.50)
+    ctx.lineTo(W, H); ctx.closePath(); ctx.fill()
+
+    // Mountain front layer
+    ctx.fillStyle = '#0a0f1a'
+    ctx.beginPath()
+    ctx.moveTo(0, H); ctx.lineTo(0, H * 0.82)
+    ctx.lineTo(100, H * 0.74); ctx.lineTo(200, H * 0.83); ctx.lineTo(310, H * 0.70)
+    ctx.bezierCurveTo(350, H * 0.65, 390, H * 0.65, 430, H * 0.70)
+    ctx.lineTo(540, H * 0.79); ctx.lineTo(640, H * 0.68)
+    ctx.bezierCurveTo(680, H * 0.64, 720, H * 0.64, 760, H * 0.68)
+    ctx.lineTo(860, H * 0.78); ctx.lineTo(960, H * 0.72)
+    ctx.lineTo(W, H * 0.81); ctx.lineTo(W, H); ctx.closePath(); ctx.fill()
+
+    // Gold accent lines
+    ctx.fillStyle = '#c8963e'
+    ctx.fillRect(0, 52, W, 3)
+    ctx.globalAlpha = 0.45; ctx.fillRect(0, 61, W, 1); ctx.globalAlpha = 1
+
+    // Emblem + Title
+    ctx.font = '82px serif'; ctx.textAlign = 'center'; ctx.fillText('🌸', W / 2, 174)
+    ctx.fillStyle = '#fde68a'; ctx.font = 'bold 54px Georgia, serif'
+    ctx.fillText('HA GIANG LOOP', W / 2, 256)
+    ctx.fillStyle = '#c8963e'; ctx.font = '30px Georgia, serif'
+    ctx.fillText('EXPERIENCE PASSPORT', W / 2, 298)
+    ctx.globalAlpha = 0.5; ctx.fillStyle = '#c8963e'
+    ctx.fillRect(100, 318, W - 200, 2); ctx.globalAlpha = 1
+
+    // Main card panel
+    const cardX = 52, cardY = 346, cardW = W - 104, cardH = 930
+    ctx.save(); ctx.globalAlpha = 0.16; ctx.fillStyle = '#fef3c7'
+    rrect(ctx, cardX, cardY, cardW, cardH, 28); ctx.fill(); ctx.restore()
+    ctx.strokeStyle = 'rgba(200,150,62,0.5)'; ctx.lineWidth = 1.5
+    rrect(ctx, cardX, cardY, cardW, cardH, 28); ctx.stroke()
+
+    // Holder label
+    ctx.fillStyle = 'rgba(253,230,138,0.75)'; ctx.font = 'italic 26px Georgia, serif'
+    ctx.textAlign = 'center'; ctx.fillText('HÀNH TRÌNH CỦA', W / 2, cardY + 68)
+
+    // Holder name (auto-size)
+    const nameFontSize = Math.max(42, Math.min(72, Math.floor(800 / Math.max((holder || 'Traveler').length, 7))))
+    ctx.fillStyle = '#ffffff'; ctx.font = `bold ${nameFontSize}px Georgia, serif`
+    const nameY = cardY + 68 + nameFontSize + 8
+    ctx.fillText(holder || 'Traveler', W / 2, nameY)
+    const nW = ctx.measureText(holder || 'Traveler').width
+    ctx.strokeStyle = '#c8963e'; ctx.lineWidth = 3
+    ctx.beginPath(); ctx.moveTo(W / 2 - nW / 2, nameY + 14); ctx.lineTo(W / 2 + nW / 2, nameY + 14); ctx.stroke()
+
+    // Passport number
+    ctx.fillStyle = 'rgba(253,230,138,0.6)'; ctx.font = '18px monospace'
+    ctx.fillText(passportNumber || 'HGLP-000000-HG', W / 2, nameY + 48)
+
+    // Stats row
+    const statsTop = nameY + 88
+    const statItems = [
+        { icon: '🎖️', value: stamps.length, label: 'Stamps' },
+        { icon: '✨', value: passportPoints, label: 'Points' },
+        { icon: '📍', value: gpsCount, label: 'GPS' },
+        { icon: '🏆', value: issuedCertCount, label: 'Certs' },
+    ]
+    const colW = cardW / 4
+    statItems.forEach((s, i) => {
+        const sx = cardX + colW * i + colW / 2
+        ctx.save(); ctx.globalAlpha = 0.22; ctx.fillStyle = '#fde68a'
+        rrect(ctx, cardX + colW * i + 12, statsTop, colW - 24, 118, 14)
+        ctx.fill(); ctx.restore()
+        ctx.font = '32px serif'; ctx.textAlign = 'center'; ctx.fillText(s.icon, sx, statsTop + 42)
+        ctx.fillStyle = '#fde68a'; ctx.font = `bold ${s.value > 999 ? 30 : 40}px Georgia, serif`
+        ctx.fillText(String(s.value), sx, statsTop + 86)
+        ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.font = '16px Arial, sans-serif'
+        ctx.fillText(s.label, sx, statsTop + 108)
+    })
+
+    // Stamps section
+    const divY1 = statsTop + 146
+    ctx.fillStyle = 'rgba(200,150,62,0.5)'; ctx.fillRect(cardX + 50, divY1, cardW - 100, 1)
+    ctx.fillStyle = 'rgba(253,230,138,0.75)'; ctx.font = 'bold 20px Arial, sans-serif'
+    ctx.textAlign = 'center'; ctx.fillText('✦  TEM ĐÃ THU THẬP  ✦', W / 2, divY1 + 36)
+
+    const perRow = 5
+    if (stamps.length > 0) {
+        const maxShow = Math.min(stamps.length, 9)
+        const stampRows = Math.ceil(maxShow / perRow)
+        const circSpacing = (cardW - 80) / perRow
+        const circR = 36
+        for (let row = 0; row < stampRows; row++) {
+            const rowCount = Math.min(perRow, maxShow - row * perRow)
+            const rowStartX = cardX + 40 + ((perRow - rowCount) * circSpacing) / 2
+            for (let col = 0; col < rowCount; col++) {
+                const stamp = stamps[row * perRow + col]; if (!stamp) break
+                const sx = rowStartX + col * circSpacing + circSpacing / 2
+                const sy = divY1 + 80 + row * 100
+                ctx.save(); ctx.globalAlpha = 0.8; ctx.fillStyle = (stamp.color || '#c8963e') + '33'
+                ctx.beginPath(); ctx.arc(sx, sy, circR + 5, 0, Math.PI * 2); ctx.fill(); ctx.restore()
+                ctx.strokeStyle = stamp.color || '#c8963e'; ctx.lineWidth = 2
+                ctx.beginPath(); ctx.arc(sx, sy, circR, 0, Math.PI * 2); ctx.stroke()
+                ctx.font = '28px serif'; ctx.fillText(stamp.icon || '🌸', sx, sy + 10)
+            }
+        }
+        if (stamps.length > 9) {
+            ctx.fillStyle = 'rgba(253,230,138,0.6)'; ctx.font = '15px Georgia, serif'
+            ctx.fillText(`+${stamps.length - 9} stamps`, W / 2, divY1 + 80 + Math.ceil(9 / perRow) * 100 + 20)
+        }
+    } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = 'italic 22px Georgia, serif'
+        ctx.fillText('Hành trình đang bắt đầu…', W / 2, divY1 + 70)
+    }
+
+    // Badges section
+    const unlockedBadges = rareBadges.filter(b => b.unlocked)
+    const BADGE_ICONS_MAP = { sunrise: '🌅', supporter: '🤝', 'full-loop': '🏍️', rain: '🌧️', market: '🧺' }
+    const stampRows2 = stamps.length > 0 ? Math.ceil(Math.min(stamps.length, 9) / perRow) : 1
+    const divY2 = divY1 + 80 + stampRows2 * 100 + 30
+    if (unlockedBadges.length > 0 && divY2 < cardY + cardH - 130) {
+        ctx.fillStyle = 'rgba(200,150,62,0.5)'; ctx.fillRect(cardX + 50, divY2, cardW - 100, 1)
+        ctx.fillStyle = 'rgba(253,230,138,0.75)'; ctx.font = 'bold 20px Arial, sans-serif'
+        ctx.fillText('✦  BADGES ĐẶC BIỆT  ✦', W / 2, divY2 + 36)
+        const badgeCount = Math.min(unlockedBadges.length, 5)
+        unlockedBadges.slice(0, badgeCount).forEach((badge, i) => {
+            const bx = cardX + (i + 0.5) * (cardW / badgeCount)
+            ctx.font = '36px serif'; ctx.fillText(BADGE_ICONS_MAP[badge.key] || '🏅', bx, divY2 + 82)
+            ctx.fillStyle = 'rgba(253,230,138,0.7)'; ctx.font = '13px Arial, sans-serif'
+            ctx.fillText(badge.name.split(' ').slice(0, 2).join(' '), bx, divY2 + 116)
+        })
+    }
+
+    // Date stamp
+    ctx.fillStyle = 'rgba(253,230,138,0.5)'; ctx.font = '17px Georgia, serif'
+    ctx.fillText(`📅 ${new Date().toLocaleDateString('vi-VN')} · htxtruonghai.com`, W / 2, cardY + cardH - 44)
+
+    // QR code
+    const qrStartY = 1346
+    try {
+        const qrData = await QRCode.toDataURL('https://htxtruonghai.com/ho-chieu', {
+            width: 180, margin: 1,
+            color: { dark: '#1a1a2e', light: '#fef9f0' },
+        })
+        const qrImg = new Image()
+        qrImg.src = qrData
+        await new Promise(r => { qrImg.onload = r; qrImg.onerror = r })
+        ctx.save(); ctx.globalAlpha = 0.2; ctx.fillStyle = '#fef9f0'
+        rrect(ctx, W / 2 - 104, qrStartY - 12, 208, 208, 18); ctx.fill(); ctx.restore()
+        ctx.drawImage(qrImg, W / 2 - 95, qrStartY, 190, 190)
+    } catch { /* noop */ }
+
+    ctx.fillStyle = 'rgba(253,230,138,0.9)'; ctx.font = 'bold 28px Georgia, serif'
+    ctx.fillText('HTX TRƯỜNG HẢI', W / 2, qrStartY + 214)
+    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '20px Georgia, serif'
+    ctx.fillText('Quét QR để tạo hộ chiếu của bạn! 🌸', W / 2, qrStartY + 252)
+
+    // Bottom gold lines
+    ctx.globalAlpha = 0.55; ctx.fillStyle = '#c8963e'; ctx.fillRect(0, H - 64, W, 1); ctx.globalAlpha = 1
+    ctx.fillStyle = '#c8963e'; ctx.fillRect(0, H - 54, W, 3)
+
+    return canvas
+}
+
+async function downloadShareCard(opts) {
+    const canvas = await generateShareCard(opts)
+    const link = document.createElement('a')
+    link.download = `HaGiang-ShareCard-${(opts.holder || 'My').replace(/\s+/g, '-')}.png`
+    link.href = canvas.toDataURL('image/png')
+    link.click()
+}
+
+/* ══════════════════════════════════════════════════════
    STAR RATING COMPONENT
    ══════════════════════════════════════════════════════ */
 function StarRating({ value, onChange }) {
@@ -562,7 +752,7 @@ function BasicTab({ passport, hasStamp, handleDownloadBasicPng, handleDownloadBa
             <div className="pp-howto-chips">
                 {Object.entries(STAMP_DEFS).map(([type, def]) => (
                     <Link key={type}
-                        to={type === 'tour' ? '/tours' : type === 'product' ? '/san-pham' : type === 'training' ? '/dao-tao' : type === 'radio' ? '/ho-tro' : '/'}
+                        to={type === 'tour' ? '/tours' : type === 'product' ? '/tours' : type === 'training' ? '/lien-he' : type === 'radio' ? '/lien-he' : '/'}
                         className={`pp-chip ${hasStamp(type) ? 'pp-chip-done' : ''}`}
                         style={{ '--sc': def.color }}
                     >
@@ -805,6 +995,7 @@ export default function PassportPage() {
     const [activeTab, setActiveTab] = useState('basic')
     const [editingName, setEditingName] = useState(!passport.holderName)
     const [nameInput, setNameInput] = useState(passport.holderName)
+    const [sharingCard, setSharingCard] = useState(false)
 
     const saveName = () => {
         const n = nameInput.trim()
@@ -900,6 +1091,23 @@ export default function PassportPage() {
         })
     }
 
+    const handleShareCard = async () => {
+        setSharingCard(true)
+        try {
+            await downloadShareCard({
+                holder: passport.holderName,
+                passportNumber,
+                stamps: passport.stamps,
+                gpsCount: (passport.gpsStamps || []).length,
+                passportPoints,
+                issuedCertCount,
+                rareBadges,
+            })
+        } finally {
+            setSharingCard(false)
+        }
+    }
+
     const totalBasicProgress = (passport.stamps.length / Object.keys(STAMP_DEFS).length) * 100
 
     const TABS = [
@@ -937,8 +1145,8 @@ export default function PassportPage() {
                     <h1>HA GIANG LOOP PASSPORT</h1>
                     <p>Collect memories, stamps and sisterhood across the mountains.</p>
                     <div className="hgp-hero-actions">
-                        <Link className="hgp-btn hgp-btn-primary" to="/eco-system"><Navigation size={16} /> Start Journey</Link>
-                        <Link className="hgp-btn hgp-btn-secondary" to="/eco-system"><Camera size={16} /> Scan QR</Link>
+                        <Link className="hgp-btn hgp-btn-primary" to="/tours"><MapPin size={16} /> Đặt tour ngay</Link>
+                        <button className="hgp-btn hgp-btn-secondary" onClick={() => document.querySelector('.pp-layout')?.scrollIntoView({ behavior: 'smooth' })}><BookOpen size={16} /> Tạo hộ chiếu</button>
                     </div>
                 </div>
             </section>
@@ -1071,6 +1279,19 @@ export default function PassportPage() {
                         </div>
                     </div>
 
+                    {/* Share Card */}
+                    <div className="pp-share-row">
+                        <button
+                            className="pp-share-btn"
+                            onClick={handleShareCard}
+                            disabled={sharingCard || !passport.holderName}
+                            title={!passport.holderName ? 'Nhập tên trước để tạo Share Card' : 'Tải ảnh chia sẻ Instagram/TikTok'}
+                        >
+                            {sharingCard ? '⏳ Đang tạo ảnh…' : '📤 Chia sẻ hành trình'}
+                        </button>
+                        {!passport.holderName && <span className="pp-share-hint">Nhập tên trước để tạo Share Card</span>}
+                    </div>
+
                     {/* Tab bar */}
                     <div className="pp-tabs">
                         {TABS.map(tab => (
@@ -1134,9 +1355,9 @@ export default function PassportPage() {
             <nav className="hgp-bottom-nav" aria-label="Passport mobile navigation">
                 <Link to="/" className="hgp-nav-item"><Home size={16} /><span>Home</span></Link>
                 <Link to="/ho-chieu" className="hgp-nav-item is-active"><BookOpen size={16} /><span>Passport</span></Link>
-                <Link to="/eco-system" className="hgp-nav-item"><Map size={16} /><span>Map</span></Link>
-                <Link to="/ho-tro" className="hgp-nav-item"><Shield size={16} /><span>Sisters</span></Link>
-                <button type="button" className="hgp-nav-item" onClick={() => window.location.hash = '#passport-profile'}><User size={16} /><span>Profile</span></button>
+                <Link to="/tours" className="hgp-nav-item"><Map size={16} /><span>Tours</span></Link>
+                <Link to="/lien-he" className="hgp-nav-item"><Phone size={16} /><span>Liên hệ</span></Link>
+                <button type="button" className="hgp-nav-item" onClick={handleShareCard} disabled={sharingCard}><User size={16} /><span>Share</span></button>
             </nav>
         </div>
     )
