@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-    FileText, Package, MapPin, BookOpen, Users, Heart,
-    Star, Plus, Trash2, Check, X, Edit2, LayoutDashboard, Bus,
+    Package, MapPin, BookOpen, Users, Heart,
+    Star, Plus, Trash2, Check, X, Edit2, LayoutDashboard,
     ChevronDown, ChevronRight, Bell, LogOut, Upload, Save, Image
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -41,16 +41,12 @@ function compressImage(file, maxW = 1200, quality = 0.82) {
 const NAV_ITEMS = [
     { key: 'overview', icon: <LayoutDashboard size={18} />, label: 'Tổng quan' },
     { key: 'hero-section', icon: <Image size={18} />, label: 'Hero Section' },
-    { key: 'discover-content', icon: <MapPin size={18} />, label: 'Discover CMS' },
-    { key: 'community-gallery', icon: <Image size={18} />, label: 'Ảnh nông dân' },
+    { key: 'community-gallery', icon: <Image size={18} />, label: 'Ảnh cộng đồng' },
     { key: 'workshops', icon: <Users size={18} />, label: 'Workshop' },
     { key: 'workshop-regs', icon: <Check size={18} />, label: 'Đăng ký WS' },
+    { key: 'passport-sites', icon: <MapPin size={18} />, label: '🎖️ Điểm Hộ chiếu' },
     { key: 'library', icon: <BookOpen size={18} />, label: 'Thư viện số' },
-    { key: 'posts', icon: <FileText size={18} />, label: 'Bài viết' },
     { key: 'products', icon: <Package size={18} />, label: 'Sản phẩm' },
-    { key: 'tours', icon: <MapPin size={18} />, label: 'Discover' },
-    { key: 'tour-bookings', icon: <MapPin size={18} />, label: 'Đặt lịch' },
-    { key: 'city-orders', icon: <Bus size={18} />, label: 'Đơn Stay/Bus' },
     { key: 'volunteers', icon: <Heart size={18} />, label: 'Tình nguyện' },
     { key: 'reviews', icon: <Star size={18} />, label: 'Reviews' },
 ]
@@ -61,11 +57,9 @@ const STATUS_COLORS = { pending: '#f59e0b', confirmed: '#2563eb', done: '#16a34a
 function Overview({ data, orders }) {
     const navigate = useNavigate()
     const cards = [
-        { label: 'Bài viết', val: data.posts.length, color: '#2563eb', icon: <FileText size={22} />, link: '/blog' },
         { label: 'Workshops', val: data.workshops.length, color: '#7c3aed', icon: <Users size={22} />, link: '/workshop' },
         { label: 'Đăng ký WS', val: orders.workshopRegs.length, color: '#db2777', icon: <Check size={22} /> },
-        { label: 'Đặt lịch', val: orders.tourBookings.length, color: '#f97316', icon: <MapPin size={22} />, link: '/tours' },
-        { label: 'Đơn TNV', val: orders.volunteerApps.length, color: '#16a34a', icon: <Heart size={22} />, link: '/tinh-nguyen' },
+        { label: 'Đơn TNV', val: orders.volunteerApps.length, color: '#16a34a', icon: <Heart size={22} /> },
         { label: 'Reviews chờ duyệt', val: data.reviews.filter(r => !r.approved).length, color: '#c05621', icon: <Star size={22} /> },
     ]
     return (
@@ -203,7 +197,7 @@ function classifyCityOrder(order) {
 /* ── EDIT MODAL ── */
 const FIELD_DEFS = {
     post: ['title', 'content', 'author', 'img'],
-    workshop: ['title', 'content', 'date', 'time', 'category', 'capacity', 'status', 'instructor', 'img'],
+    workshop: ['title', 'content', 'date', 'time', 'category', 'capacity', 'isFree', 'price', 'status', 'instructor', 'img'],
     library: ['title', 'content', 'category', 'ethnic', 'pronunciation', 'translation', 'img'],
     product: ['title', 'desc', 'price', 'img'],
     tour: ['title', 'desc', 'price', 'duration', 'img'],
@@ -220,6 +214,7 @@ const FIELD_META = {
     capacity: { label: 'Sức chứa', type: 'number' },
     status: { label: 'Trạng thái', type: 'text' },
     instructor: { label: 'Giảng viên', type: 'text' },
+    isFree: { label: 'Miễn phí (true/false)', type: 'text' },
     ethnic: { label: 'Dân tộc', type: 'text' },
     pronunciation: { label: 'Phát âm', type: 'text' },
     translation: { label: 'Dịch nghĩa', type: 'text' },
@@ -317,6 +312,120 @@ function EditModal({ type, item, onClose, onSave }) {
                     </button>
                 </form>
             </div>
+        </div>
+    )
+}
+
+/* ── PASSPORT SITES ── */
+function PassportSites() {
+    const [sites, setSites] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [editing, setEditing] = useState(null)
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
+    useEffect(() => {
+        fetch(`${API_URL}/eco/sites`)
+            .then(r => r.json())
+            .then(d => setSites(Array.isArray(d) ? d : []))
+            .catch(() => setSites([]))
+            .finally(() => setLoading(false))
+    }, [])
+
+    const save = async (id, form) => {
+        try {
+            const res = await fetch(`${API_URL}/eco/sites/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(form),
+            })
+            if (res.ok) {
+                const updated = await res.json()
+                setSites(prev => prev.map(s => s._id === id ? updated : s))
+                setEditing(null)
+            }
+        } catch (e) {
+            alert('Lỗi lưu: ' + e.message)
+        }
+    }
+
+    if (loading) return <p className="empty-state">Đang tải dữ liệu...</p>
+
+    return (
+        <div>
+            <h2 className="db-section-title">🎖️ Điểm Hộ chiếu Hà Giang</h2>
+            <p style={{ color: '#64748b', marginBottom: 16, fontSize: 14 }}>
+                Quản lý các điểm đóng dấu Hộ chiếu. Người dùng quét QR tại điểm để nhận tem và điểm eco.
+            </p>
+            {sites.length === 0 ? (
+                <p className="empty-state">Chưa có điểm nào. Khởi động backend để tải dữ liệu mặc định.</p>
+            ) : (
+                <div className="db-app-list">
+                    {sites.map(site => editing?._id === site._id ? (
+                        <div key={site._id} className="db-app-card" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 10 }}>
+                            <div className="form-2col">
+                                <div>
+                                    <label className="edit-field-label">Tên điểm</label>
+                                    <input className="form-input" value={editing.name}
+                                        onChange={e => setEditing(p => ({ ...p, name: e.target.value }))} />
+                                </div>
+                                <div>
+                                    <label className="edit-field-label">Mã (code)</label>
+                                    <input className="form-input" value={editing.code}
+                                        onChange={e => setEditing(p => ({ ...p, code: e.target.value }))} />
+                                </div>
+                            </div>
+                            <div className="form-2col">
+                                <div>
+                                    <label className="edit-field-label">Icon tem (emoji)</label>
+                                    <input className="form-input" value={editing.badge?.icon || ''}
+                                        onChange={e => setEditing(p => ({ ...p, badge: { ...p.badge, icon: e.target.value } }))} />
+                                </div>
+                                <div>
+                                    <label className="edit-field-label">Tên tem</label>
+                                    <input className="form-input" value={editing.badge?.name || ''}
+                                        onChange={e => setEditing(p => ({ ...p, badge: { ...p.badge, name: e.target.value } }))} />
+                                </div>
+                            </div>
+                            <div className="form-2col">
+                                <div>
+                                    <label className="edit-field-label">Điểm eco</label>
+                                    <input className="form-input" type="number" value={editing.ecoPoints || ''}
+                                        onChange={e => setEditing(p => ({ ...p, ecoPoints: +e.target.value }))} />
+                                </div>
+                                <div>
+                                    <label className="edit-field-label">Khu vực</label>
+                                    <input className="form-input" value={editing.district || ''}
+                                        onChange={e => setEditing(p => ({ ...p, district: e.target.value }))} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="edit-field-label">Câu chuyện ngắn</label>
+                                <textarea className="form-input form-textarea" value={editing.story?.content || ''}
+                                    onChange={e => setEditing(p => ({ ...p, story: { ...p.story, content: e.target.value } }))} />
+                            </div>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <button className="btn3d btn3d-green btn-sm" onClick={() => save(site._id, editing)}>
+                                    <Save size={14} /> Lưu thay đổi
+                                </button>
+                                <button className="btn3d btn-sm" onClick={() => setEditing(null)}>Huỷ</button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div key={site._id} className="db-app-card">
+                            <div className="db-app-info">
+                                <strong>{site.badge?.icon} {site.name}</strong>
+                                <span style={{ fontFamily: 'monospace', fontSize: 12, color: '#64748b' }}>🔑 {site.code}</span>
+                                <span>🎖️ Tem: {site.badge?.name}</span>
+                                <span>⚡ {site.ecoPoints} điểm eco · 📍 {site.district}</span>
+                                <span style={{ color: '#64748b', fontSize: 13 }}>{site.story?.title}</span>
+                            </div>
+                            <button className="btn3d btn3d-blue btn-sm" onClick={() => setEditing({ ...site })}>
+                                <Edit2 size={13} /> Chỉnh sửa
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     )
 }
@@ -455,16 +564,6 @@ export default function DashboardPage() {
         switch (activeTab) {
             case 'overview':
                 return <Overview data={data} orders={orders} />
-            case 'posts':
-                return <ContentTable type="posts" items={data.posts}
-                    onAdd={() => setAdminModal('post')}
-                    onDelete={(id) => handleDelete('post', id)}
-                    onEdit={(item) => openEdit('post', item)}
-                    columns={[
-                        { key: 'title', label: 'Tiêu đề' },
-                        { key: 'author', label: 'Tác giả' },
-                        { key: 'date', label: 'Ngày' },
-                    ]} />
             case 'workshops':
                 return <ContentTable type="workshops" items={data.workshops}
                     onAdd={() => setAdminModal('workshop')}
@@ -499,87 +598,11 @@ export default function DashboardPage() {
                         { key: 'title', label: 'Tên sản phẩm' },
                         { key: 'price', label: 'Giá' },
                     ]} />
-            case 'tours':
-                return <ContentTable type="tours" items={data.tours}
-                    onAdd={() => setAdminModal('tour')}
-                    onDelete={(id) => handleDelete('tour', id)}
-                    onEdit={(item) => openEdit('tour', item)}
-                    columns={[
-                        { key: 'title', label: 'Tên' },
-                        { key: 'price', label: 'Giá' },
-                        { key: 'duration', label: 'Thời gian' },
-                    ]} />
-            case 'tour-bookings':
-                return <AppTable title="Booking Discover" items={orders.tourBookings}
-                    statusKey="tour" onStatusChange={orders.updateOrderStatus} onDelete={orders.deleteOrder} />
+            case 'passport-sites':
+                return <PassportSites />
             case 'volunteers':
                 return <AppTable title="Đơn Tình Nguyện" items={orders.volunteerApps}
                     statusKey="volunteer" onStatusChange={orders.updateOrderStatus} onDelete={orders.deleteOrder} />
-            case 'city-orders': {
-                const visible = cityOrders.filter(o => cityFilter === 'all' ? true : classifyCityOrder(o) === cityFilter)
-                return (
-                    <div>
-                        <div className="db-table-header" style={{ alignItems: 'center' }}>
-                            <h2 className="db-section-title">Đơn Stay/Bus từ website</h2>
-                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                <button className="btn3d btn3d-green btn-sm" onClick={() => createTestCityOrder('stay')}>+ Test Stay</button>
-                                <button className="btn3d btn3d-orange btn-sm" onClick={() => createTestCityOrder('bus')}>+ Test Bus</button>
-                                <button className="btn3d btn3d-red btn-sm" onClick={clearTestCityOrders}>Xóa đơn test</button>
-                                <button className="btn3d btn3d-blue btn-sm" onClick={loadCityOrders}>Làm mới</button>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-                            <button className={cityFilter === 'all' ? 'shop387-tab-active' : 'shop387-tab'} onClick={() => setCityFilter('all')}>
-                                Tất cả ({cityCounts.all})
-                            </button>
-                            <button className={cityFilter === 'stay' ? 'shop387-tab-active' : 'shop387-tab'} onClick={() => setCityFilter('stay')}>
-                                Stay ({cityCounts.stay})
-                            </button>
-                            <button className={cityFilter === 'bus' ? 'shop387-tab-active' : 'shop387-tab'} onClick={() => setCityFilter('bus')}>
-                                Bus ({cityCounts.bus})
-                            </button>
-                        </div>
-
-                        {cityLoading ? <p className="empty-state">Đang tải dữ liệu...</p> : null}
-                        {!cityLoading && visible.length === 0 ? <p className="empty-state">Chưa có đơn phù hợp bộ lọc.</p> : null}
-
-                        {!cityLoading && visible.length > 0 && (
-                            <div className="db-app-list">
-                                {visible.map((order) => {
-                                    const item = order.items?.[0]
-                                    const type = classifyCityOrder(order)
-                                    return (
-                                        <div key={order._id} className="db-app-card">
-                                            <div className="db-app-info">
-                                                <strong>{item?.name || 'Đơn hàng'} {order.isTest ? '(TEST)' : ''}</strong>
-                                                <span>📦 Loại: {type === 'stay' ? 'Stay' : 'Bus'}</span>
-                                                <span>📞 {order.phone || '—'}</span>
-                                                <span>📍 {order.location || '—'}</span>
-                                                <span>📝 {order.address || '—'}</span>
-                                                <span>👥 SL: {item?.qty || 1} · Giá: {(item?.price || 0).toLocaleString()}đ</span>
-                                                <span style={{ color: '#94a3b8', fontSize: 12 }}>🕐 {new Date(order.createdAt).toLocaleString('vi-VN')}</span>
-                                            </div>
-                                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                                <select
-                                                    className={`status-select status-${order.status || 'pending'}`}
-                                                    value={order.status || 'pending'}
-                                                    onChange={e => updateCityOrderStatus(order._id, e.target.value)}
-                                                >
-                                                    <option value="pending">⏳ Chờ</option>
-                                                    <option value="confirmed">✅ Xác nhận</option>
-                                                    <option value="done">🏁 Hoàn tất</option>
-                                                    <option value="cancelled">❌ Huỷ</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        )}
-                    </div>
-                )
-            }
             case 'reviews':
                 return (
                     <div>
@@ -617,8 +640,6 @@ export default function DashboardPage() {
                 )
             case 'hero-section':
                 return <HeroSectionEditor />
-            case 'discover-content':
-                return <DiscoverContentEditor />
             case 'community-gallery':
                 return <AdminCommunityGallery />
             default:

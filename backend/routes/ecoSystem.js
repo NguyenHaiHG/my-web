@@ -266,6 +266,25 @@ router.post('/sites', async (req, res) => {
     }
 })
 
+router.put('/sites/:id', async (req, res) => {
+    try {
+        const updated = await EcoSite.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+        if (!updated) return res.status(404).json({ error: 'Site not found' })
+        res.json(updated)
+    } catch (err) {
+        res.status(400).json({ error: err.message })
+    }
+})
+
+router.delete('/sites/:id', async (req, res) => {
+    try {
+        await EcoSite.findByIdAndDelete(req.params.id)
+        res.json({ success: true })
+    } catch (err) {
+        res.status(500).json({ error: err.message })
+    }
+})
+
 router.post('/scan', async (req, res) => {
     try {
         const { userKey, siteCode } = req.body

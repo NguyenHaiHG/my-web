@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { useData } from '../context/DataContext'
 
 const CATEGORY_INFO = {
-    sewing:     { icon: '🧵', label: 'May vá' },
+    sewing: { icon: '🧵', label: 'May vá' },
     embroidery: { icon: '🌺', label: 'Thêu thùa' },
-    english:    { icon: '📚', label: 'Tiếng Anh' },
-    digital:    { icon: '💻', label: 'Kỹ năng số' },
-    cooking:    { icon: '🍜', label: 'Nấu ăn bản địa' },
-    other:      { icon: '🌿', label: 'Khác' },
+    english: { icon: '📚', label: 'Tiếng Anh' },
+    digital: { icon: '💻', label: 'Kỹ năng số' },
+    cooking: { icon: '🍜', label: 'Nấu ăn bản địa' },
+    other: { icon: '🌿', label: 'Khác' },
 }
 
 const DEFAULT_WORKSHOPS = [

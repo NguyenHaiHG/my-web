@@ -80,7 +80,7 @@ function AdminModal() {
   const { addItem } = useData()
   const { showToast } = useUI()
   const { t } = useLang()
-  const [form, setForm] = useState({ title: '', content: '', img: '', author: '', desc: '', price: '', time: '', date: '' })
+  const [form, setForm] = useState({ title: '', content: '', img: '', author: '', desc: '', price: '', time: '', date: '', category: '', capacity: '', instructor: '', isFree: true })
   const [preview, setPreview] = useState('')
 
   const labelKey = { post: 'Bài viết', product: 'Sản phẩm', tour: 'Discover', workshop: 'Workshop', library: 'Thư viện' }
@@ -108,10 +108,10 @@ function AdminModal() {
     try {
       const payload = { ...form, tag: type }
       if (!payload.date) payload.date = new Date().toLocaleDateString('vi-VN')
-      if (type === 'workshop') { payload.status = 'upcoming'; payload.isFree = true }
+      if (type === 'workshop') { payload.status = 'upcoming' }
       await addItem(type, payload)
       setAdminModal(null)
-      setForm({ title: '', content: '', img: '', author: '', desc: '', price: '', time: '', date: '' })
+      setForm({ title: '', content: '', img: '', author: '', desc: '', price: '', time: '', date: '', category: '', capacity: '', instructor: '', isFree: true })
       setPreview('')
       showToast(`✅ Đã thêm ${labelKey[type] || type} thành công!`)
     } catch (err) {
@@ -141,12 +141,44 @@ function AdminModal() {
             </>
           )}
           {type === 'workshop' && (
-            <div className="form-2col">
-              <input className="form-input" placeholder="Ngày diễn ra" value={form.date}
-                onChange={e => setForm({ ...form, date: e.target.value })} />
-              <input className="form-input" placeholder="Giờ (VD: 08:00–11:00)" value={form.time}
-                onChange={e => setForm({ ...form, time: e.target.value })} />
-            </div>
+            <>
+              <textarea className="form-input form-textarea" placeholder="Mô tả ngắn về workshop"
+                value={form.desc} onChange={e => setForm({ ...form, desc: e.target.value })} />
+              <div className="form-2col">
+                <select className="form-input" value={form.category}
+                  onChange={e => setForm({ ...form, category: e.target.value })}>
+                  <option value="">— Loại workshop —</option>
+                  <option value="embroidery">🌺 Thêu thùa</option>
+                  <option value="sewing">🧵 May vá</option>
+                  <option value="cooking">🍜 Nấu ăn bản địa</option>
+                  <option value="digital">💻 Kỹ năng số</option>
+                  <option value="english">📚 Tiếng Anh</option>
+                  <option value="other">🌿 Khác</option>
+                </select>
+                <input className="form-input" type="number" placeholder="Sức chứa (người)"
+                  value={form.capacity} onChange={e => setForm({ ...form, capacity: e.target.value })} />
+              </div>
+              <input className="form-input" placeholder="Giảng viên / Nghệ nhân"
+                value={form.instructor} onChange={e => setForm({ ...form, instructor: e.target.value })} />
+              <div className="form-2col">
+                <input className="form-input" placeholder="Ngày diễn ra"
+                  value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
+                <input className="form-input" placeholder="Giờ (VD: 08:00–11:00)"
+                  value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 14 }}>
+                  <input type="checkbox" checked={form.isFree}
+                    onChange={e => setForm({ ...form, isFree: e.target.checked })} />
+                  Miễn phí
+                </label>
+                {!form.isFree && (
+                  <input className="form-input" placeholder="Giá (VD: 150.000đ)"
+                    value={form.price} onChange={e => setForm({ ...form, price: e.target.value })}
+                    style={{ flex: 1, minWidth: 140 }} />
+                )}
+              </div>
+            </>
           )}
           {type === 'post' && (
             <input className="form-input" placeholder={t('admin_author_ph')} value={form.author}
