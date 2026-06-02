@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
 import {
-  User, LogOut, Menu, X, MessageCircle, House, Compass, FileText, BookOpen, Phone,
-  Upload, Plus, LayoutDashboard, WifiOff, Save
+  User, LogOut, Menu, X, MessageCircle, House, BookOpen, Phone,
+  Upload, Plus, LayoutDashboard, WifiOff, Save, GraduationCap
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider, useData } from './context/DataContext'
@@ -12,11 +12,9 @@ import { OrderProvider } from './context/OrderContext'
 import { PassportProvider, usePassport } from './context/PassportContext'
 import PassportPage from './pages/PassportPage'
 import HomePage from './pages/HomePage'
-import BlogPage from './pages/BlogPage'
-import BlogPostPage from './pages/BlogPostPage'
 import ContactPage from './pages/ContactPage'
 import DashboardPage from './pages/DashboardPage'
-import ToursPage from './pages/ToursPage'
+import WorkshopPage from './pages/WorkshopPage'
 import VerifyCertificatePage from './pages/VerifyCertificatePage'
 import './App.css'
 
@@ -322,8 +320,7 @@ function Header() {
   const [open, setOpen] = useState(false)
 
   const links = [
-    { to: '/tours', label: t('nav_kham_pha') },
-    { to: '/blog', label: t('nav_blog') },
+    { to: '/workshop', label: 'Workshop' },
     { to: '/lien-he', label: t('nav_contact') },
   ]
 
@@ -454,9 +451,8 @@ function MobileAppDock() {
 
   const items = [
     { to: '/', label: 'Home', icon: <House size={18} />, match: p => p === '/' },
-    { to: '/tours', label: 'Tours', icon: <Compass size={18} />, match: p => p === '/tours' },
+    { to: '/workshop', label: 'Workshop', icon: <GraduationCap size={18} />, match: p => p === '/workshop' },
     { to: '/ho-chieu', label: 'Passport', icon: <BookOpen size={18} />, match: p => p === '/ho-chieu' },
-    { to: '/blog', label: 'Blog', icon: <FileText size={18} />, match: p => p.startsWith('/blog') },
     { to: '/lien-he', label: 'Liên hệ', icon: <Phone size={18} />, match: p => p === '/lien-he' },
   ]
 
@@ -494,9 +490,7 @@ function AppInner() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/ho-chieu" element={<PassportPage />} />
-          <Route path="/tours" element={<ToursPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:id" element={<BlogPostPage />} />
+          <Route path="/workshop" element={<WorkshopPage />} />
           <Route path="/lien-he" element={<ContactPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/verify/:certCode" element={<VerifyCertificatePage />} />
@@ -507,8 +501,7 @@ function AppInner() {
         <div className="footer-inner">
           <p>🌿 <strong>HTX Trường Hải</strong> – Tổ 5 Quang Trung · Phường Hà Giang 2 · Tuyên Quang</p>
           <div className="footer-links">
-            <a href="/tours">Tours</a>
-            <a href="/blog">Blog</a>
+            <a href="/workshop">Workshop</a>
             <a href="/ho-chieu">Hộ chiếu</a>
             <a href="/lien-he">Liên hệ</a>
           </div>

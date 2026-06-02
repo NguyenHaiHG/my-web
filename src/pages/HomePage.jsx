@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Heart, Leaf, Users } from 'lucide-react'
+import { ArrowRight, Heart, Leaf } from 'lucide-react'
 import { useLang } from '../context/LanguageContext'
 import { useData } from '../context/DataContext'
 
@@ -13,19 +13,12 @@ const QUICK_CARDS = [
         highlight: true,
     },
     {
-        emoji: '🗺️',
-        title: 'Tour Hà Giang',
-        desc: 'Khám phá cung đường loop, tour theo ngày, đặt lịch trực tiếp qua web.',
-        path: '/tours',
-        cta: 'Đặt tour ngay →',
+        emoji: '🧵',
+        title: 'Trải nghiệm Workshop',
+        desc: 'Thêu thổ cẩm, nấu ăn bản địa, kỹ năng số — trải nghiệm thực tế do cộng đồng vùng cao tổ chức.',
+        path: '/workshop',
+        cta: 'Xem Workshop →',
         highlight: true,
-    },
-    {
-        emoji: '📖',
-        title: 'Blog du lịch',
-        desc: 'Cẩm nang, kinh nghiệm và câu chuyện từ Hà Giang Loop.',
-        path: '/blog',
-        cta: 'Đọc blog',
     },
 ]
 
@@ -85,11 +78,11 @@ export default function HomePage() {
                     <h1>{t('hp_h1_pre')} <span className="ng-hl">{t('hp_h1_hl')}</span><br />{t('hp_h1_post')}</h1>
                     <p>{t('hp_hero_sub')}</p>
                     <div className="ng-hero-btns">
-                        <button className="btn3d btn3d-orange" onClick={() => navigate('/tours')}>
-                            Đặt tour Hà Giang <ArrowRight size={16} />
+                        <button className="btn3d btn3d-orange" onClick={() => navigate('/workshop')}>
+                            Khám phá Workshop <ArrowRight size={16} />
                         </button>
-                        <button className="btn3d btn3d-outline-white" onClick={() => navigate('/blog')}>
-                            Đọc blog du lịch
+                        <button className="btn3d btn3d-outline-white" onClick={() => navigate('/ho-chieu')}>
+                            Tạo hộ chiếu →
                         </button>
                     </div>
                 </div>
@@ -124,13 +117,10 @@ export default function HomePage() {
                     <p>{t('hp_cta_sub')}</p>
                     <div className="ng-cta-btns">
                         <button className="btn3d btn3d-orange" onClick={() => navigate('/ho-chieu')}>
-                            <Heart size={16} /> Tạo hộ chiếu du lịch
+                            <Heart size={16} /> Tạo hộ chiếu
                         </button>
-                        <button className="btn3d btn3d-blue" onClick={() => navigate('/tours')}>
-                            <Leaf size={16} /> Đặt tour ngay
-                        </button>
-                        <button className="btn3d btn3d-green" onClick={() => navigate('/blog')}>
-                            <Users size={16} /> Đọc blog Hà Giang
+                        <button className="btn3d btn3d-blue" onClick={() => navigate('/workshop')}>
+                            <Leaf size={16} /> Xem Workshop
                         </button>
                     </div>
                 </div>

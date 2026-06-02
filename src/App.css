@@ -8549,7 +8549,7 @@ select option {
    font-weight: 700;
    cursor: pointer;
    letter-spacing: 0.3px;
-   box-shadow: 0 4px 18px rgba(194,65,12,0.4);
+   box-shadow: 0 4px 18px rgba(194, 65, 12, 0.4);
    transition: opacity .2s, transform .15s;
 }
 
@@ -10835,4 +10835,271 @@ select option {
    .verify-grid {
       grid-template-columns: 1fr;
    }
+}
+/* ══════════════════════════════════════════════════════
+   WORKSHOP PAGE
+   ══════════════════════════════════════════════════════ */
+
+.ws-hero {
+   background: linear-gradient(135deg, #064e3b 0%, #065f46 40%, #0d9488 75%, #0f766e 100%);
+   padding: 80px 0 64px;
+   position: relative;
+   overflow: hidden;
+}
+
+.ws-hero::before {
+   content: '';
+   position: absolute;
+   inset: 0;
+   background-image: radial-gradient(circle at 20% 50%, rgba(110,231,183,0.08) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(52,211,153,0.06) 0%, transparent 40%);
+}
+
+.ws-hero-content {
+   position: relative;
+   z-index: 1;
+}
+
+.ws-hero-tag {
+   display: inline-block;
+   background: rgba(255,255,255,0.12);
+   border: 1px solid rgba(255,255,255,0.2);
+   border-radius: 20px;
+   padding: 5px 16px;
+   font-size: 13px;
+   color: rgba(255,255,255,0.9);
+   margin-bottom: 20px;
+   letter-spacing: 0.3px;
+}
+
+.ws-hero-h1 {
+   font-size: clamp(2.4rem, 5vw, 3.8rem);
+   font-weight: 900;
+   color: #ffffff;
+   line-height: 1.12;
+   margin: 0 0 16px;
+}
+
+.ws-hero-hl {
+   color: #6ee7b7;
+}
+
+.ws-hero-sub {
+   font-size: 17px;
+   color: rgba(255,255,255,0.78);
+   max-width: 560px;
+   line-height: 1.65;
+   margin: 0 0 30px;
+}
+
+.ws-hero-btns {
+   display: flex;
+   gap: 12px;
+   flex-wrap: wrap;
+}
+
+/* Stamp note */
+.ws-stamp-note {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   background: linear-gradient(135deg, #fef3c7, #fff7ed);
+   border: 1px solid #fcd34d;
+   border-radius: 14px;
+   padding: 14px 20px;
+   margin: 20px 0 4px;
+   flex-wrap: wrap;
+}
+
+.ws-stamp-icon {
+   font-size: 28px;
+   flex-shrink: 0;
+}
+
+.ws-stamp-note p {
+   margin: 0;
+   font-size: 14px;
+   color: #78350f;
+   flex: 1;
+   min-width: 160px;
+}
+
+.ws-stamp-link {
+   font-size: 14px;
+   font-weight: 700;
+   color: #c2410c;
+   white-space: nowrap;
+   text-decoration: none;
+}
+
+.ws-stamp-link:hover { text-decoration: underline; }
+
+/* Filters */
+.ws-filters {
+   display: flex;
+   gap: 8px;
+   flex-wrap: wrap;
+   margin: 20px 0 0;
+   padding-bottom: 4px;
+}
+
+.ws-filter-btn {
+   padding: 7px 16px;
+   border: 1.5px solid #e2e8f0;
+   border-radius: 20px;
+   background: #f8fafc;
+   font-size: 13px;
+   font-weight: 500;
+   color: #475569;
+   cursor: pointer;
+   transition: all .15s;
+}
+
+.ws-filter-btn:hover {
+   border-color: #0d9488;
+   color: #0d9488;
+}
+
+.ws-filter-active {
+   background: #0d9488 !important;
+   border-color: #0d9488 !important;
+   color: #ffffff !important;
+}
+
+/* Grid */
+.ws-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+   gap: 20px;
+}
+
+/* Card */
+.ws-card {
+   background: #ffffff;
+   border-radius: 16px;
+   overflow: hidden;
+   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+   border: 1px solid #f1f5f9;
+   display: flex;
+   flex-direction: column;
+   transition: transform .2s, box-shadow .2s;
+}
+
+.ws-card:hover {
+   transform: translateY(-3px);
+   box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.ws-card-img {
+   position: relative;
+   height: 176px;
+   background: linear-gradient(135deg, #064e3b, #065f46);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   overflow: hidden;
+}
+
+.ws-card-img img {
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+}
+
+.ws-card-emoji {
+   font-size: 68px;
+   opacity: 0.82;
+}
+
+.ws-status-badge {
+   position: absolute;
+   top: 10px;
+   right: 10px;
+   font-size: 11px;
+   font-weight: 700;
+   padding: 3px 10px;
+   border-radius: 20px;
+}
+
+.ws-status-soon { background: #dcfce7; color: #166534; }
+.ws-status-live { background: #fff7ed; color: #c2410c; }
+.ws-status-done { background: #f1f5f9; color: #64748b; }
+
+.ws-card-body {
+   padding: 16px 18px 18px;
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+   flex: 1;
+}
+
+.ws-cat-chip {
+   font-size: 12px;
+   font-weight: 600;
+   color: #0d9488;
+   background: #f0fdfa;
+   border: 1px solid #99f6e4;
+   border-radius: 12px;
+   padding: 2px 10px;
+   display: inline-block;
+   width: fit-content;
+}
+
+.ws-card-title {
+   font-size: 17px;
+   font-weight: 700;
+   color: #0f172a;
+   margin: 0;
+   line-height: 1.35;
+}
+
+.ws-card-desc {
+   font-size: 13px;
+   color: #64748b;
+   line-height: 1.55;
+   margin: 0;
+   display: -webkit-box;
+   -webkit-line-clamp: 3;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+}
+
+.ws-card-info {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 5px 12px;
+   font-size: 12px;
+   color: #64748b;
+   margin-top: 2px;
+}
+
+.ws-card-footer {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   margin-top: auto;
+   padding-top: 12px;
+   border-top: 1px solid #f1f5f9;
+}
+
+.ws-price-tag {
+   font-size: 14px;
+   font-weight: 700;
+   color: #475569;
+}
+
+.ws-free { color: #059669; }
+
+.ws-empty {
+   text-align: center;
+   color: #94a3b8;
+   padding: 48px 0;
+   font-size: 15px;
+}
+
+@media (max-width: 600px) {
+   .ws-hero { padding: 56px 0 44px; }
+   .ws-hero-h1 { font-size: 2.2rem; }
+   .ws-stamp-note { flex-direction: column; gap: 8px; }
+   .ws-grid { grid-template-columns: 1fr; }
 }
