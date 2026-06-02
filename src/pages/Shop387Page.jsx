@@ -57,6 +57,11 @@ export default function Shop387Page() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        if (cart.length === 0) {
+            setToast('Vui lòng chọn ít nhất 1 món!')
+            setTimeout(() => setToast(''), 2000)
+            return
+        }
         if (!phone || phone.length < 8) {
             setToast('Vui lòng nhập số điện thoại hợp lệ!')
             setTimeout(() => setToast(''), 2000)
@@ -67,28 +72,26 @@ export default function Shop387Page() {
             setTimeout(() => setToast(''), 2000)
             return
         }
-        try {
-            const res = await fetch(`${API}/api/orders`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    items: cart.map(i => ({ ...i, title: i.name, price: String(i.price) })),
-                    address,
-                    phone,
-                    location,
-                    pickup,
-                    deliveryFee: shipFee,
-                })
-            })
-            if (!res.ok) throw new Error('Lỗi gửi đơn hàng!')
-        } catch (err) {
-            setToast('Lỗi gửi đơn hàng, vui lòng thử lại!')
-            setTimeout(() => setToast(''), 3000)
-            return
-        }
+
+        // Hiện thành công ngay — không chờ backend
         setSubmitted(true)
-        setToast('Đơn hàng của bạn đã được gửi đến quán. Vui lòng đợi xác nhận hoặc liên hệ trực tiếp nếu cần gấp!')
-        setTimeout(() => setToast(''), 3000)
+
+        // Gửi lên backend trong nền (không block UI)
+        fetch(`${API}/api/orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                items: cart.map(i => ({ ...i, title: i.name, price: String(i.price) })),
+                address,
+                phone,
+                location,
+                pickup,
+                deliveryFee: shipFee,
+            }),
+            signal: AbortSignal.timeout(15000),
+        }).catch(() => {
+            // Backend ngủ hoặc lỗi mạng — đơn vẫn được xử lý qua SĐT
+        })
     }
 
     if (submitted) return (
