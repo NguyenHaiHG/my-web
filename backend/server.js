@@ -18,6 +18,7 @@ const communityImagesRouter = require('./routes/communityImages')
 const heroSectionRouter = require('./routes/heroSection')
 const discoverContentRouter = require('./routes/discoverContent')
 const ecoSystemRouter = require('./routes/ecoSystem')
+const siteImagesRouter = require('./routes/siteImages')
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -64,6 +65,7 @@ app.use('/api/community-images', communityImagesRouter)
 app.use('/api/hero-section', heroSectionRouter)
 app.use('/api/discover-content', discoverContentRouter)
 app.use('/api/eco-system', ecoSystemRouter)
+app.use('/api/site-images', siteImagesRouter)
 
 // Health check
 app.get('/api/health', (req, res) => {
