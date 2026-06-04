@@ -1211,6 +1211,260 @@ select option {
    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* ── Admin Community Gallery ── */
+.acg-wrap {
+   max-width: 780px;
+   margin: 0 auto;
+   padding: 0 0 40px;
+}
+
+.acg-header {
+   margin-bottom: 20px;
+}
+
+.acg-title {
+   font-size: 1.25rem;
+   font-weight: 800;
+   margin: 0 0 4px;
+   color: #1e293b;
+}
+
+.acg-sub {
+   font-size: 13.5px;
+   color: #64748b;
+   margin: 0;
+}
+
+.acg-dropzone {
+   border: 2.5px dashed #cbd5e1;
+   border-radius: 14px;
+   background: #f8fafc;
+   padding: 36px 20px;
+   text-align: center;
+   cursor: pointer;
+   transition: border-color 0.2s, background 0.2s;
+   margin-bottom: 20px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 8px;
+   color: #64748b;
+}
+
+.acg-dropzone:hover,
+.acg-drop-active {
+   border-color: #2563eb;
+   background: #eff6ff;
+   color: #2563eb;
+}
+
+.acg-drop-icon {
+   color: #94a3b8;
+   margin-bottom: 4px;
+}
+
+.acg-dropzone:hover .acg-drop-icon,
+.acg-drop-active .acg-drop-icon {
+   color: #2563eb;
+}
+
+.acg-dropzone p {
+   margin: 0;
+   font-size: 14.5px;
+}
+
+.acg-dropzone small {
+   font-size: 12px;
+   opacity: 0.7;
+}
+
+/* Queue */
+.acg-queue {
+   background: #f0f9ff;
+   border: 1px solid #bae6fd;
+   border-radius: 12px;
+   padding: 16px;
+   margin-bottom: 24px;
+}
+
+.acg-queue-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   margin-bottom: 14px;
+   font-size: 13.5px;
+   font-weight: 600;
+   color: #0369a1;
+}
+
+.acg-btn-upload {
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   background: #2563eb;
+   color: #fff;
+   border: none;
+   border-radius: 8px;
+   padding: 7px 16px;
+   font-size: 13px;
+   font-weight: 700;
+   cursor: pointer;
+   transition: background 0.18s;
+}
+
+.acg-btn-upload:hover {
+   background: #1d4ed8;
+}
+
+.acg-btn-upload:disabled {
+   opacity: 0.6;
+   cursor: not-allowed;
+}
+
+.acg-queue-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+   gap: 10px;
+}
+
+.acg-queue-item {
+   position: relative;
+   border-radius: 8px;
+   overflow: hidden;
+   box-shadow: 0 2px 6px #0001;
+   background: #fff;
+}
+
+.acg-queue-item img {
+   width: 100%;
+   aspect-ratio: 4/3;
+   object-fit: cover;
+   display: block;
+}
+
+.acg-caption-input {
+   width: 100%;
+   border: none;
+   border-top: 1px solid #e2e8f0;
+   padding: 5px 8px;
+   font-size: 11.5px;
+   color: #475569;
+   outline: none;
+   background: #f8fafc;
+}
+
+.acg-queue-remove {
+   position: absolute;
+   top: 4px;
+   right: 4px;
+   background: rgba(0, 0, 0, 0.55);
+   color: #fff;
+   border: none;
+   border-radius: 50%;
+   width: 22px;
+   height: 22px;
+   font-size: 11px;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   line-height: 1;
+}
+
+/* Gallery */
+.acg-gallery-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   margin-bottom: 12px;
+}
+
+.acg-gallery-count {
+   font-size: 13px;
+   font-weight: 600;
+   color: #475569;
+}
+
+.acg-empty {
+   text-align: center;
+   color: #94a3b8;
+   padding: 40px 20px;
+   font-size: 14px;
+   border: 1px dashed #e2e8f0;
+   border-radius: 10px;
+}
+
+.acg-gallery {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+   gap: 12px;
+}
+
+.acg-thumb {
+   position: relative;
+   border-radius: 10px;
+   overflow: hidden;
+   box-shadow: 0 2px 8px #0001;
+   background: #e2e8f0;
+   aspect-ratio: 4/3;
+}
+
+.acg-thumb img {
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+   display: block;
+}
+
+.acg-thumb-caption {
+   position: absolute;
+   bottom: 0;
+   left: 0;
+   right: 0;
+   background: linear-gradient(0deg, rgba(0, 0, 0, 0.72), transparent);
+   color: #fff;
+   font-size: 11px;
+   padding: 14px 8px 6px;
+   line-height: 1.3;
+}
+
+.acg-thumb-delete {
+   position: absolute;
+   top: 5px;
+   right: 5px;
+   background: rgba(220, 38, 38, 0.85);
+   color: #fff;
+   border: none;
+   border-radius: 6px;
+   width: 26px;
+   height: 26px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   cursor: pointer;
+   opacity: 0;
+   transition: opacity 0.18s;
+}
+
+.acg-thumb:hover .acg-thumb-delete {
+   opacity: 1;
+}
+
+@media (max-width: 480px) {
+   .acg-gallery {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+   }
+
+   .acg-queue-grid {
+      grid-template-columns: repeat(2, 1fr);
+   }
+
+   .acg-thumb-delete {
+      opacity: 1;
+   }
+}
+
 @keyframes farmer-film-scroll {
    from {
       transform: translateX(0);

@@ -58,6 +58,7 @@ export function DataProvider({ children }) {
     workshop: setWorkshops,
     library: setLibraryItems,
     review: setReviews,
+    communityImage: setCommunityImages,
   }
 
   const TYPE_KEYS = ['post', 'product', 'tour', 'workshop', 'library', 'review', 'communityImage']
@@ -70,6 +71,7 @@ export function DataProvider({ children }) {
     setWorkshops(lsLoad('workshop'))
     setLibraryItems(lsLoad('library'))
     setReviews(lsLoad('review'))
+    setCommunityImages(lsLoad('communityImage'))
 
     Promise.all(
       Object.values(ENDPOINTS).map(ep =>
@@ -99,45 +101,57 @@ export function DataProvider({ children }) {
   const addItem = async (type, item) => {
     const ep = ENDPOINTS[type]
     if (!ep) throw new Error(`Unknown type: ${type}`)
+    let res
     try {
-      const res = await fetch(`${API}/api/${ep}`, {
+      res = await fetch(`${API}/api/${ep}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(item),
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(10000),
       })
-      if (!res.ok) throw new Error(await res.text())
-      const newItem = mapId(await res.json())
-      SETTERS[type](p => { const list = [newItem, ...p]; lsSave(type, list); return list })
-      return newItem
-    } catch {
-      // Fallback: save to localStorage
-      const newItem = { ...item, id: makeLocalId(), _local: true }
-      SETTERS[type](p => { const list = [newItem, ...p]; lsSave(type, list); return list })
-      return newItem
+    } catch (networkErr) {
+      const msg = networkErr?.name === 'TimeoutError' || networkErr?.name === 'AbortError'
+        ? 'Backend chưa khởi động hoặc đang ngủ — thử lại sau 30 giây'
+        : 'Không kết nối được backend: ' + (networkErr?.message || networkErr)
+      throw new Error(msg)
     }
+    if (!res.ok) {
+      const raw = await res.text().catch(() => '')
+      let msg
+      try { msg = JSON.parse(raw)?.error || raw } catch { msg = raw }
+      throw new Error(`Lỗi ${res.status}: ${msg}`)
+    }
+    const newItem = mapId(await res.json())
+    SETTERS[type](p => { const list = [newItem, ...p]; lsSave(type, list); return list })
+    return newItem
   }
 
   const updateItem = async (type, id, data) => {
     const ep = ENDPOINTS[type]
     if (!ep) throw new Error(`Unknown type: ${type}`)
+    let res
     try {
-      const res = await fetch(`${API}/api/${ep}/${id}`, {
+      res = await fetch(`${API}/api/${ep}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(10000),
       })
-      if (!res.ok) throw new Error(await res.text())
-      const updated = mapId(await res.json())
-      SETTERS[type](list => { const next = list.map(i => i.id === id ? updated : i); lsSave(type, next); return next })
-      return updated
-    } catch {
-      const updated = { ...data, id }
-      SETTERS[type](list => { const next = list.map(i => i.id === id ? { ...i, ...data } : i); lsSave(type, next); return next })
-      lsUpdate(type, id, data)
-      return updated
+    } catch (networkErr) {
+      const msg = networkErr?.name === 'TimeoutError' || networkErr?.name === 'AbortError'
+        ? 'Backend chưa khởi động hoặc đang ngủ — thử lại sau 30 giây'
+        : 'Không kết nối được backend: ' + (networkErr?.message || networkErr)
+      throw new Error(msg)
     }
+    if (!res.ok) {
+      const raw = await res.text().catch(() => '')
+      let msg
+      try { msg = JSON.parse(raw)?.error || raw } catch { msg = raw }
+      throw new Error(`Lỗi ${res.status}: ${msg}`)
+    }
+    const updated = mapId(await res.json())
+    SETTERS[type](list => { const next = list.map(i => i.id === id ? updated : i); lsSave(type, next); return next })
+    return updated
   }
 
   const deleteItem = async (type, id) => {
