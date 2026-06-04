@@ -1196,6 +1196,21 @@ select option {
    background: linear-gradient(180deg, rgba(15, 23, 42, 0), rgba(15, 23, 42, .82));
 }
 
+.farmer-film-nature-badge {
+   position: absolute;
+   top: 7px;
+   right: 8px;
+   background: rgba(255, 255, 255, 0.88);
+   border-radius: 50%;
+   width: 26px;
+   height: 26px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 14px;
+   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
 @keyframes farmer-film-scroll {
    from {
       transform: translateX(0);
@@ -10257,6 +10272,11 @@ select option {
    color: #fff;
 }
 
+.pp-cert-btn-preview {
+   background: linear-gradient(135deg, #065f46, #059669);
+   color: #fff;
+}
+
 @media (max-width: 860px) {
    .pp-kpi-row {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -10264,10 +10284,11 @@ select option {
 
    .pp-cert-actions {
       width: 100%;
+      flex-direction: column;
    }
 
    .pp-cert-actions .pp-cert-btn {
-      flex: 1;
+      width: 100%;
       justify-content: center;
    }
 }
@@ -10776,6 +10797,7 @@ select option {
       grid-template-columns: 1fr;
    }
 }
+
 /* ══════════════════════════════════════════════════════
    WORKSHOP PAGE
    ══════════════════════════════════════════════════════ */
@@ -10791,8 +10813,8 @@ select option {
    content: '';
    position: absolute;
    inset: 0;
-   background-image: radial-gradient(circle at 20% 50%, rgba(110,231,183,0.08) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 20%, rgba(52,211,153,0.06) 0%, transparent 40%);
+   background-image: radial-gradient(circle at 20% 50%, rgba(110, 231, 183, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(52, 211, 153, 0.06) 0%, transparent 40%);
 }
 
 .ws-hero-content {
@@ -10802,12 +10824,12 @@ select option {
 
 .ws-hero-tag {
    display: inline-block;
-   background: rgba(255,255,255,0.12);
-   border: 1px solid rgba(255,255,255,0.2);
+   background: rgba(255, 255, 255, 0.12);
+   border: 1px solid rgba(255, 255, 255, 0.2);
    border-radius: 20px;
    padding: 5px 16px;
    font-size: 13px;
-   color: rgba(255,255,255,0.9);
+   color: rgba(255, 255, 255, 0.9);
    margin-bottom: 20px;
    letter-spacing: 0.3px;
 }
@@ -10826,7 +10848,7 @@ select option {
 
 .ws-hero-sub {
    font-size: 17px;
-   color: rgba(255,255,255,0.78);
+   color: rgba(255, 255, 255, 0.78);
    max-width: 560px;
    line-height: 1.65;
    margin: 0 0 30px;
@@ -10872,7 +10894,9 @@ select option {
    text-decoration: none;
 }
 
-.ws-stamp-link:hover { text-decoration: underline; }
+.ws-stamp-link:hover {
+   text-decoration: underline;
+}
 
 /* Filters */
 .ws-filters {
@@ -10918,7 +10942,7 @@ select option {
    background: #ffffff;
    border-radius: 16px;
    overflow: hidden;
-   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
    border: 1px solid #f1f5f9;
    display: flex;
    flex-direction: column;
@@ -10927,7 +10951,7 @@ select option {
 
 .ws-card:hover {
    transform: translateY(-3px);
-   box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .ws-card-img {
@@ -10961,9 +10985,20 @@ select option {
    border-radius: 20px;
 }
 
-.ws-status-soon { background: #dcfce7; color: #166534; }
-.ws-status-live { background: #fff7ed; color: #c2410c; }
-.ws-status-done { background: #f1f5f9; color: #64748b; }
+.ws-status-soon {
+   background: #dcfce7;
+   color: #166534;
+}
+
+.ws-status-live {
+   background: #fff7ed;
+   color: #c2410c;
+}
+
+.ws-status-done {
+   background: #f1f5f9;
+   color: #64748b;
+}
 
 .ws-card-body {
    padding: 16px 18px 18px;
@@ -11028,7 +11063,9 @@ select option {
    color: #475569;
 }
 
-.ws-free { color: #059669; }
+.ws-free {
+   color: #059669;
+}
 
 .ws-empty {
    text-align: center;
@@ -11038,8 +11075,20 @@ select option {
 }
 
 @media (max-width: 600px) {
-   .ws-hero { padding: 56px 0 44px; }
-   .ws-hero-h1 { font-size: 2.2rem; }
-   .ws-stamp-note { flex-direction: column; gap: 8px; }
-   .ws-grid { grid-template-columns: 1fr; }
+   .ws-hero {
+      padding: 56px 0 44px;
+   }
+
+   .ws-hero-h1 {
+      font-size: 2.2rem;
+   }
+
+   .ws-stamp-note {
+      flex-direction: column;
+      gap: 8px;
+   }
+
+   .ws-grid {
+      grid-template-columns: 1fr;
+   }
 }

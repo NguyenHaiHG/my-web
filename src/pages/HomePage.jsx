@@ -1,7 +1,25 @@
 import { useNavigate } from 'react-router-dom'
+import { useMemo } from 'react'
 import { ArrowRight, Heart, Leaf } from 'lucide-react'
 import { useLang } from '../context/LanguageContext'
 import { useData } from '../context/DataContext'
+
+function loadNaturePhotos() {
+    try {
+        const raw = localStorage.getItem('nature_memories_v1')
+        if (!raw) return []
+        const entries = JSON.parse(raw)
+        return entries
+            .filter(e => e.img)
+            .map(e => ({
+                url: e.img,
+                caption: e.name
+                    ? `${e.name}${e.location ? ' · ' + e.location : ''}`
+                    : 'Quan sát thiên nhiên',
+                isNature: true,
+            }))
+    } catch { return [] }
+}
 
 const QUICK_CARDS = [
     {
@@ -44,27 +62,35 @@ export default function HomePage() {
     const farmerImages = (communityImages.length ? communityImages : FARMER_FALLBACK_IMAGES)
         .map((img, i) => {
             if (typeof img === 'string') {
-                return {
-                    url: img,
-                    caption: `Khoảnh khắc nông dân vùng cao ${i + 1}`,
-                }
+                return { url: img, caption: `Khoảnh khắc nông dân vùng cao ${i + 1}` }
             }
-            return {
-                url: img.url,
-                caption: img.caption || `Khoảnh khắc nông dân vùng cao ${i + 1}`,
-            }
+            return { url: img.url, caption: img.caption || `Khoảnh khắc nông dân vùng cao ${i + 1}` }
         })
         .filter(img => Boolean(img.url))
 
-    const filmStripImages = [...farmerImages, ...farmerImages]
+    const naturePhotos = useMemo(() => loadNaturePhotos(), [])
+
+    // Interleave: farmer photos + nature memory photos together
+    const allImages = useMemo(() => {
+        if (!naturePhotos.length) return farmerImages
+        const merged = []
+        const maxLen = Math.max(farmerImages.length, naturePhotos.length)
+        for (let i = 0; i < maxLen; i++) {
+            if (i < farmerImages.length) merged.push(farmerImages[i])
+            if (i < naturePhotos.length) merged.push(naturePhotos[i])
+        }
+        return merged
+    }, [farmerImages, naturePhotos])
+
+    const filmStripImages = [...allImages, ...allImages]
 
     return (
         <div className="page-enter">
-            <section className="farmer-film" aria-label="Ảnh người nông dân vùng cao">
+            <section className="farmer-film" aria-label="Ảnh cộng đồng & thiên nhiên">
                 <div className="container">
                     <div className="farmer-film-head">
                         <strong>Nông dân vùng cao Hà Giang</strong>
-                        <p>Ảnh do admin cập nhật, hiển thị dạng cuộn phim ở đầu trang.</p>
+                        <p>Ảnh nông dân & nhật ký thiên nhiên của học sinh.</p>
                     </div>
                 </div>
                 <div className="farmer-film-window">
@@ -72,6 +98,9 @@ export default function HomePage() {
                         {filmStripImages.map((img, i) => (
                             <figure key={`${img.url}-${i}`} className="farmer-film-frame">
                                 <img src={img.url} alt={img.caption} loading="lazy" />
+                                {img.isNature && (
+                                    <span className="farmer-film-nature-badge">🌿</span>
+                                )}
                                 <figcaption>{img.caption}</figcaption>
                             </figure>
                         ))}
