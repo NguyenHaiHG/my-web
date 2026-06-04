@@ -20,6 +20,14 @@ const QUICK_CARDS = [
         cta: 'Xem Workshop →',
         highlight: true,
     },
+    {
+        emoji: '🌿',
+        title: 'Nhật Ký Thiên Nhiên',
+        desc: 'Ghi chép quan sát cây cối, côn trùng, chim chóc — tỉ mỉ như người Nhật. Lưu ảnh, ghi chú, thời tiết.',
+        path: '/nhat-ky-thien-nhien',
+        cta: 'Mở nhật ký →',
+        highlight: false,
+    },
 ]
 
 const FARMER_FALLBACK_IMAGES = [

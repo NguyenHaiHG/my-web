@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
 import {
   User, LogOut, Menu, X, MessageCircle, House, BookOpen, Phone,
-  Upload, Plus, LayoutDashboard, WifiOff, Save, GraduationCap
+  Upload, Plus, LayoutDashboard, WifiOff, Save, GraduationCap, Map, Leaf
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider, useData } from './context/DataContext'
@@ -15,7 +15,9 @@ import HomePage from './pages/HomePage'
 import ContactPage from './pages/ContactPage'
 import DashboardPage from './pages/DashboardPage'
 import WorkshopPage from './pages/WorkshopPage'
+import HaGiangLoopPage from './pages/HaGiangLoopPage'
 import VerifyCertificatePage from './pages/VerifyCertificatePage'
+import NatureMemoryPage from './pages/NatureMemoryPage'
 import './App.css'
 
 /* ──────────────────────────────────────────────────────
@@ -109,6 +111,8 @@ function AdminModal() {
       const payload = { ...form, tag: type }
       if (!payload.date) payload.date = new Date().toLocaleDateString('vi-VN')
       if (type === 'workshop') { payload.status = 'upcoming' }
+      // Strip empty strings so Mongoose uses model defaults (avoids enum validation errors)
+      Object.keys(payload).forEach(k => { if (payload[k] === '') delete payload[k] })
       await addItem(type, payload)
       setAdminModal(null)
       setForm({ title: '', content: '', img: '', author: '', desc: '', price: '', time: '', date: '', category: '', capacity: '', instructor: '', isFree: true })
@@ -484,7 +488,9 @@ function MobileAppDock() {
   const items = [
     { to: '/', label: 'Home', icon: <House size={18} />, match: p => p === '/' },
     { to: '/workshop', label: 'Workshop', icon: <GraduationCap size={18} />, match: p => p === '/workshop' },
+    { to: '/ha-giang-loop', label: 'Loop Tour', icon: <Map size={18} />, match: p => p === '/ha-giang-loop' },
     { to: '/ho-chieu', label: 'Passport', icon: <BookOpen size={18} />, match: p => p === '/ho-chieu' },
+    { to: '/nhat-ky-thien-nhien', label: 'Thiên Nhiên', icon: <Leaf size={18} />, match: p => p === '/nhat-ky-thien-nhien' },
     { to: '/lien-he', label: 'Liên hệ', icon: <Phone size={18} />, match: p => p === '/lien-he' },
   ]
 
@@ -523,9 +529,11 @@ function AppInner() {
           <Route path="/" element={<HomePage />} />
           <Route path="/ho-chieu" element={<PassportPage />} />
           <Route path="/workshop" element={<WorkshopPage />} />
+          <Route path="/ha-giang-loop" element={<HaGiangLoopPage />} />
           <Route path="/lien-he" element={<ContactPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/verify/:certCode" element={<VerifyCertificatePage />} />
+          <Route path="/nhat-ky-thien-nhien" element={<NatureMemoryPage />} />
         </Routes>
       </main>
       <MobileAppDock />
@@ -534,7 +542,9 @@ function AppInner() {
           <p>🌿 <strong>HTX Trường Hải</strong> – Tổ 5 Quang Trung · Phường Hà Giang 2 · Tuyên Quang</p>
           <div className="footer-links">
             <a href="/workshop">Workshop</a>
+            <a href="/ha-giang-loop">Loop Tour</a>
             <a href="/ho-chieu">Hộ chiếu</a>
+            <a href="/nhat-ky-thien-nhien">Nhật Ký TN</a>
             <a href="/lien-he">Liên hệ</a>
           </div>
           <p>📞 <a href="tel:0385737705">0385.737.705</a> &nbsp;·&nbsp; <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer">💬 WhatsApp</a> &nbsp;·&nbsp; {t('footer_copy')}</p>
