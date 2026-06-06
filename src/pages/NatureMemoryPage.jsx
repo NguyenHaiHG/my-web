@@ -102,9 +102,10 @@ function EmptyState({ onAdd }) {
                 <span className="nm-empty-leaf nm-leaf3">🌸</span>
             </div>
             <h3>Nhật ký thiên nhiên của bạn trống</h3>
-            <p>Hãy bắt đầu ghi chép quan sát đầu tiên — cây cối, côn trùng, chim chóc xung quanh bạn.</p>
+            <p style={{ marginBottom: 4 }}>Hãy bắt đầu ghi chép quan sát đầu tiên — cây cối, côn trùng, chim chóc xung quanh bạn.</p>
+            <p style={{ fontSize: 13, color: '#94a3b8', fontStyle: 'italic', marginBottom: 16 }}>Start recording your first nature observation — plants, insects, birds around you.</p>
             <button className="nm-btn-primary" onClick={onAdd}>
-                <Plus size={16} /> Ghi chép đầu tiên
+                <Plus size={16} /> Ghi chép đầu tiên &nbsp;<span style={{ opacity: .7, fontWeight: 400 }}>/ First note</span>
             </button>
         </div>
     )
@@ -141,13 +142,16 @@ function EntryCard({ entry, onClick }) {
                         <span className="nm-date-day">{day}</span>
                         <span className="nm-date-mon">{mon} {yr}</span>
                     </span>
-                    {weather && <span className="nm-card-weather" title={weather.label}>{weather.emoji}</span>}
+                    {weather && <span className="nm-card-weather" title={`${weather.label} / ${weather.labelEn}`}>{weather.emoji}</span>}
                     {entry.mood && <span className="nm-card-mood">{entry.mood}</span>}
                 </div>
                 <h3 className="nm-card-name">{entry.name || '(Chưa đặt tên)'}</h3>
                 {entry.scientificName && (
                     <p className="nm-card-sci">{entry.scientificName}</p>
                 )}
+                <p className="nm-card-cat-label" style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0' }}>
+                    {cat.emoji} {cat.label} / {cat.labelEn}
+                </p>
                 {entry.notes && (
                     <p className="nm-card-notes">{entry.notes}</p>
                 )}
@@ -189,8 +193,8 @@ function DetailModal({ entry, onClose, onDelete }) {
 
                 <div className="nm-detail-body">
                     <div className="nm-detail-badges">
-                        {weather && <span className="nm-badge">{weather.emoji} {weather.label}</span>}
-                        {season && <span className="nm-badge">{season.emoji} {season.label}</span>}
+                        {weather && <span className="nm-badge">{weather.emoji} {weather.label} <span style={{ opacity: .6, fontSize: 11 }}>/ {weather.labelEn}</span></span>}
+                        {season && <span className="nm-badge">{season.emoji} {season.label} <span style={{ opacity: .6, fontSize: 11 }}>/ {season.labelEn}</span></span>}
                         {entry.mood && <span className="nm-badge nm-badge-mood">{entry.mood}</span>}
                     </div>
 
@@ -263,7 +267,7 @@ function AddModal({ onClose, onSave }) {
             <div className="nm-add-modal" onClick={e => e.stopPropagation()}>
                 <div className="nm-add-header">
                     <button className="nm-icon-btn" onClick={onClose}><X size={20} /></button>
-                    <h2>✏️ Ghi chép mới</h2>
+                    <h2>✏️ Ghi chép mới <span style={{ fontWeight: 400, fontSize: 14, opacity: .6 }}>/ New Entry</span></h2>
                     <div style={{ width: 36 }} />
                 </div>
 
@@ -274,11 +278,11 @@ function AddModal({ onClose, onSave }) {
                         {preview
                             ? <div className="nm-photo-preview">
                                 <img src={preview} alt="preview" />
-                                <div className="nm-photo-overlay"><Plus size={18} /> Đổi ảnh</div>
+                                <div className="nm-photo-overlay"><Plus size={18} /> Đổi ảnh / Change photo</div>
                             </div>
                             : <div className="nm-photo-placeholder">
                                 <span className="nm-photo-icon">📷</span>
-                                <span>Chụp / chọn ảnh</span>
+                                <span>Chụp / chọn ảnh <span style={{ opacity: .6 }}>/ Take or upload photo</span></span>
                                 <small>Tuỳ chọn — PNG, JPG, WEBP</small>
                             </div>
                         }
@@ -287,13 +291,13 @@ function AddModal({ onClose, onSave }) {
 
                     {/* CATEGORY */}
                     <div className="nm-field">
-                        <label className="nm-label">Loài</label>
+                        <label className="nm-label">Loài <span style={{ color: '#94a3b8', fontWeight: 400 }}>/ Category</span></label>
                         <div className="nm-cat-pills">
                             {CATEGORIES.slice(1).map(c => (
                                 <button key={c.id} type="button"
                                     className={`nm-pill${form.category === c.id ? ' nm-pill-active' : ''}`}
                                     onClick={() => set('category', c.id)}>
-                                    {c.emoji} {c.label}
+                                    {c.emoji} {c.label}<span style={{ fontSize: 10, opacity: .65, marginLeft: 2 }}>/{c.labelEn}</span>
                                 </button>
                             ))}
                         </div>
@@ -301,47 +305,47 @@ function AddModal({ onClose, onSave }) {
 
                     {/* NAME */}
                     <div className="nm-field">
-                        <label className="nm-label">Tên<span className="nm-req"> *</span></label>
+                        <label className="nm-label">Tên <span style={{ color: '#94a3b8', fontWeight: 400 }}>/ Name</span><span className="nm-req"> *</span></label>
                         <input className="nm-input" placeholder="VD: Cây dương xỉ / Bướm vàng / Chào mào"
                             value={form.name} onChange={e => set('name', e.target.value)} required autoFocus />
                     </div>
 
                     {/* SCIENTIFIC NAME */}
                     <div className="nm-field">
-                        <label className="nm-label">Tên khoa học <span className="nm-opt">(tuỳ chọn)</span></label>
+                        <label className="nm-label">Tên khoa học <span style={{ color: '#94a3b8', fontWeight: 400 }}>/ Scientific name</span> <span className="nm-opt">(tuỳ chọn)</span></label>
                         <input className="nm-input nm-input-sci" placeholder="VD: Nephrolepis exaltata"
                             value={form.scientificName} onChange={e => set('scientificName', e.target.value)} />
                     </div>
 
                     {/* NOTES */}
                     <div className="nm-field">
-                        <label className="nm-label">Quan sát / Ghi chú</label>
+                        <label className="nm-label">Quan sát / Ghi chú <span style={{ color: '#94a3b8', fontWeight: 400 }}>/ Observations & notes</span></label>
                         <textarea className="nm-input nm-textarea"
-                            placeholder="Mô tả đặc điểm, hành vi, màu sắc, kích thước… ghi như người Nhật — chi tiết và tỉ mỉ!"
+                            placeholder="Mô tả đặc điểm, hành vi, màu sắc, kích thước… / Describe features, behaviour, colour, size…"
                             value={form.notes} onChange={e => set('notes', e.target.value)} rows={4} />
                     </div>
 
                     {/* WEATHER + SEASON row */}
                     <div className="nm-row">
                         <div className="nm-field nm-field-half">
-                            <label className="nm-label">Thời tiết</label>
+                            <label className="nm-label">Thời tiết <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 11 }}>/ Weather</span></label>
                             <div className="nm-toggle-row">
                                 {WEATHERS.map(w => (
                                     <button key={w.id} type="button"
                                         className={`nm-toggle${form.weather === w.id ? ' nm-toggle-active' : ''}`}
-                                        title={w.label} onClick={() => set('weather', w.id)}>
+                                        title={`${w.label} / ${w.labelEn}`} onClick={() => set('weather', w.id)}>
                                         {w.emoji}
                                     </button>
                                 ))}
                             </div>
                         </div>
                         <div className="nm-field nm-field-half">
-                            <label className="nm-label">Mùa</label>
+                            <label className="nm-label">Mùa <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 11 }}>/ Season</span></label>
                             <div className="nm-toggle-row">
                                 {SEASONS.map(s => (
                                     <button key={s.id} type="button"
                                         className={`nm-toggle${form.season === s.id ? ' nm-toggle-active' : ''}`}
-                                        title={s.label} onClick={() => set('season', s.id)}>
+                                        title={`${s.label} / ${s.labelEn}`} onClick={() => set('season', s.id)}>
                                         {s.emoji}
                                     </button>
                                 ))}
@@ -352,12 +356,12 @@ function AddModal({ onClose, onSave }) {
                     {/* LOCATION + TIME */}
                     <div className="nm-row">
                         <div className="nm-field nm-field-half">
-                            <label className="nm-label">Địa điểm</label>
-                            <input className="nm-input" placeholder="VD: Sân trường, Vườn nhà…"
+                            <label className="nm-label">Địa điểm <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 11 }}>/ Location</span></label>
+                            <input className="nm-input" placeholder="VD: Sân trường / School garden…"
                                 value={form.location} onChange={e => set('location', e.target.value)} />
                         </div>
                         <div className="nm-field nm-field-half">
-                            <label className="nm-label">Giờ</label>
+                            <label className="nm-label">Giờ <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 11 }}>/ Time</span></label>
                             <input className="nm-input" type="time" value={form.time}
                                 onChange={e => set('time', e.target.value)} />
                         </div>
@@ -365,7 +369,7 @@ function AddModal({ onClose, onSave }) {
 
                     {/* MOOD */}
                     <div className="nm-field">
-                        <label className="nm-label">Cảm xúc</label>
+                        <label className="nm-label">Cảm xúc <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 11 }}>/ Mood</span></label>
                         <div className="nm-toggle-row">
                             {MOODS.map(m => (
                                 <button key={m} type="button"
@@ -378,7 +382,7 @@ function AddModal({ onClose, onSave }) {
                     </div>
 
                     <button type="submit" className="nm-btn-primary nm-btn-full" disabled={saving}>
-                        {saving ? '⏳ Đang lưu…' : '📝 Lưu ghi chép'}
+                        {saving ? '⏳ Đang lưu…' : '📝 Lưu ghi chép  /  Save entry'}
                     </button>
                 </form>
             </div>
@@ -440,15 +444,18 @@ export default function NatureMemoryPage() {
                         <Leaf size={14} /> 自然ノート
                     </div>
                     <h1 className="nm-hero-title">Nhật Ký Thiên Nhiên</h1>
-                    <p className="nm-hero-sub">
+                    <p className="nm-hero-sub" style={{ marginBottom: 2 }}>
                         Ghi chép quan sát cây cối, sinh vật — tỉ mỉ như người Nhật
+                    </p>
+                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', fontStyle: 'italic', marginBottom: 8 }}>
+                        Record plants &amp; creatures around you — like a Japanese nature journal
                     </p>
                     {stats.total > 0 && (
                         <div className="nm-hero-stats">
-                            <span>📖 {stats.total} ghi chép</span>
-                            {stats.plants > 0 && <span>🌱 {stats.plants} cây</span>}
-                            {stats.insects > 0 && <span>🦋 {stats.insects} côn trùng</span>}
-                            {stats.birds > 0 && <span>🐦 {stats.birds} chim</span>}
+                            <span>📖 {stats.total} ghi chép / entries</span>
+                            {stats.plants > 0 && <span>🌱 {stats.plants} cây / plants</span>}
+                            {stats.insects > 0 && <span>🦋 {stats.insects} côn trùng / insects</span>}
+                            {stats.birds > 0 && <span>🐦 {stats.birds} chim / birds</span>}
                         </div>
                     )}
                 </div>
@@ -461,17 +468,17 @@ export default function NatureMemoryPage() {
                         <button key={c.id}
                             className={`nm-filter-pill${filterCat === c.id ? ' nm-filter-active' : ''}`}
                             onClick={() => setFilterCat(c.id)}>
-                            {c.emoji} <span className="nm-filter-label">{c.label}</span>
+                            {c.emoji} <span className="nm-filter-label">{c.label}<span style={{ fontSize: 10, opacity: .6 }}>/{c.labelEn}</span></span>
                         </button>
                     ))}
                 </div>
                 <div className="nm-toolbar-right">
                     <button className="nm-icon-btn nm-search-toggle"
-                        onClick={() => setShowSearch(s => !s)} title="Tìm kiếm">
+                        onClick={() => setShowSearch(s => !s)} title="Tìm kiếm / Search">
                         <Search size={18} />
                     </button>
                     <button className="nm-btn-add" onClick={() => setShowAdd(true)}>
-                        <Plus size={18} /> Ghi chép
+                        <Plus size={18} /> Ghi chép <span style={{ opacity: .7, fontWeight: 400, fontSize: 12 }}>/ New</span>
                     </button>
                 </div>
             </div>
@@ -480,7 +487,7 @@ export default function NatureMemoryPage() {
             {showSearch && (
                 <div className="nm-searchbar">
                     <Search size={16} className="nm-search-icon" />
-                    <input className="nm-search-input" placeholder="Tìm tên, ghi chú, địa điểm…"
+                    <input className="nm-search-input" placeholder="Tìm tên, ghi chú, địa điểm… / Search name, notes, location…"
                         value={search} onChange={e => setSearch(e.target.value)} autoFocus />
                     {search && (
                         <button className="nm-icon-btn" onClick={() => setSearch('')}><X size={16} /></button>
@@ -494,9 +501,9 @@ export default function NatureMemoryPage() {
                     <EmptyState onAdd={() => setShowAdd(true)} />
                 ) : filtered.length === 0 ? (
                     <div className="nm-no-result">
-                        <p>🔍 Không tìm thấy ghi chép nào phù hợp.</p>
+                        <p>🔍 Không tìm thấy ghi chép nào. / No matching entries found.</p>
                         <button className="nm-btn-link" onClick={() => { setFilterCat('all'); setSearch('') }}>
-                            Xoá bộ lọc
+                            Xoá bộ lọc / Clear filters
                         </button>
                     </div>
                 ) : (
