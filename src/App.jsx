@@ -401,6 +401,10 @@ function Header() {
               <WifiOff size={13} /> Local
             </span>
           )}
+          <a href="https://zalo.me/0385737705" target="_blank" rel="noreferrer"
+            className="btn-contact-header" title="Liên hệ Zalo">
+            <Phone size={13} /> Liên hệ
+          </a>
           <PassportBtn />
           <button className="lang-toggle" onClick={toggleLang} title={lang === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}>
             {lang === 'vi' ? '🇺🇸 EN' : '🇻🇳 VI'}

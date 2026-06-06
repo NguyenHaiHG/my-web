@@ -392,6 +392,35 @@ img {
    color: #fff
 }
 
+.btn-contact-header {
+   padding: 7px 14px;
+   border-radius: 8px;
+   font-size: 13px;
+   font-weight: 700;
+   background: linear-gradient(135deg, #0ea5e9, #0284c7);
+   color: #fff;
+   text-decoration: none;
+   box-shadow: 0 3px 0 #0369a1;
+   transition: transform .12s;
+   display: inline-flex;
+   align-items: center;
+   gap: 5px;
+   white-space: nowrap;
+}
+
+.btn-contact-header:hover {
+   transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+   .btn-contact-header span:not(svg) {
+      display: none;
+   }
+   .btn-contact-header {
+      padding: 7px 10px;
+   }
+}
+
 .btn-login-nav {
    padding: 8px 18px;
    border-radius: 8px;
@@ -4114,6 +4143,7 @@ select option {
    .ng-hero-content {
       padding: 24px 16px;
    }
+
    .ng-hero-content p {
       font-size: 15px;
       margin-bottom: 22px;
