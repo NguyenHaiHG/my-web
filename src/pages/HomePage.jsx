@@ -125,28 +125,6 @@ export default function HomePage() {
 
     return (
         <div className="page-enter">
-            <section className="farmer-film" aria-label="Ảnh cộng đồng & thiên nhiên">
-                <div className="container">
-                    <div className="farmer-film-head">
-                        <strong>Nông dân vùng cao Hà Giang</strong>
-                        <p>Ảnh nông dân & nhật ký thiên nhiên của học sinh.</p>
-                    </div>
-                </div>
-                <div className="farmer-film-window">
-                    <div className="farmer-film-track">
-                        {filmStripImages.map((img, i) => (
-                            <figure key={`${img.url}-${i}`} className="farmer-film-frame">
-                                <img src={img.url} alt={img.caption} loading="lazy" />
-                                {img.isNature && (
-                                    <span className="farmer-film-nature-badge">🌿</span>
-                                )}
-                                <figcaption>{img.caption}</figcaption>
-                            </figure>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
             <section className="ng-hero" aria-label="Ảnh bìa">
                 <div
                     className="ng-hero-bg"
@@ -308,6 +286,28 @@ export default function HomePage() {
                     </div>
                 </div>
             )}
+
+            <section className="farmer-film" aria-label="Ảnh cộng đồng & thiên nhiên">
+                <div className="container">
+                    <div className="farmer-film-head">
+                        <strong>Nông dân vùng cao Hà Giang</strong>
+                        <p>Ảnh nông dân & nhật ký thiên nhiên của học sinh.</p>
+                    </div>
+                </div>
+                <div className="farmer-film-window">
+                    <div className="farmer-film-track">
+                        {filmStripImages.map((img, i) => (
+                            <figure key={`${img.url}-${i}`} className="farmer-film-frame">
+                                <img src={img.url} alt={img.caption} loading="lazy" />
+                                {img.isNature && (
+                                    <span className="farmer-film-nature-badge">🌿</span>
+                                )}
+                                <figcaption>{img.caption}</figcaption>
+                            </figure>
+                        ))}
+                    </div>
+                </div>
+            </section>
 
             <section className="container py-section" style={{ marginTop: 8 }}>
                 <div className="section-header-center" style={{ marginBottom: 16 }}>
