@@ -146,6 +146,11 @@
    animation: fadeInOut 3s;
 }
 
+@keyframes sos-pulse {
+  0%, 100% { box-shadow: 0 4px 18px rgba(220,38,38,0.55), 0 0 0 0 rgba(220,38,38,0.5); }
+  50% { box-shadow: 0 4px 18px rgba(220,38,38,0.55), 0 0 0 10px rgba(220,38,38,0); }
+}
+
 @keyframes fadeInOut {
    0% {
       opacity: 0;

@@ -482,6 +482,77 @@ function FloatingContact() {
   )
 }
 
+function SOSButton() {
+  const [open, setOpen] = useState(false)
+  const contacts = [
+    { label: '🚨 Công an', number: '113', desc: 'Police / Cảnh sát' },
+    { label: '🚑 Cấp cứu', number: '115', desc: 'Ambulance / Y tế' },
+    { label: '🏠 HTX Trường Hải', number: '0385737705', desc: 'Hỗ trợ phụ nữ & du khách' },
+    { label: '📞 Hỗ trợ khác', number: '0832311689', desc: 'Support line 2' },
+  ]
+  return (
+    <>
+      {open && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)',
+          zIndex: 9998, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start',
+          padding: '0 0 90px 16px',
+        }} onClick={() => setOpen(false)}>
+          <div style={{
+            background: '#fff', borderRadius: 18, padding: 20, minWidth: 270,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <span style={{ fontSize: 22 }}>🆘</span>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 16, color: '#dc2626' }}>Hỗ trợ khẩn cấp</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontStyle: 'italic' }}>Emergency support for women & travellers</div>
+              </div>
+            </div>
+            {contacts.map(c => (
+              <a key={c.number} href={`tel:${c.number}`}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '10px 14px', borderRadius: 12, marginBottom: 8,
+                  background: '#fef2f2', border: '1.5px solid #fecaca',
+                  textDecoration: 'none', color: '#0f172a',
+                  transition: 'background 0.15s',
+                }}
+                onClick={() => setOpen(false)}>
+                <span style={{ fontSize: 22, lineHeight: 1 }}>{c.label.split(' ')[0]}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>{c.label.slice(c.label.indexOf(' ') + 1)}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{c.desc}</div>
+                </div>
+                <span style={{ fontWeight: 800, fontSize: 15, color: '#dc2626', letterSpacing: 0.5 }}>{c.number}</span>
+              </a>
+            ))}
+            <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', margin: '8px 0 0', fontStyle: 'italic' }}>
+              Bạn không đơn độc — chúng tôi luôn ở đây hỗ trợ.<br />You are not alone — we are here to help.
+            </p>
+          </div>
+        </div>
+      )}
+      <button
+        onClick={() => setOpen(o => !o)}
+        aria-label="SOS khẩn cấp"
+        style={{
+          position: 'fixed', bottom: 90, left: 16, zIndex: 9997,
+          width: 52, height: 52, borderRadius: '50%',
+          background: open ? '#dc2626' : 'linear-gradient(135deg,#dc2626,#991b1b)',
+          color: '#fff', border: '3px solid #fff',
+          boxShadow: '0 4px 18px rgba(220,38,38,0.55)',
+          cursor: 'pointer', fontWeight: 900, fontSize: 13, letterSpacing: 0.5,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          animation: open ? 'none' : 'sos-pulse 2s infinite',
+        }}
+      >
+        {open ? <X size={20} /> : 'SOS'}
+      </button>
+    </>
+  )
+}
+
 function MobileAppDock() {
   const { pathname } = useLocation()
   const [showMore, setShowMore] = useState(false)
@@ -551,6 +622,7 @@ function AppInner() {
       {adminModal && <AdminModal />}
       {editItem && <EditModal />}
       <FloatingContact />
+      <SOSButton />
       <Header />
       <main className="app-main">
         <Routes>
