@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
 import {
   User, LogOut, Menu, X, MessageCircle, House, BookOpen, Phone,
-  Upload, Plus, LayoutDashboard, WifiOff, Save, GraduationCap, Map, Leaf
+  Upload, Plus, LayoutDashboard, WifiOff, Save, GraduationCap, Map, Leaf, MoreHorizontal
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider, useData } from './context/DataContext'
@@ -484,31 +484,57 @@ function FloatingContact() {
 
 function MobileAppDock() {
   const { pathname } = useLocation()
+  const [showMore, setShowMore] = useState(false)
   if (pathname === '/dashboard') return null
 
-  const items = [
+  const mainItems = [
     { to: '/', label: 'Home', icon: <House size={18} />, match: p => p === '/' },
     { to: '/workshop', label: 'Workshop', icon: <GraduationCap size={18} />, match: p => p === '/workshop' },
     { to: '/ha-giang-loop', label: 'Loop Tour', icon: <Map size={18} />, match: p => p === '/ha-giang-loop' },
     { to: '/ho-chieu', label: 'Passport', icon: <BookOpen size={18} />, match: p => p === '/ho-chieu' },
-    { to: '/thu-vien', label: 'Thư viện', icon: <BookOpen size={18} />, match: p => p === '/thu-vien' },
-    { to: '/nhat-ky-thien-nhien', label: 'TN', icon: <Leaf size={18} />, match: p => p === '/nhat-ky-thien-nhien' },
-    { to: '/lien-he', label: 'Liên hệ', icon: <Phone size={18} />, match: p => p === '/lien-he' },
   ]
 
+  const moreItems = [
+    { to: '/thu-vien', label: 'Thư viện', icon: <BookOpen size={18} /> },
+    { to: '/nhat-ky-thien-nhien', label: 'Nhật Ký TN', icon: <Leaf size={18} /> },
+    { to: '/lien-he', label: 'Liên hệ', icon: <Phone size={18} /> },
+  ]
+
+  const isMoreActive = moreItems.some(i => i.to === pathname)
+
   return (
-    <nav className="app-dock" aria-label="App navigation">
-      {items.map(item => (
-        <Link
-          key={item.to}
-          to={item.to}
-          className={`app-dock-item ${item.match(pathname) ? 'is-active' : ''}`}
+    <>
+      {showMore && (
+        <div className="app-dock-more-menu" onClick={() => setShowMore(false)}>
+          {moreItems.map(item => (
+            <Link key={item.to} to={item.to} className={`app-dock-more-item${pathname === item.to ? ' is-active' : ''}`}
+              onClick={() => setShowMore(false)}>
+              {item.icon} <span>{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+      <nav className="app-dock" aria-label="App navigation">
+        {mainItems.map(item => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className={`app-dock-item ${item.match(pathname) ? 'is-active' : ''}`}
+          >
+            {item.icon}
+            <span>{item.label}</span>
+          </Link>
+        ))}
+        <button
+          className={`app-dock-item${isMoreActive ? ' is-active' : ''}`}
+          onClick={() => setShowMore(s => !s)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
         >
-          {item.icon}
-          <span>{item.label}</span>
-        </Link>
-      ))}
-    </nav>
+          <MoreHorizontal size={18} />
+          <span>Thêm</span>
+        </button>
+      </nav>
+    </>
   )
 }
 
