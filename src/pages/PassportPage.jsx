@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { usePassport, STAMP_DEFS, CERT_TYPES, GPS_LANDMARKS } from '../context/PassportContext'
 import { useLang } from '../context/LanguageContext'
-import { Edit2, Check, Download, ArrowLeft, MapPin, RefreshCw, Home, BookOpen, Map, Shield, User, Phone } from 'lucide-react'
+import { Edit2, Check, Download, ArrowLeft, MapPin, RefreshCw, Home, BookOpen, Map, Shield, User, Phone, Eye, X, ZoomIn, ZoomOut } from 'lucide-react'
 import QRCode from 'qrcode'
 
 const MAP_LINK = 'https://maps.app.goo.gl/Fm26ka14eoToFq68A'
@@ -215,10 +215,16 @@ async function buildCertificateCanvas({ certDef, holder, earnedStamps, isBasic =
                 label: stamp.label || stamp.type,
             })
 
-            ctx.fillStyle = '#4a4a4a'; ctx.font = '11px Georgia, serif'
+            ctx.fillStyle = '#4a4a4a'; ctx.font = '11px Georgia, serif'; ctx.textAlign = 'center'
             const lbl = stamp.label || stamp.type
-            const words = lbl.split(' ')
-            words.forEach((w, wi) => ctx.fillText(w, x, y + 64 + wi * 14))
+            const lblWords = lbl.split(' ')
+            if (lblWords.length <= 2) {
+                ctx.fillText(lbl, x, y + 64)
+            } else {
+                const mid = Math.ceil(lblWords.length / 2)
+                ctx.fillText(lblWords.slice(0, mid).join(' '), x, y + 64)
+                ctx.fillText(lblWords.slice(mid).join(' '), x, y + 78)
+            }
         })
     } else {
         ctx.fillStyle = '#94a3b8'
@@ -229,12 +235,11 @@ async function buildCertificateCanvas({ certDef, holder, earnedStamps, isBasic =
     // Footer
     ctx.strokeStyle = '#c8963e'; ctx.lineWidth = 2
     ctx.beginPath(); ctx.moveTo(80, 858); ctx.lineTo(W - 80, 858); ctx.stroke()
-    ctx.fillStyle = '#4a4a4a'; ctx.font = '16px Georgia, serif'; ctx.textAlign = 'left'
-    ctx.fillText(`Ngày cấp: ${new Date().toLocaleDateString('vi-VN')}`, 100, 892)
-    ctx.fillText(`Mã chứng nhận: ${certCode}`, 100, 916)
-    ctx.font = '13px Georgia, serif'
-    ctx.fillStyle = '#64748b'
-    ctx.fillText(`Điểm hộ chiếu: ${passportPoints}`, 100, 938)
+    ctx.fillStyle = '#4a4a4a'; ctx.font = '15px Georgia, serif'; ctx.textAlign = 'left'
+    ctx.fillText(`Ngày cấp: ${new Date().toLocaleDateString('vi-VN')}`, 100, 880)
+    ctx.fillText(`Mã chứng nhận: ${certCode}`, 100, 900)
+    ctx.font = '12px Georgia, serif'; ctx.fillStyle = '#64748b'
+    ctx.fillText(`Điểm hộ chiếu: ${passportPoints}`, 100, 918)
 
     // Competition submission wax-style mark
     ctx.save()
@@ -274,32 +279,98 @@ async function buildCertificateCanvas({ certDef, holder, earnedStamps, isBasic =
             qrImg.onload = resolve
             qrImg.onerror = resolve
         })
-        ctx.drawImage(qrImg, W - 255, 788, 120, 120)
-        ctx.fillStyle = '#334155'
-        ctx.font = '12px Georgia, serif'
-        ctx.textAlign = 'center'
-        ctx.fillText('Quét để xác thực', W - 195, 922)
+        // QR — fits entirely in footer zone (below y=858 line), bottom-right corner
+        ctx.drawImage(qrImg, W - 98, 866, 80, 80)
+        ctx.fillStyle = '#94a3b8'
+        ctx.font = '10px Georgia, serif'
+        ctx.textAlign = 'right'
+        ctx.fillText('Quét để xác thực', W - 18, 958)
     }
 
-    ctx.textAlign = 'right'
-    ctx.fillStyle = '#64748b'
-    ctx.font = '12px Georgia, serif'
-    ctx.fillText('verify: ' + verifyUrl, W - 100, 938)
-
+    // Footer: Center — org block
     ctx.textAlign = 'center'
-    ctx.font = '36px serif'; ctx.fillText('🌸', W / 2, 898)
-    ctx.fillStyle = '#1a3a4a'; ctx.font = 'bold 14px Georgia, serif'
-    ctx.fillText('HTX TRƯỜNG HẢI', W / 2, 922)
-    ctx.fillStyle = '#64748b'; ctx.font = '12px Georgia, serif'
-    ctx.fillText('Tổ 5 Quang Trung · Phường Hà Giang 2 · Tuyên Quang', W / 2, 942)
+    ctx.font = '28px serif'; ctx.fillText('🌸', W / 2, 880)
+    ctx.fillStyle = '#1a3a4a'; ctx.font = 'bold 13px Georgia, serif'
+    ctx.fillText('HTX TRƯỜNG HẢI', W / 2, 900)
+    ctx.fillStyle = '#64748b'; ctx.font = '11px Georgia, serif'
+    ctx.fillText('Tổ 5 Quang Trung · Phường Hà Giang 2 · Tuyên Quang', W / 2, 918)
+
+    // Footer: Signature — right-aligned, left of QR (QR starts at W-98)
     ctx.textAlign = 'right'; ctx.fillStyle = '#4a4a4a'
-    ctx.font = 'italic 16px Georgia, serif'
-    ctx.fillText('Trưởng HTX Trường Hải', W - 100, 892)
-    ctx.font = 'bold 18px Georgia, serif'; ctx.fillStyle = '#1a3a4a'
-    ctx.fillText('Nguyễn Hải HG', W - 100, 916)
+    ctx.font = 'italic 14px Georgia, serif'
+    ctx.fillText('Trưởng HTX Trường Hải', W - 108, 880)
+    ctx.font = 'bold 16px Georgia, serif'; ctx.fillStyle = '#1a3a4a'
+    ctx.fillText('Nguyễn Hải HG', W - 108, 900)
 
     const label = certDef ? certDef.shortTitle || certDef.id : 'Passport'
     return { canvas, label, certCode, verifyUrl }
+}
+
+/* ══════════════════════════════════════════════════════
+   PREVIEW MODAL
+   ══════════════════════════════════════════════════════ */
+function PreviewModal({ imgSrc, title, onClose }) {
+    const [zoom, setZoom] = useState(1)
+    return (
+        <div
+            style={{
+                position: 'fixed', inset: 0, zIndex: 9999,
+                background: 'rgba(0,0,0,0.88)', display: 'flex',
+                flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start',
+                overflow: 'auto', padding: '24px 16px 40px',
+            }}
+            onClick={onClose}
+        >
+            <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 900 }}>
+                {/* Toolbar */}
+                <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    marginBottom: 14, color: '#fff',
+                }}>
+                    <span style={{ fontWeight: 700, fontSize: 15, color: '#fde68a' }}>👁 Xem trước: {title}</span>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <button onClick={() => setZoom(z => Math.max(0.4, z - 0.2))}
+                            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <ZoomOut size={14} /> Thu nhỏ
+                        </button>
+                        <span style={{ color: '#94a3b8', fontSize: 13, minWidth: 40, textAlign: 'center' }}>{Math.round(zoom * 100)}%</span>
+                        <button onClick={() => setZoom(z => Math.min(2, z + 0.2))}
+                            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <ZoomIn size={14} /> Phóng to
+                        </button>
+                        <button onClick={() => setZoom(1)}
+                            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#cbd5e1', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', fontSize: 12 }}>
+                            100%
+                        </button>
+                        <button onClick={onClose}
+                            style={{ background: '#dc2626', border: 'none', color: '#fff', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <X size={14} /> Đóng
+                        </button>
+                    </div>
+                </div>
+
+                {/* Certificate image */}
+                <div style={{ overflow: 'auto', borderRadius: 12 }}>
+                    <img
+                        src={imgSrc}
+                        alt={title}
+                        style={{
+                            width: `${Math.round(zoom * 100)}%`,
+                            maxWidth: '100%',
+                            display: 'block',
+                            borderRadius: 10,
+                            boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
+                            transition: 'width 0.2s',
+                        }}
+                    />
+                </div>
+
+                <p style={{ color: '#94a3b8', fontSize: 12, textAlign: 'center', marginTop: 10 }}>
+                    Nhấn bên ngoài hoặc nút Đóng để thoát • Tải về bằng nút PNG / PDF bên dưới
+                </p>
+            </div>
+        </div>
+    )
 }
 
 async function downloadCertificatePng(opts) {
@@ -727,8 +798,20 @@ function GpsCheckInTab({ passport, addGpsStamp, hasGpsStamp }) {
 /* ══════════════════════════════════════════════════════
    BASIC TAB — 6 original stamps
    ══════════════════════════════════════════════════════ */
-function BasicTab({ passport, hasStamp, handleDownloadBasicPng, handleDownloadBasicPdf }) {
+function BasicTab({ passport, hasStamp, handleDownloadBasicPng, handleDownloadBasicPdf, passportPoints }) {
     const { t, lang } = useLang()
+    const [previewSrc, setPreviewSrc] = useState(null)
+    const [previewing, setPreviewing] = useState(false)
+
+    const handlePreview = async () => {
+        setPreviewing(true)
+        try {
+            const { canvas } = await buildCertificateCanvas({ isBasic: true, holder: passport.holderName || 'Tên của bạn', earnedStamps: passport.stamps, passportPoints })
+            setPreviewSrc(canvas.toDataURL('image/png'))
+        } finally {
+            setPreviewing(false)
+        }
+    }
     const progress = (passport.stamps.length / Object.keys(STAMP_DEFS).length) * 100
     return (
         <div>
@@ -766,6 +849,10 @@ function BasicTab({ passport, hasStamp, handleDownloadBasicPng, handleDownloadBa
                     <p>{passport.stamps.length === 0 ? t('pp_cert_no_stamps') : t('pp_cert_has').replace('{n}', passport.stamps.length)}</p>
                 </div>
                 <div className="pp-cert-actions">
+                    <button className="pp-cert-btn pp-cert-btn-preview"
+                        onClick={handlePreview} disabled={previewing}>
+                        <Eye size={18} /> {previewing ? '⏳' : 'Xem trước'}
+                    </button>
                     <button className={`pp-cert-btn ${passport.stamps.length === 0 ? 'pp-cert-btn-disabled' : ''}`}
                         onClick={handleDownloadBasicPng} disabled={passport.stamps.length === 0 || !passport.holderName}>
                         <Download size={18} /> PNG
@@ -776,6 +863,7 @@ function BasicTab({ passport, hasStamp, handleDownloadBasicPng, handleDownloadBa
                     </button>
                 </div>
             </div>
+            {previewSrc && <PreviewModal imgSrc={previewSrc} title="Chứng nhận Trải nghiệm" onClose={() => setPreviewSrc(null)} />}
         </div>
     )
 }
@@ -794,8 +882,23 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
 
     const [downloading, setDownloading] = useState(false)
     const [downloadingPdf, setDownloadingPdf] = useState(false)
+    const [previewSrc, setPreviewSrc] = useState(null)
+    const [previewing, setPreviewing] = useState(false)
     const [reviewForm, setReviewForm] = useState({ rating: 0, location: '', comment: '' })
     const [reviewSent, setReviewSent] = useState(false)
+
+    const handlePreview = async () => {
+        setPreviewing(true)
+        try {
+            const stamps = Object.entries(certDef.stamps)
+                .filter(([type]) => hasCertStamp(certDef.id, type))
+                .map(([, def]) => def)
+            const { canvas } = await buildCertificateCanvas({ certDef, holder: holderName || 'Tên của bạn', earnedStamps: stamps, passportPoints })
+            setPreviewSrc(canvas.toDataURL('image/png'))
+        } finally {
+            setPreviewing(false)
+        }
+    }
     const reviews = getReviews(certDef.id)
 
     const handleDownloadPng = async () => {
@@ -917,6 +1020,10 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
                     </p>
                 </div>
                 <div className="pp-cert-actions">
+                    <button className="pp-cert-btn pp-cert-btn-preview"
+                        onClick={handlePreview} disabled={previewing}>
+                        <Eye size={18} /> {previewing ? '⏳' : 'Xem trước'}
+                    </button>
                     <button className={`pp-cert-btn ${!canDownload ? 'pp-cert-btn-disabled' : ''}`}
                         onClick={handleDownloadPng} disabled={!canDownload || !holderName}
                         title={!holderName ? t('pp_ct_name_req') : ''}>
@@ -929,6 +1036,7 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
                     </button>
                 </div>
             </div>
+            {previewSrc && <PreviewModal imgSrc={previewSrc} title={certDef.certTitle} onClose={() => setPreviewSrc(null)} />}
 
             {/* ── Reviews section (all cert types) ── */}
             <div className="pp-reviews-section">
@@ -1110,6 +1218,16 @@ export default function PassportPage() {
 
     const totalBasicProgress = (passport.stamps.length / Object.keys(STAMP_DEFS).length) * 100
 
+    const LEVEL_MAP = [
+        { min: 0, max: 49, icon: '🌱', name: 'Tân binh', nameEn: 'Newcomer', color: '#64748b' },
+        { min: 50, max: 149, icon: '🌿', name: 'Lữ khách', nameEn: 'Traveler', color: '#16a34a' },
+        { min: 150, max: 299, icon: '🏔️', name: 'Phượt thủ', nameEn: 'Adventurer', color: '#d97706' },
+        { min: 300, max: 499, icon: '🦅', name: 'Chinh phục', nameEn: 'Explorer', color: '#7c3aed' },
+        { min: 500, max: Infinity, icon: '🏆', name: 'Huyền thoại', nameEn: 'Legend', color: '#c8963e' },
+    ]
+    const currentLevel = LEVEL_MAP.findLast(l => passportPoints >= l.min) || LEVEL_MAP[0]
+    const nextLevel = LEVEL_MAP[LEVEL_MAP.indexOf(currentLevel) + 1]
+
     const TABS = [
         { id: 'basic', icon: '🎖️', label: t('pp_tab_basic') },
         ...Object.values(CERT_TYPES).map(c => ({ id: c.id, icon: c.icon, label: lang === 'en' ? (c.shortTitle_en || c.shortTitle) : c.shortTitle, color: c.color })),
@@ -1218,9 +1336,50 @@ export default function PassportPage() {
                                 <button className="pp-name-edit-btn" onClick={() => setEditingName(true)} title="Sửa tên"><Edit2 size={12} /></button>
                             </div>
                         )}
+
+                        {/* Passport number */}
+                        <div style={{
+                            fontFamily: 'monospace', fontSize: 11, letterSpacing: 2,
+                            color: '#94a3b8', marginBottom: 10, background: '#f8f4ec',
+                            padding: '4px 8px', borderRadius: 6, display: 'inline-block',
+                        }}>
+                            {passportNumber}
+                        </div>
+
+                        {/* Level badge */}
+                        {passport.holderName && (
+                            <div style={{
+                                display: 'flex', alignItems: 'center', gap: 10,
+                                background: `${currentLevel.color}12`,
+                                border: `1.5px solid ${currentLevel.color}40`,
+                                borderRadius: 12, padding: '8px 12px', marginBottom: 12,
+                            }}>
+                                <span style={{ fontSize: 26 }}>{currentLevel.icon}</span>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: 800, fontSize: 14, color: currentLevel.color }}>
+                                        {lang === 'en' ? currentLevel.nameEn : currentLevel.name}
+                                    </div>
+                                    <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                                        {passportPoints} {lang === 'en' ? 'pts' : 'điểm'}
+                                        {nextLevel && ` · còn ${nextLevel.min - passportPoints} → ${lang === 'en' ? nextLevel.nameEn : nextLevel.name}`}
+                                    </div>
+                                </div>
+                                <div style={{
+                                    background: currentLevel.color, color: '#fff',
+                                    borderRadius: 20, padding: '2px 10px', fontSize: 11, fontWeight: 700,
+                                }}>Lv.{LEVEL_MAP.indexOf(currentLevel) + 1}</div>
+                            </div>
+                        )}
+
                         <div className="pp-dp-row"><span>{t('pp_dp_issued')}</span><span>HTX Trường Hải</span></div>
                         <div className="pp-dp-row"><span>{t('pp_dp_created')}</span><span>{new Date(passport.createdAt).toLocaleDateString('vi-VN')}</span></div>
-                        <div className="pp-dp-row"><span>{t('pp_dp_stamps')}</span><span><strong>{passport.stamps.length}</strong> / {Object.keys(STAMP_DEFS).length}</span></div>
+                        <div className="pp-dp-row">
+                            <span>{t('pp_dp_stamps')}</span>
+                            <span>
+                                <strong style={{ color: '#c8963e', fontSize: 15 }}>{passport.stamps.length}</strong>
+                                <span style={{ color: '#94a3b8' }}> / {Object.keys(STAMP_DEFS).length}</span>
+                            </span>
+                        </div>
                         <div className="pp-progress-wrap"><div className="pp-progress-bar" style={{ width: `${totalBasicProgress}%` }} /></div>
                         <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
                             {totalBasicProgress === 100 ? t('pp_progress_done') : `${Math.round(totalBasicProgress)}${t('pp_progress_pct')}`}
@@ -1314,6 +1473,7 @@ export default function PassportPage() {
                                 hasStamp={hasStamp}
                                 handleDownloadBasicPng={handleDownloadBasicPng}
                                 handleDownloadBasicPdf={handleDownloadBasicPdf}
+                                passportPoints={passportPoints}
                             />
                         )}
                         {Object.values(CERT_TYPES).map(certDef =>
