@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { useData } from '../context/DataContext'
 
 const CATEGORY_INFO = {
-    sewing: { icon: '🧵', label: 'May vá' },
-    embroidery: { icon: '🌺', label: 'Thêu thùa' },
-    english: { icon: '📚', label: 'Tiếng Anh' },
-    digital: { icon: '💻', label: 'Kỹ năng số' },
-    cooking: { icon: '🍜', label: 'Nấu ăn bản địa' },
-    other: { icon: '🌿', label: 'Khác' },
+    sewing: { icon: '🧵', label: 'May vá', labelEn: 'Sewing' },
+    embroidery: { icon: '🌺', label: 'Thêu thùa', labelEn: 'Embroidery' },
+    english: { icon: '📚', label: 'Tiếng Anh', labelEn: 'English' },
+    digital: { icon: '💻', label: 'Kỹ năng số', labelEn: 'Digital Skills' },
+    cooking: { icon: '🍜', label: 'Nấu ăn bản địa', labelEn: 'Local Cooking' },
+    other: { icon: '🌿', label: 'Khác', labelEn: 'Other' },
 }
 
 const DEFAULT_WORKSHOPS = [
@@ -77,13 +77,16 @@ export default function WorkshopPage() {
                         Thêu thổ cẩm, nấu ăn bản địa, kỹ năng số — trải nghiệm thực tế
                         do cộng đồng vùng cao tổ chức, miễn phí hoặc chi phí nguyên liệu.
                     </p>
+                    <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic', marginTop: -4, marginBottom: 8 }}>
+                        Embroidery, local cooking, digital skills — real hands-on experiences hosted by the highland community, free or materials cost only.
+                    </p>
                     <div className="ws-hero-btns">
                         <a href="https://zalo.me/0385737705" target="_blank" rel="noreferrer"
                             className="btn3d btn3d-orange">
-                            💬 Đăng ký qua Zalo
+                            💬 Đăng ký qua Zalo / Register
                         </a>
                         <a href="/ho-chieu" className="btn3d btn3d-outline-white">
-                            🎖️ Nhận tem Hộ chiếu
+                            🎖️ Nhận tem Hộ chiếu / Passport Stamp
                         </a>
                     </div>
                 </div>
@@ -93,8 +96,11 @@ export default function WorkshopPage() {
             <div className="container">
                 <div className="ws-stamp-note">
                     <span className="ws-stamp-icon">🎖️</span>
-                    <p>Tham gia workshop sẽ được <strong>đóng dấu Hộ chiếu Hà Giang</strong> và tích điểm trải nghiệm cộng đồng HTX Trường Hải.</p>
-                    <a href="/ho-chieu" className="ws-stamp-link">Xem Hộ chiếu →</a>
+                    <div>
+                        <p style={{ margin: 0 }}>Tham gia workshop sẽ được <strong>đóng dấu Hộ chiếu Hà Giang</strong> và tích điểm trải nghiệm cộng đồng HTX Trường Hải.</p>
+                        <p style={{ margin: '2px 0 0', fontSize: 13, color: '#64748b', fontStyle: 'italic' }}>Attend a workshop to earn a <strong>Ha Giang Passport stamp</strong> and community experience points.</p>
+                    </div>
+                    <a href="/ho-chieu" className="ws-stamp-link">Xem Hộ chiếu / Passport →</a>
                 </div>
             </div>
 
@@ -109,8 +115,8 @@ export default function WorkshopPage() {
                                 onClick={() => setFilter(cat)}
                             >
                                 {cat === 'all'
-                                    ? '✦ Tất cả'
-                                    : `${CATEGORY_INFO[cat]?.icon ?? '🌿'} ${CATEGORY_INFO[cat]?.label ?? cat}`}
+                                    ? '✦ Tất cả / All'
+                                    : `${CATEGORY_INFO[cat]?.icon ?? '🌿'} ${CATEGORY_INFO[cat]?.label ?? cat}${CATEGORY_INFO[cat]?.labelEn ? ' / ' + CATEGORY_INFO[cat].labelEn : ''}`}
                             </button>
                         ))}
                     </div>
@@ -120,7 +126,7 @@ export default function WorkshopPage() {
             {/* ── Workshop grid ── */}
             <section className="container py-section">
                 {filtered.length === 0 ? (
-                    <p className="ws-empty">Chưa có workshop nào trong danh mục này.</p>
+                    <p className="ws-empty">Chưa có workshop nào trong danh mục này. / No workshops in this category yet.</p>
                 ) : (
                     <div className="ws-grid">
                         {filtered.map(ws => (
@@ -134,11 +140,12 @@ export default function WorkshopPage() {
             <section className="ng-cta">
                 <div className="ng-cta-overlay" />
                 <div className="container ng-cta-inner">
-                    <h2>Muốn tham gia workshop?</h2>
+                    <h2>Muốn tham gia workshop? <span style={{ display: 'block', fontSize: '0.6em', fontWeight: 400, opacity: 0.85 }}>Want to join a workshop?</span></h2>
                     <p>Các workshop thường miễn phí hoặc chỉ thu tiền nguyên liệu. Đặt chỗ sớm vì số lượng có hạn.</p>
+                    <p style={{ fontSize: 14, opacity: 0.8, fontStyle: 'italic', marginTop: -8 }}>Most workshops are free or charge materials cost only. Book early — spots are limited.</p>
                     <div className="ng-cta-btns">
                         <a className="btn3d btn3d-orange" href="https://zalo.me/0385737705"
-                            target="_blank" rel="noreferrer">💬 Zalo đăng ký</a>
+                            target="_blank" rel="noreferrer">💬 Zalo / Register</a>
                         <a className="btn3d btn3d-outline-white" href="https://wa.me/84385737705"
                             target="_blank" rel="noreferrer">WhatsApp</a>
                     </div>
@@ -150,8 +157,8 @@ export default function WorkshopPage() {
 
 function WorkshopCard({ ws }) {
     const cat = CATEGORY_INFO[ws.category] ?? CATEGORY_INFO.other
-    const statusLabel = ws.status === 'upcoming' ? 'Sắp diễn ra'
-        : ws.status === 'ongoing' ? 'Đang diễn ra' : 'Đã kết thúc'
+    const statusLabel = ws.status === 'upcoming' ? 'Sắp diễn ra / Upcoming'
+        : ws.status === 'ongoing' ? 'Đang diễn ra / Ongoing' : 'Đã kết thúc / Ended'
     const statusCls = ws.status === 'upcoming' ? 'ws-status-soon'
         : ws.status === 'ongoing' ? 'ws-status-live' : 'ws-status-done'
 
@@ -165,22 +172,22 @@ function WorkshopCard({ ws }) {
                 <span className={`ws-status-badge ${statusCls}`}>{statusLabel}</span>
             </div>
             <div className="ws-card-body">
-                <span className="ws-cat-chip">{cat.icon} {cat.label}</span>
+                <span className="ws-cat-chip">{cat.icon} {cat.label}{cat.labelEn ? <span style={{ opacity: .6, fontSize: 11, marginLeft: 3 }}>/ {cat.labelEn}</span> : ''}</span>
                 <h3 className="ws-card-title">{ws.title}</h3>
                 {ws.desc && <p className="ws-card-desc">{ws.desc}</p>}
                 <div className="ws-card-info">
                     {ws.date && <span>📅 {ws.date}</span>}
                     {ws.time && <span>🕐 {ws.time}</span>}
-                    {ws.capacity && <span>👥 Tối đa {ws.capacity} người</span>}
+                    {ws.capacity && <span>👥 Tối đa {ws.capacity} người / {ws.capacity} spots</span>}
                     {ws.instructor && <span>👩‍🏫 {ws.instructor}</span>}
                 </div>
                 <div className="ws-card-footer">
                     <span className={`ws-price-tag${ws.isFree ? ' ws-free' : ''}`}>
-                        {ws.isFree ? '✓ Miễn phí' : ws.price || 'Liên hệ'}
+                        {ws.isFree ? '✓ Miễn phí / Free' : ws.price || 'Liên hệ / Contact'}
                     </span>
                     <a href="https://zalo.me/0385737705" target="_blank" rel="noreferrer"
                         className="btn3d btn-sm btn3d-orange">
-                        Đăng ký
+                        Đăng ký / Join
                     </a>
                 </div>
             </div>
