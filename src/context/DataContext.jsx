@@ -109,11 +109,13 @@ export function DataProvider({ children }) {
         body: JSON.stringify(item),
         signal: AbortSignal.timeout(10000),
       })
-    } catch (networkErr) {
-      const msg = networkErr?.name === 'TimeoutError' || networkErr?.name === 'AbortError'
-        ? 'Backend chưa khởi động hoặc đang ngủ — thử lại sau 30 giây'
-        : 'Không kết nối được backend: ' + (networkErr?.message || networkErr)
-      throw new Error(msg)
+    } catch {
+      // Offline fallback — save locally with a local ID
+      const localItem = { ...item, id: makeLocalId(), _local: true }
+      if (SETTERS[type]) {
+        SETTERS[type](p => { const list = [localItem, ...p]; lsSave(type, list); return list })
+      }
+      return localItem
     }
     if (!res.ok) {
       const raw = await res.text().catch(() => '')
