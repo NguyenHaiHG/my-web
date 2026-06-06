@@ -9538,12 +9538,7 @@ select option {
 
 @media (max-width: 768px) {
    .float-contact {
-      bottom: 90px;
-      right: 12px;
-   }
-
-   .float-btn {
-      padding: 8px 14px 8px 10px;
+      display: none;
    }
 }
 
