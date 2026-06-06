@@ -4038,9 +4038,11 @@ select option {
 .ng-hero-bg {
    position: absolute;
    inset: 0;
-   background: url('/hg-city-1.svg') center/cover no-repeat;
+   background-size: cover;
+   background-position: center;
+   background-repeat: no-repeat;
    transform: scale(1.04);
-   transition: transform 8s ease
+   transition: transform 8s ease, background-image 1s ease
 }
 
 .ng-hero:hover .ng-hero-bg {
