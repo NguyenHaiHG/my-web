@@ -86,7 +86,7 @@ function DetailModal({ item, onClose, onEdit, onDelete, isMod }) {
 }
 
 /* ── Library Card ── */
-function LibCard({ item, onClick }) {
+function LibCard({ item, onClick, onEdit, isMod }) {
     const cat = catLabel(item.category)
     const colors = CAT_COLORS[item.category] || CAT_COLORS.nature
 
@@ -100,10 +100,22 @@ function LibCard({ item, onClick }) {
                     <span className="lp-card-cat-badge" style={{ background: colors.badge }}>
                         {cat.emoji}
                     </span>
+                    {isMod && (
+                        <button className="lp-card-edit-btn" title="Sửa ảnh / nội dung"
+                            onClick={e => { e.stopPropagation(); onEdit(item) }}>
+                            ✏️
+                        </button>
+                    )}
                 </div>
             ) : (
                 <div className="lp-card-no-img" style={{ background: colors.bg }}>
                     <span className="lp-card-cat-big">{cat.emoji}</span>
+                    {isMod && (
+                        <button className="lp-card-edit-btn lp-card-edit-no-img" title="Thêm ảnh / sửa"
+                            onClick={e => { e.stopPropagation(); onEdit(item) }}>
+                            ✏️
+                        </button>
+                    )}
                 </div>
             )}
             <div className="lp-card-body">
@@ -225,7 +237,10 @@ export default function LibraryPage() {
                 ) : (
                     <div className="lp-grid">
                         {filtered.map(item => (
-                            <LibCard key={item.id} item={item} onClick={() => setDetail(item)} />
+                            <LibCard key={item.id} item={item}
+                                onClick={() => setDetail(item)}
+                                onEdit={handleEdit}
+                                isMod={isMod} />
                         ))}
                     </div>
                 )}

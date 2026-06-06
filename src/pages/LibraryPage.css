@@ -272,6 +272,43 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
+.lp-card-edit-btn {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: rgba(255, 255, 255, 0.92);
+    border: none;
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transition: opacity 0.18s;
+    z-index: 2;
+}
+
+.lp-card:hover .lp-card-edit-btn {
+    opacity: 1;
+}
+
+.lp-card-edit-no-img {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    opacity: 0.7;
+}
+
+@media (max-width: 480px) {
+    .lp-card-edit-btn {
+        opacity: 1;
+    }
+}
+
 .lp-card-no-img {
     aspect-ratio: 4/3;
     display: flex;

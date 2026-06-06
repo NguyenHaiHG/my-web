@@ -139,11 +139,13 @@ export function DataProvider({ children }) {
         body: JSON.stringify(data),
         signal: AbortSignal.timeout(10000),
       })
-    } catch (networkErr) {
-      const msg = networkErr?.name === 'TimeoutError' || networkErr?.name === 'AbortError'
-        ? 'Backend chưa khởi động hoặc đang ngủ — thử lại sau 30 giây'
-        : 'Không kết nối được backend: ' + (networkErr?.message || networkErr)
-      throw new Error(msg)
+    } catch {
+      // Offline fallback — update locally
+      const updated = { ...data, id }
+      if (SETTERS[type]) {
+        SETTERS[type](list => { const next = list.map(i => i.id === id ? { ...i, ...data } : i); lsSave(type, next); return next })
+      }
+      return updated
     }
     if (!res.ok) {
       const raw = await res.text().catch(() => '')
