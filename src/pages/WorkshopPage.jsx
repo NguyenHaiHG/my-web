@@ -56,6 +56,18 @@ const DEFAULT_WORKSHOPS = [
         capacity: 8,
         status: 'upcoming',
     },
+    {
+        id: 'ws-5',
+        title: 'Tiếng Anh Du Lịch – English for Tourism',
+        desc: 'Học giao tiếp cơ bản với khách nước ngoài: chào hỏi, giới thiệu địa danh, mô tả sản phẩm, hỏi giá. Phù hợp cho bà con và các bé muốn nói chuyện với du khách. / Basic English for greeting guests, describing local attractions, products and prices. Suitable for community members and children.',
+        date: 'Thứ 2, Thứ 4, Thứ 6',
+        time: '08:30 – 10:00',
+        category: 'english',
+        isFree: true,
+        capacity: 20,
+        status: 'upcoming',
+        instructor: 'Tình nguyện viên / Volunteer teacher',
+    },
 ]
 
 export default function WorkshopPage() {
