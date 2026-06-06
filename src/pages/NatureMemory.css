@@ -991,3 +991,70 @@
     background: #c0b8a8;
     border-radius: 4px;
 }
+/* ── Certificate button ── */
+.nm-btn-cert {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1.5px solid #c8963e;
+    background: linear-gradient(135deg, #fffbf0, #fef3c7);
+    color: #92400e;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+    white-space: nowrap;
+}
+.nm-btn-cert:hover {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    transform: translateY(-1px);
+}
+
+/* ── Certificate modal ── */
+.nm-cert-modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 640px;
+    max-height: 92vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 24px;
+}
+
+.nm-cert-level {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 20px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 2px solid;
+}
+.nm-cert-level-icon {
+    font-size: 44px;
+    line-height: 1;
+}
+.nm-cert-level-title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.nm-cert-level-en {
+    font-size: 14px;
+    color: #64748b;
+    font-style: italic;
+}
+.nm-cert-level-stats {
+    font-size: 13px;
+    color: #374151;
+    margin-top: 4px;
+}
+
+.nm-cert-preview {
+    padding: 0 20px;
+}

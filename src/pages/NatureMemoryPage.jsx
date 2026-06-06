@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { X, Plus, ChevronLeft, Trash2, Search, Filter, Leaf } from 'lucide-react'
+import { X, Plus, ChevronLeft, Trash2, Search, Leaf, Award } from 'lucide-react'
 import './NatureMemory.css'
 
 /* ─────────────────────────────────────────────
@@ -34,6 +34,241 @@ const SEASONS = [
 const MOODS = ['😊', '😮', '🤩', '🧐', '😌', '🥰']
 
 const STORAGE_KEY = 'nature_memories_v1'
+
+/* ─────────────────────────────────────────────
+   CERTIFICATE LEVELS
+───────────────────────────────────────────── */
+const NATURE_LEVELS = [
+    {
+        id: 'explorer', minEntries: 1, minCategories: 1,
+        title: 'Nhà Thám Hiểm Thiên Nhiên',
+        titleEn: 'Nature Explorer',
+        icon: '🔬', color: '#2e7d32', bg: '#e8f5e9', ribbon: '#66bb6a',
+        desc: 'Đã bắt đầu hành trình khám phá thế giới tự nhiên.',
+        descEn: 'Has begun the journey of exploring the natural world.',
+    },
+    {
+        id: 'scientist', minEntries: 3, minCategories: 2,
+        title: 'Nhà Khoa Học Nhí',
+        titleEn: 'Young Scientist',
+        icon: '🧪', color: '#1565c0', bg: '#e3f2fd', ribbon: '#42a5f5',
+        desc: 'Đã quan sát và ghi chép nhiều loài khác nhau một cách khoa học.',
+        descEn: 'Has scientifically observed and recorded multiple species.',
+    },
+    {
+        id: 'naturalist', minEntries: 6, minCategories: 3,
+        title: 'Nhà Tự Nhiên Học',
+        titleEn: 'Young Naturalist',
+        icon: '🏆', color: '#e65100', bg: '#fff3e0', ribbon: '#ffa726',
+        desc: 'Đã trở thành nhà tự nhiên học thực thụ với kiến thức đa dạng về sinh vật.',
+        descEn: 'Has become a true naturalist with diverse knowledge of living things.',
+    },
+]
+
+function getLevelFor(memories) {
+    const total = memories.length
+    const cats = new Set(memories.map(m => m.category)).size
+    let best = null
+    for (const lv of NATURE_LEVELS) {
+        if (total >= lv.minEntries && cats >= lv.minCategories) best = lv
+    }
+    return best || NATURE_LEVELS[0]
+}
+
+/* ─────────────────────────────────────────────
+   CERTIFICATE CANVAS
+───────────────────────────────────────────── */
+async function buildNatureCertCanvas({ holderName, memories }) {
+    const W = 1400, H = 980
+    const canvas = document.createElement('canvas')
+    canvas.width = W; canvas.height = H
+    const ctx = canvas.getContext('2d')
+
+    const level = getLevelFor(memories)
+    const total = memories.length
+    const cats = [...new Set(memories.map(m => m.category))]
+    const catLabels = cats.map(c => {
+        const found = CATEGORIES.find(x => x.id === c)
+        return found ? `${found.emoji} ${found.label}` : c
+    }).join('  ·  ')
+
+    // Background gradient
+    const bg = ctx.createLinearGradient(0, 0, W, H)
+    bg.addColorStop(0, '#f0fdf4')
+    bg.addColorStop(0.5, '#fefce8')
+    bg.addColorStop(1, '#f0f9ff')
+    ctx.fillStyle = bg
+    ctx.fillRect(0, 0, W, H)
+
+    // Outer border double
+    ctx.strokeStyle = level.color; ctx.lineWidth = 12
+    ctx.strokeRect(18, 18, W - 36, H - 36)
+    ctx.strokeStyle = level.ribbon; ctx.lineWidth = 3
+    ctx.strokeRect(34, 34, W - 68, H - 68)
+
+    // Corner decorations
+    const corners = [[60, 60], [W - 60, 60], [60, H - 60], [W - 60, H - 60]]
+    corners.forEach(([x, y]) => {
+        ctx.font = '44px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+        ctx.fillText('🌿', x, y)
+    })
+
+    // Top ribbon band
+    ctx.fillStyle = level.color
+    ctx.fillRect(0, 52, W, 130)
+
+    // Main title in band
+    ctx.fillStyle = '#ffffff'
+    ctx.font = 'bold 52px Georgia, serif'
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'
+    ctx.fillText('CHỨNG NHẬN KHÁM PHÁ THIÊN NHIÊN', W / 2, 118)
+    ctx.font = '20px Georgia, serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'
+    ctx.fillText('Certificate of Nature Exploration  ·  HTX Trường Hải · Tuyên Quang', W / 2, 150)
+
+    // Level badge area
+    ctx.font = '72px serif'; ctx.textAlign = 'center'
+    ctx.fillText(level.icon, W / 2, 260)
+
+    // Level title
+    ctx.fillStyle = level.color
+    ctx.font = 'bold 48px Georgia, serif'
+    ctx.fillText(level.title, W / 2, 320)
+    ctx.fillStyle = '#64748b'; ctx.font = 'italic 26px Georgia, serif'
+    ctx.fillText(level.titleEn, W / 2, 360)
+
+    // Decorative divider
+    ctx.strokeStyle = level.ribbon; ctx.lineWidth = 2
+    ctx.beginPath(); ctx.moveTo(200, 385); ctx.lineTo(W - 200, 385); ctx.stroke()
+
+    // "Trân trọng chứng nhận"
+    ctx.fillStyle = '#4a4a4a'; ctx.font = 'italic 24px Georgia, serif'
+    ctx.fillText('Trân trọng chứng nhận em / This is to certify that', W / 2, 430)
+
+    // Holder name
+    ctx.fillStyle = '#1a3a4a'; ctx.font = 'bold 82px Georgia, serif'
+    ctx.fillText(holderName || 'Nhà Khám Phá Nhí', W / 2, 535)
+    const nW = ctx.measureText(holderName || 'Nhà Khám Phá Nhí').width
+    ctx.strokeStyle = level.ribbon; ctx.lineWidth = 3
+    ctx.beginPath(); ctx.moveTo(W / 2 - nW / 2, 552); ctx.lineTo(W / 2 + nW / 2, 552); ctx.stroke()
+
+    // Description
+    ctx.fillStyle = '#374151'; ctx.font = '24px Georgia, serif'
+    ctx.fillText(level.desc, W / 2, 600)
+    ctx.fillStyle = '#6b7280'; ctx.font = 'italic 20px Georgia, serif'
+    ctx.fillText(level.descEn, W / 2, 634)
+
+    // Stats row
+    ctx.fillStyle = level.color; ctx.font = 'bold 22px Georgia, serif'
+    ctx.fillText(`📖 ${total} ghi chép / entries`, W / 2 - 200, 690)
+    ctx.fillText(`🌿 ${cats.length} loài / categories`, W / 2 + 200, 690)
+
+    // Category list
+    if (catLabels) {
+        ctx.fillStyle = '#374151'; ctx.font = '18px Georgia, serif'
+        ctx.fillText(catLabels, W / 2, 724)
+    }
+
+    // Decorative nature row
+    ctx.font = '32px serif'
+    const deco = ['🌱', '🦋', '🐦', '🍄', '🌸', '🦊', '🐸', '🌿']
+    deco.forEach((em, i) => {
+        ctx.fillText(em, 160 + i * 160, 780)
+    })
+
+    // Footer line
+    ctx.strokeStyle = level.ribbon; ctx.lineWidth = 2
+    ctx.beginPath(); ctx.moveTo(80, 820); ctx.lineTo(W - 80, 820); ctx.stroke()
+    ctx.fillStyle = '#4a4a4a'; ctx.font = '16px Georgia, serif'; ctx.textAlign = 'left'
+    ctx.fillText(`Ngày cấp: ${new Date().toLocaleDateString('vi-VN')}`, 100, 848)
+    ctx.fillText('HTX Trường Hải – Trải nghiệm sinh thái', 100, 872)
+    ctx.textAlign = 'right'
+    ctx.fillText('htxtruonghai.com', W - 100, 848)
+    ctx.fillStyle = '#9ca3af'; ctx.font = '13px Georgia, serif'
+    ctx.fillText('Nhật Ký Thiên Nhiên / Nature Memory Journal', W - 100, 872)
+
+    return canvas
+}
+
+/* ─────────────────────────────────────────────
+   CERTIFICATE MODAL
+───────────────────────────────────────────── */
+function CertModal({ memories, onClose }) {
+    const [name, setName] = useState('')
+    const [preview, setPreview] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const level = getLevelFor(memories)
+
+    const handlePreview = async () => {
+        if (!name.trim()) return
+        setLoading(true)
+        const canvas = await buildNatureCertCanvas({ holderName: name.trim(), memories })
+        setPreview(canvas.toDataURL('image/png'))
+        setLoading(false)
+    }
+
+    const handleDownload = () => {
+        if (!preview) return
+        const a = document.createElement('a')
+        a.href = preview
+        a.download = `chung-nhan-${name.trim().replace(/\s+/g, '-').toLowerCase() || 'kham-pha'}-${Date.now()}.png`
+        a.click()
+    }
+
+    return (
+        <div className="nm-backdrop" onClick={onClose}>
+            <div className="nm-cert-modal" onClick={e => e.stopPropagation()}>
+                <div className="nm-add-header">
+                    <button className="nm-icon-btn" onClick={onClose}><X size={20} /></button>
+                    <h2>🏅 Chứng Nhận Khám Phá <span style={{ fontWeight: 400, fontSize: 13, opacity: .6 }}>/ Certificate</span></h2>
+                    <div style={{ width: 36 }} />
+                </div>
+
+                {/* Level display */}
+                <div className="nm-cert-level" style={{ background: level.bg, borderColor: level.color }}>
+                    <span className="nm-cert-level-icon">{level.icon}</span>
+                    <div>
+                        <div className="nm-cert-level-title" style={{ color: level.color }}>{level.title}</div>
+                        <div className="nm-cert-level-en">{level.titleEn}</div>
+                        <div className="nm-cert-level-stats">
+                            📖 {memories.length} ghi chép &nbsp;·&nbsp; 🌿 {new Set(memories.map(m => m.category)).size} loài
+                        </div>
+                    </div>
+                </div>
+
+                {/* Name input */}
+                <div className="nm-field" style={{ padding: '0 20px' }}>
+                    <label className="nm-label">Tên của bé <span style={{ color: '#94a3b8', fontWeight: 400 }}>/ Child's name</span></label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <input
+                            className="nm-input"
+                            placeholder="Nhập tên bé để in lên chứng nhận…"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handlePreview()}
+                            autoFocus
+                        />
+                        <button className="nm-btn-primary" onClick={handlePreview} disabled={!name.trim() || loading}
+                            style={{ whiteSpace: 'nowrap', minWidth: 110 }}>
+                            {loading ? '⏳' : '👁 Xem trước'}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Preview */}
+                {preview && (
+                    <div className="nm-cert-preview">
+                        <img src={preview} alt="Certificate preview" style={{ width: '100%', borderRadius: 8, border: `2px solid ${level.ribbon}` }} />
+                        <button className="nm-btn-primary nm-btn-full" onClick={handleDownload}
+                            style={{ marginTop: 12, background: level.color }}>
+                            ⬇️ Tải chứng nhận (PNG) / Download Certificate
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
 
 /* ─────────────────────────────────────────────
    HELPERS
@@ -400,6 +635,7 @@ export default function NatureMemoryPage() {
     const [showAdd, setShowAdd] = useState(false)
     const [detail, setDetail] = useState(null)
     const [showSearch, setShowSearch] = useState(false)
+    const [showCert, setShowCert] = useState(false)
 
     // Persist on every change
     useEffect(() => { saveMemories(memories) }, [memories])
@@ -477,6 +713,11 @@ export default function NatureMemoryPage() {
                         onClick={() => setShowSearch(s => !s)} title="Tìm kiếm / Search">
                         <Search size={18} />
                     </button>
+                    {memories.length > 0 && (
+                        <button className="nm-btn-cert" onClick={() => setShowCert(true)} title="Tạo chứng nhận">
+                            <Award size={16} /> Chứng nhận
+                        </button>
+                    )}
                     <button className="nm-btn-add" onClick={() => setShowAdd(true)}>
                         <Plus size={18} /> Ghi chép <span style={{ opacity: .7, fontWeight: 400, fontSize: 12 }}>/ New</span>
                     </button>
@@ -530,6 +771,9 @@ export default function NatureMemoryPage() {
                     onClose={() => setDetail(null)}
                     onDelete={handleDelete}
                 />
+            )}
+            {showCert && (
+                <CertModal memories={memories} onClose={() => setShowCert(false)} />
             )}
         </div>
     )
