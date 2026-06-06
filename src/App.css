@@ -4364,7 +4364,7 @@ select option {
 /* CTA */
 .ng-cta {
    position: relative;
-   background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=80') center/cover no-repeat;
+   background: url('https://images.pexels.com/photos/10077653/pexels-photo-10077653.jpeg?auto=compress&cs=tinysrgb&w=1400') center/cover no-repeat;
    padding: 100px 24px;
    text-align: center;
    overflow: hidden
@@ -4409,7 +4409,7 @@ select option {
 .comm-hero {
    position: relative;
    min-height: 80vh;
-   background: url('https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1600&q=90') center/cover;
+   background: url('https://images.pexels.com/photos/35792511/pexels-photo-35792511.jpeg?auto=compress&cs=tinysrgb&w=1400') center/cover;
    display: flex;
    align-items: center;
    justify-content: center;
@@ -4650,7 +4650,7 @@ select option {
 
 .comm-cta {
    position: relative;
-   background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=80') center/cover no-repeat;
+   background: url('https://images.pexels.com/photos/18012109/pexels-photo-18012109.jpeg?auto=compress&cs=tinysrgb&w=1400') center/cover no-repeat;
    padding: 100px 24px;
    text-align: center;
    overflow: hidden

@@ -75,7 +75,7 @@ export default function HomePage() {
     // ── Hero slideshow ───────────────────────────────────────────────
     const [heroImages, setHeroImages] = useState(() => {
         try {
-            const saved = localStorage.getItem('hagiang_hero_images')
+            const saved = localStorage.getItem('hagiang_hero_v2')
             if (saved) return JSON.parse(saved)
         } catch { /* ignore */ }
         return HERO_IMAGES_DEFAULT
@@ -93,17 +93,19 @@ export default function HomePage() {
 
     const saveHeroImages = (imgs) => {
         setHeroImages(imgs)
-        localStorage.setItem('hagiang_hero_images', JSON.stringify(imgs))
+        localStorage.setItem('hagiang_hero_v2', JSON.stringify(imgs))
     }
 
-    const farmerImages = (communityImages.length ? communityImages : FARMER_FALLBACK_IMAGES)
+    // Always show default Pexels Ha Giang photos; community uploads added on top
+    const communityMapped = communityImages
         .map((img, i) => {
-            if (typeof img === 'string') {
-                return { url: img, caption: `Khoảnh khắc nông dân vùng cao ${i + 1}` }
-            }
-            return { url: img.url, caption: img.caption || `Khoảnh khắc nông dân vùng cao ${i + 1}` }
+            if (typeof img === 'string') return { url: img, caption: `Ảnh cộng đồng ${i + 1}` }
+            return { url: img.url, caption: img.caption || `Ảnh cộng đồng ${i + 1}` }
         })
-        .filter(img => Boolean(img.url))
+        // Filter out old broken Unsplash URLs
+        .filter(img => img.url && !img.url.includes('unsplash.com') && !img.url.endsWith('.svg'))
+
+    const farmerImages = [...FARMER_FALLBACK_IMAGES, ...communityMapped]
 
     const naturePhotos = useMemo(() => loadNaturePhotos(), [])
 
