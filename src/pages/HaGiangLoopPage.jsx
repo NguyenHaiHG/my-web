@@ -169,7 +169,7 @@ const FAQ = [
 
 /* ── BookingForm ─────────────────────────────────────── */
 function BookingForm({ tourType, onSuccess }) {
-    const price = tourType === '4d3n' ? 4200000 : 3200000
+    const price = tourType === '4d3n' ? 4500000 : 4000000
     const [form, setForm] = useState({ name: '', phone: '', date: '', guests: 1, note: '' })
     const [loading, setLoading] = useState(false)
 
@@ -293,8 +293,8 @@ export default function HaGiangLoopPage() {
     }, [])
 
     const itinerary = tourType === '4d3n' ? ITINERARY_4D : ITINERARY_3D
-    const price = tourType === '4d3n' ? 4200000 : 3200000
-    const oldPrice = tourType === '4d3n' ? 5000000 : 4000000
+    const price = tourType === '4d3n' ? 4500000 : 4000000
+    const oldPrice = tourType === '4d3n' ? 5500000 : 4800000
     const nights = tourType === '4d3n' ? '4 Ngày 3 Đêm' : '3 Ngày 2 Đêm'
     const nightsEn = tourType === '4d3n' ? '4 Days 3 Nights' : '3 Days 2 Nights'
 
