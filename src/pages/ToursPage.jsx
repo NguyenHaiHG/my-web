@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Search, MapPin, Clock, Users, Plus, Trash2, Phone, Star, Check, Calendar, Edit2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Search, MapPin, Clock, Users, Plus, Trash2, Phone, Star, Check, Calendar, Edit2, ArrowRight } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useAuth } from '../context/AuthContext'
 import { useUI } from '../context/UIContext'
@@ -303,6 +304,41 @@ export default function ToursPage() {
             </div>
 
             <div className="container py-section">
+
+                {/* ── Hà Giang Loop Featured Banner ── */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #064e3b 0%, #065f46 60%, #1a3a2a 100%)',
+                    borderRadius: 20, padding: '28px 32px', marginBottom: 28,
+                    display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 20,
+                    boxShadow: '0 4px 24px rgba(6,78,59,0.25)',
+                    position: 'relative', overflow: 'hidden',
+                }}>
+                    <div style={{ position: 'absolute', top: -40, right: -40, width: 180, height: 180, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+                    <div style={{ flex: 1, minWidth: 220 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                            <span style={{ background: '#dc2626', color: '#fff', borderRadius: 999, padding: '3px 10px', fontSize: 12, fontWeight: 800 }}>🔥 Nổi bật</span>
+                            <span style={{ color: '#6ee7b7', fontSize: 13, fontWeight: 700 }}>Tour trọn gói · Giảm 500k</span>
+                        </div>
+                        <h3 style={{ color: '#fff', fontWeight: 900, fontSize: 22, margin: '0 0 6px' }}>Hà Giang Loop 3N2Đ</h3>
+                        <p style={{ color: '#a7f3d0', fontSize: 14, margin: '0 0 12px', lineHeight: 1.6 }}>
+                            Mã Pí Lèng · Đồng Văn · Núi Đôi · Ruộng bậc thang — xe + ăn + ngủ + HDV bản địa
+                        </p>
+                        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: '#d1fae5', marginBottom: 16 }}>
+                            <span>⏱ 3 ngày 2 đêm</span>
+                            <span>👥 2–7 khách</span>
+                            <span>⭐ 4.9/5</span>
+                        </div>
+                        <Link to="/ha-giang-loop" className="btn3d btn3d-orange" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                            Xem chi tiết & Đặt tour <ArrowRight size={15} />
+                        </Link>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ color: '#9ca3af', textDecoration: 'line-through', fontSize: 14 }}>5.000.000đ</div>
+                        <div style={{ color: '#34d399', fontSize: 36, fontWeight: 900, lineHeight: 1 }}>4.500.000đ</div>
+                        <div style={{ color: '#a7f3d0', fontSize: 13 }}>/người</div>
+                    </div>
+                </div>
+
                 {tours.length === 0 && (
                     <div style={{ marginBottom: 12, color: '#92400e', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 12px', fontSize: 14 }}>
                         Đang hiển thị tour gợi ý local vì backend chưa có dữ liệu.

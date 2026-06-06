@@ -13,6 +13,7 @@ import { useLang } from '../context/LanguageContext'
 import HeroSectionEditor from '../components/HeroSectionEditor'
 import DiscoverContentEditor from '../components/DiscoverContentEditor'
 import AdminCommunityGallery from '../components/AdminCommunityGallery'
+import AdminSiteImages from '../components/AdminSiteImages'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -42,6 +43,7 @@ const NAV_ITEMS = [
     { key: 'overview', icon: <LayoutDashboard size={18} />, label: 'Tổng quan' },
     { key: 'hero-section', icon: <Image size={18} />, label: 'Hero Section' },
     { key: 'community-gallery', icon: <Image size={18} />, label: 'Ảnh cộng đồng' },
+    { key: 'site-images', icon: <Image size={18} />, label: 'Ảnh trang web' },
     { key: 'workshops', icon: <Users size={18} />, label: 'Workshop' },
     { key: 'workshop-regs', icon: <Check size={18} />, label: 'Đăng ký WS' },
     { key: 'passport-sites', icon: <MapPin size={18} />, label: '🎖️ Điểm Hộ chiếu' },
@@ -198,7 +200,7 @@ function classifyCityOrder(order) {
 const FIELD_DEFS = {
     post: ['title', 'content', 'author', 'img'],
     workshop: ['title', 'content', 'date', 'time', 'category', 'capacity', 'isFree', 'price', 'status', 'instructor', 'img'],
-    library: ['title', 'content', 'category', 'ethnic', 'pronunciation', 'translation', 'img'],
+    library: ['title', 'img'],
     product: ['title', 'desc', 'price', 'img'],
     tour: ['title', 'desc', 'price', 'duration', 'img'],
     review: ['name', 'country', 'rating', 'content'],
@@ -585,9 +587,8 @@ export default function DashboardPage() {
                     onDelete={(id) => handleDelete('library', id)}
                     onEdit={(item) => openEdit('library', item)}
                     columns={[
+                        { key: 'img', label: 'Ảnh', render: item => item.img ? <img src={item.img} alt={item.title} style={{ width: 60, height: 44, objectFit: 'cover', borderRadius: 6 }} /> : '—' },
                         { key: 'title', label: 'Tiêu đề' },
-                        { key: 'category', label: 'Danh mục' },
-                        { key: 'ethnic', label: 'Dân tộc' },
                     ]} />
             case 'products':
                 return <ContentTable type="products" items={data.products}
@@ -642,6 +643,8 @@ export default function DashboardPage() {
                 return <HeroSectionEditor />
             case 'community-gallery':
                 return <AdminCommunityGallery />
+            case 'site-images':
+                return <AdminSiteImages />
             default:
                 return null
         }
