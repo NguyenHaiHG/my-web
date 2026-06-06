@@ -412,12 +412,9 @@ img {
    transform: translateY(-2px);
 }
 
-@media (max-width: 480px) {
-   .btn-contact-header span:not(svg) {
-      display: none;
-   }
+@media (max-width: 768px) {
    .btn-contact-header {
-      padding: 7px 10px;
+      display: none;
    }
 }
 
@@ -9539,9 +9536,9 @@ select option {
    animation: none;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
    .float-contact {
-      bottom: 16px;
+      bottom: 90px;
       right: 12px;
    }
 
