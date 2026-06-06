@@ -18,6 +18,7 @@ import WorkshopPage from './pages/WorkshopPage'
 import HaGiangLoopPage from './pages/HaGiangLoopPage'
 import VerifyCertificatePage from './pages/VerifyCertificatePage'
 import NatureMemoryPage from './pages/NatureMemoryPage'
+import LibraryPage from './pages/LibraryPage'
 import './App.css'
 
 /* ──────────────────────────────────────────────────────
@@ -490,7 +491,8 @@ function MobileAppDock() {
     { to: '/workshop', label: 'Workshop', icon: <GraduationCap size={18} />, match: p => p === '/workshop' },
     { to: '/ha-giang-loop', label: 'Loop Tour', icon: <Map size={18} />, match: p => p === '/ha-giang-loop' },
     { to: '/ho-chieu', label: 'Passport', icon: <BookOpen size={18} />, match: p => p === '/ho-chieu' },
-    { to: '/nhat-ky-thien-nhien', label: 'Thiên Nhiên', icon: <Leaf size={18} />, match: p => p === '/nhat-ky-thien-nhien' },
+    { to: '/thu-vien', label: 'Thư viện', icon: <BookOpen size={18} />, match: p => p === '/thu-vien' },
+    { to: '/nhat-ky-thien-nhien', label: 'TN', icon: <Leaf size={18} />, match: p => p === '/nhat-ky-thien-nhien' },
     { to: '/lien-he', label: 'Liên hệ', icon: <Phone size={18} />, match: p => p === '/lien-he' },
   ]
 
@@ -534,6 +536,7 @@ function AppInner() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/verify/:certCode" element={<VerifyCertificatePage />} />
           <Route path="/nhat-ky-thien-nhien" element={<NatureMemoryPage />} />
+          <Route path="/thu-vien" element={<LibraryPage />} />
         </Routes>
       </main>
       <MobileAppDock />
@@ -544,6 +547,7 @@ function AppInner() {
             <a href="/workshop">Workshop</a>
             <a href="/ha-giang-loop">Loop Tour</a>
             <a href="/ho-chieu">Hộ chiếu</a>
+            <a href="/thu-vien">Thư viện</a>
             <a href="/nhat-ky-thien-nhien">Nhật Ký TN</a>
             <a href="/lien-he">Liên hệ</a>
           </div>
