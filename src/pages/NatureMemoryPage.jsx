@@ -681,10 +681,10 @@ export default function NatureMemoryPage() {
                     </div>
                     <h1 className="nm-hero-title">Nhật Ký Thiên Nhiên</h1>
                     <p className="nm-hero-sub" style={{ marginBottom: 2 }}>
-                        Ghi chép quan sát cây cối, sinh vật — tỉ mỉ như người Nhật
+                        Quan sát cây cối và sinh vật xung quanh — để biết nhiều hơn về thiên nhiên
                     </p>
                     <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', fontStyle: 'italic', marginBottom: 8 }}>
-                        Record plants &amp; creatures around you — like a Japanese nature journal
+                        Observe plants &amp; creatures around you — learn more about the natural world
                     </p>
                     {stats.total > 0 && (
                         <div className="nm-hero-stats">
