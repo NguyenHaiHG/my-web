@@ -50,19 +50,19 @@ const QUICK_CARDS = [
 ]
 
 const FARMER_FALLBACK_IMAGES = [
-    { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80', caption: 'Bản làng người Mông - Hà Giang' },
-    { url: 'https://images.unsplash.com/photo-1573408301185-9519f94816d5?w=900&q=80', caption: 'Ruộng bậc thang mùa lúa chín' },
-    { url: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=900&q=80', caption: 'Đèo Mã Pí Lèng hùng vĩ' },
-    { url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&q=80', caption: 'Cổng trời Quản Bạ' },
-    { url: 'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?w=900&q=80', caption: 'Phố cổ Đồng Văn — cao nguyên đá' },
-    { url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&q=80', caption: 'Cột cờ Lũng Cú — cực Bắc Việt Nam' },
+    { url: 'https://images.pexels.com/photos/36582384/pexels-photo-36582384.jpeg?auto=compress&cs=tinysrgb&w=900', caption: 'Phụ nữ H’Mông — Hà Giang' },
+    { url: 'https://images.pexels.com/photos/10077653/pexels-photo-10077653.jpeg?auto=compress&cs=tinysrgb&w=900', caption: 'Ruộng bậc thang Hà Giang nhìn từ trên cao' },
+    { url: 'https://images.pexels.com/photos/6713502/pexels-photo-6713502.jpeg?auto=compress&cs=tinysrgb&w=900', caption: 'Nông dân trên thửa bậc thang' },
+    { url: 'https://images.pexels.com/photos/18012109/pexels-photo-18012109.jpeg?auto=compress&cs=tinysrgb&w=900', caption: 'Đường uốn lượn Hà Giang nhìn từ trên' },
+    { url: 'https://images.pexels.com/photos/15997684/pexels-photo-15997684.jpeg?auto=compress&cs=tinysrgb&w=900', caption: 'Cột cờ Lũng Cú — cực Bắc Việt Nam' },
+    { url: 'https://images.pexels.com/photos/27568660/pexels-photo-27568660.jpeg?auto=compress&cs=tinysrgb&w=900', caption: 'Thung lũng Hà Giang xanh mướt' },
 ]
 
 const HERO_IMAGES_DEFAULT = [
-    { url: 'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?w=1400&q=80', caption: 'Phố cổ Đồng Văn — cao nguyên đá' },
-    { url: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1400&q=80', caption: 'Đèo Mã Pí Lèng' },
-    { url: 'https://images.unsplash.com/photo-1573408301185-9519f94816d5?w=1400&q=80', caption: 'Ruộng bậc thang Hà Giang' },
-    { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=80', caption: 'Bản làng người Mông' },
+    { url: 'https://images.pexels.com/photos/18012109/pexels-photo-18012109.jpeg?auto=compress&cs=tinysrgb&w=1400', caption: 'Đường Hà Giang Loop — kỳ quan địa chất' },
+    { url: 'https://images.pexels.com/photos/35792511/pexels-photo-35792511.jpeg?auto=compress&cs=tinysrgb&w=1400', caption: 'Núi non Hà Giang hùng vĩ' },
+    { url: 'https://images.pexels.com/photos/10077653/pexels-photo-10077653.jpeg?auto=compress&cs=tinysrgb&w=1400', caption: 'Ruộng bậc thang Hà Giang xanh mướt' },
+    { url: 'https://images.pexels.com/photos/36582384/pexels-photo-36582384.jpeg?auto=compress&cs=tinysrgb&w=1400', caption: 'Phụ nữ H’Mông — sắc màu vùng cao' },
 ]
 
 export default function HomePage() {
