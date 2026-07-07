@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { X, Plus, ChevronLeft, Trash2, Search, Leaf, Award } from 'lucide-react'
 import './NatureMemory.css'
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 /* ─────────────────────────────────────────────
    CONSTANTS
 ───────────────────────────────────────────── */
@@ -294,6 +296,51 @@ function loadMemories() {
 
 function saveMemories(list) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)) } catch { /* quota */ }
+}
+
+function normalizeMemory(entry) {
+    if (!entry) return null
+    return {
+        ...entry,
+        id: entry.id || entry._id || entry.clientId,
+        clientId: entry.clientId || entry.id || '',
+    }
+}
+
+async function fetchRemoteMemories() {
+    const res = await fetch(`${API}/api/nature-memories`)
+    if (!res.ok) throw new Error('fetch nature memories failed')
+    return res.json()
+}
+
+async function createRemoteMemory(entry) {
+    const payload = {
+        clientId: entry.clientId || entry.id || '',
+        name: entry.name || '',
+        scientificName: entry.scientificName || '',
+        category: entry.category || 'other',
+        notes: entry.notes || '',
+        location: entry.location || '',
+        weather: entry.weather || '',
+        season: entry.season || '',
+        mood: entry.mood || '',
+        img: entry.img || '',
+        time: entry.time || '',
+        createdAt: entry.createdAt || Date.now(),
+    }
+
+    const res = await fetch(`${API}/api/nature-memories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    })
+    if (!res.ok) throw new Error('create nature memory failed')
+    return res.json()
+}
+
+async function deleteRemoteMemory(id) {
+    const res = await fetch(`${API}/api/nature-memories/${id}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error('delete nature memory failed')
 }
 
 function compressImage(file, maxW = 1000, quality = 0.78) {
@@ -640,15 +687,78 @@ export default function NatureMemoryPage() {
     // Persist on every change
     useEffect(() => { saveMemories(memories) }, [memories])
 
-    const handleSave = useCallback((entry) => {
-        setMemories(m => [entry, ...m])
-        setShowAdd(false)
+    // Load from backend first; if unavailable, keep localStorage fallback.
+    useEffect(() => {
+        let cancelled = false
+
+        const syncMemories = async () => {
+            const local = loadMemories()
+            try {
+                let remote = await fetchRemoteMemories()
+                if (cancelled) return
+
+                const remoteNormalized = remote.map(normalizeMemory).filter(Boolean)
+                const remoteClientIds = new Set(remoteNormalized.map(e => e.clientId).filter(Boolean))
+                const remoteIds = new Set(remoteNormalized.map(e => e.id).filter(Boolean))
+
+                const missingLocal = local.filter(e => {
+                    const localId = e.id || e.clientId || ''
+                    if (!localId) return true
+                    return !remoteClientIds.has(localId) && !remoteIds.has(localId)
+                })
+
+                if (missingLocal.length > 0) {
+                    for (const item of missingLocal) {
+                        try {
+                            await createRemoteMemory(item)
+                        } catch {
+                            // Keep local fallback if one entry cannot sync.
+                        }
+                    }
+                    remote = await fetchRemoteMemories()
+                }
+
+                if (cancelled) return
+                const synced = remote.map(normalizeMemory).filter(Boolean)
+                if (synced.length > 0) {
+                    setMemories(synced)
+                    saveMemories(synced)
+                } else {
+                    setMemories(local)
+                }
+            } catch {
+                if (!cancelled) setMemories(local)
+            }
+        }
+
+        syncMemories()
+        return () => { cancelled = true }
     }, [])
 
-    const handleDelete = useCallback((id) => {
+    const handleSave = useCallback(async (entry) => {
+        setShowAdd(false)
+        try {
+            const created = await createRemoteMemory(entry)
+            const normalized = normalizeMemory(created)
+            if (normalized) {
+                setMemories(m => [normalized, ...m.filter(x => x.id !== normalized.id && x.clientId !== normalized.clientId)])
+                return
+            }
+        } catch {
+            // If backend is unavailable, keep old local behavior.
+        }
+        setMemories(m => [entry, ...m])
+    }, [])
+
+    const handleDelete = useCallback(async (id) => {
         if (!window.confirm('Xoá ghi chép này?')) return
-        setMemories(m => m.filter(e => e.id !== id))
+        setMemories(m => m.filter(e => e.id !== id && e.clientId !== id))
         setDetail(null)
+        try {
+            await deleteRemoteMemory(id)
+        } catch {
+            // Ignore network errors; local removal still succeeds.
+        }
     }, [])
 
     const filtered = memories.filter(e => {

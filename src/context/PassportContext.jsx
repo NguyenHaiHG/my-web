@@ -1,6 +1,22 @@
 import { createContext, useContext, useState, useCallback } from 'react'
 
 const LS_KEY = 'hagiang_passport'
+const GOOGLE_LS_KEY = 'hagiang_google_user'
+
+function parseGoogleJwt(credential) {
+    try {
+        const payload = credential.split('.')[1]
+        return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
+    } catch { return null }
+}
+
+function getCurrentPassportKey() {
+    try {
+        const raw = localStorage.getItem(GOOGLE_LS_KEY)
+        const sub = raw ? JSON.parse(raw)?.sub : null
+        return sub ? `${LS_KEY}_${sub}` : LS_KEY
+    } catch { return LS_KEY }
+}
 
 /* ══════════════════════════════════════════════════════
    CƠ BẢN – 6 tem hộ chiếu
@@ -198,9 +214,9 @@ const fresh = () => ({
     createdAt: new Date().toISOString(),
 })
 
-const load = () => {
+const load = (key) => {
     try {
-        const raw = JSON.parse(localStorage.getItem(LS_KEY))
+        const raw = JSON.parse(localStorage.getItem(key || getCurrentPassportKey()))
         if (!raw) return null
         if (!raw.certs) raw.certs = {}
         if (!raw.gpsStamps) raw.gpsStamps = []
@@ -211,10 +227,16 @@ const load = () => {
         return raw
     } catch { return null }
 }
-const save = (p) => { try { localStorage.setItem(LS_KEY, JSON.stringify(p)) } catch { /* noop */ } }
+const save = (p) => { try { localStorage.setItem(getCurrentPassportKey(), JSON.stringify(p)) } catch { /* noop */ } }
 
 export function PassportProvider({ children }) {
     const [passport, setPassport] = useState(() => load() || fresh())
+    const [googleUser, setGoogleUser] = useState(() => {
+        try {
+            const raw = localStorage.getItem(GOOGLE_LS_KEY)
+            return raw ? JSON.parse(raw) : null
+        } catch { return null }
+    })
     const ECO_CERT_SITE_MAP = {
         'CS-CHUA-TRIEN-HG1': 'chua_trien',
         'MK-CHO-LON-HG1': 'cho_lon',
@@ -225,6 +247,25 @@ export function PassportProvider({ children }) {
 
     const update = (next) => { setPassport(next); save(next) }
     const setHolderName = (name) => update({ ...passport, holderName: name })
+
+    /* ── Google login ── */
+    const loginWithGoogle = useCallback((credential) => {
+        const user = parseGoogleJwt(credential)
+        if (!user?.sub) return
+        localStorage.setItem(GOOGLE_LS_KEY, JSON.stringify(user))
+        setGoogleUser(user)
+        const key = `${LS_KEY}_${user.sub}`
+        const existing = load(key)
+        const next = existing || { ...fresh(), holderName: user.name || '' }
+        if (!existing) localStorage.setItem(key, JSON.stringify(next))
+        setPassport(next)
+    }, [])
+
+    const logoutGoogle = useCallback(() => {
+        localStorage.removeItem(GOOGLE_LS_KEY)
+        setGoogleUser(null)
+        setPassport(load(LS_KEY) || fresh())
+    }, [])
 
     /* ── Basic stamps ── */
     const addStamp = useCallback((type) => {
@@ -243,6 +284,12 @@ export function PassportProvider({ children }) {
         })
     }, [])
     const hasStamp = (type) => passport.stamps.some(s => s.type === type)
+    const removeStamp = useCallback((type) => {
+        setPassport(prev => {
+            const next = { ...prev, stamps: prev.stamps.filter(s => s.type !== type) }
+            save(next); return next
+        })
+    }, [])
 
     /* ── Certificate stamps (4 cert types) ── */
     const addCertStamp = useCallback((certId, stampType) => {
@@ -266,6 +313,18 @@ export function PassportProvider({ children }) {
         })
     }, [])
     const hasCertStamp = (certId, stampType) => !!(passport.certs[certId]?.stamps?.[stampType])
+    const removeCertStamp = useCallback((certId, stampType) => {
+        setPassport(prev => {
+            const certData = prev.certs[certId] || { stamps: {}, reviews: [] }
+            const newStamps = { ...certData.stamps }
+            delete newStamps[stampType]
+            const next = {
+                ...prev,
+                certs: { ...prev.certs, [certId]: { ...certData, stamps: newStamps } },
+            }
+            save(next); return next
+        })
+    }, [])
     const getCertStamps = (certId) => passport.certs[certId]?.stamps || {}
     const getCertStampCount = (certId) => Object.keys(passport.certs[certId]?.stamps || {}).length
 
@@ -457,13 +516,14 @@ export function PassportProvider({ children }) {
         <PassportContext.Provider value={{
             passport,
             setHolderName,
-            addStamp, hasStamp,
-            addCertStamp, hasCertStamp, getCertStamps, getCertStampCount,
+            addStamp, hasStamp, removeStamp,
+            addCertStamp, hasCertStamp, removeCertStamp, getCertStamps, getCertStampCount,
             markCertIssued,
             addReview, getReviews,
             addGpsStamp, hasGpsStamp,
             recordEcoScan, recordStoreVisit, getEcoPoints,
             registerCertificate, findCertificateByCode,
+            googleUser, loginWithGoogle, logoutGoogle,
             STAMP_DEFS, CERT_TYPES,
         }}>
             {children}

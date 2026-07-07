@@ -7,40 +7,40 @@ import { usePassport } from '../context/PassportContext'
 const ITINERARY_3D = [
     {
         day: 'Ngày 1', dayEn: 'Day 1',
-        title: 'Hà Giang → Quản Bạ → Yên Minh',
-        titleEn: 'Ha Giang → Quan Ba → Yen Minh',
+        title: 'Hà Giang → Quản Bạ → Đồng Văn',
+        titleEn: 'Ha Giang → Quan Ba → Dong Van',
         icon: '🌄', color: '#16a34a',
         img: 'https://images.pexels.com/photos/27568660/pexels-photo-27568660.jpeg?auto=compress&cs=tinysrgb&w=700',
-        highlights: ['Cổng trời Quản Bạ', 'Núi Đôi huyền thoại', 'Cao nguyên đá', 'Bản người Mông'],
-        highlightsEn: ["Quan Ba Heaven Gate", "Twin Mountains", "Rock Plateau", "H'Mong Village"],
-        desc: 'Khởi hành sáng sớm từ TP Hà Giang theo QL4C lên cổng trời Quản Bạ — ngắm Núi Đôi từ trên cao. Tiếp tục vào Yên Minh qua vô số khúc cua núi uốn lượn, tối ngủ tại homestay địa phương.',
-        descEn: "Early morning departure from Ha Giang along QL4C to Quan Ba Heaven Gate — panoramic views of the famous Twin Mountains. Continue to Yen Minh through winding mountain roads. Overnight at a local homestay.",
+        highlights: ['Cổng trời Quản Bạ', 'Núi Đôi huyền thoại', 'Rừng thông Yên Minh', 'Phố cổ Đồng Văn'],
+        highlightsEn: ['Quan Ba Heaven Gate', 'Twin Mountains', 'Yen Minh Pine Forest', 'Dong Van Old Quarter'],
+        desc: 'Khởi hành từ TP Hà Giang theo QL4C, dừng cổng trời Quản Bạ và ngắm Núi Đôi. Tiếp tục qua rừng thông Yên Minh trước khi đến phố cổ Đồng Văn nhận phòng, dạo phố đêm.',
+        descEn: 'Depart Ha Giang city via QL4C, stop at Quan Ba Heaven Gate and Twin Mountains. Continue through Yen Minh pine forest to Dong Van Old Quarter for check-in and evening walk.',
         meal: 'Trưa + Tối / Lunch + Dinner',
-        hotel: 'Homestay Yên Minh',
+        hotel: 'Homestay Đồng Văn',
     },
     {
         day: 'Ngày 2', dayEn: 'Day 2',
-        title: 'Yên Minh → Đồng Văn → Mèo Vạc',
-        titleEn: 'Yen Minh → Dong Van → Meo Vac',
+        title: 'Đồng Văn → Mèo Vạc → Yên Minh',
+        titleEn: 'Dong Van → Meo Vac → Yen Minh',
         icon: '🏔️', color: '#d97706',
         img: 'https://images.pexels.com/photos/35792511/pexels-photo-35792511.jpeg?auto=compress&cs=tinysrgb&w=700',
-        highlights: ['Phố cổ Đồng Văn', 'Dinh họ Vương', 'Đèo Mã Pí Lèng', 'Hẻm Tu Sản'],
-        highlightsEn: ['Dong Van Old Quarter', 'Vuong Palace', 'Ma Pi Leng Pass', 'Tu San Canyon'],
-        desc: 'Sáng ghé phố cổ Đồng Văn và Dinh họ Vương — kiến trúc độc đáo của người H\'Mông. Chiều vượt Mã Pí Lèng — tứ đại đỉnh đèo Việt Nam — nhìn xuống hẻm Tu Sản sâu 700m. Tối tại Mèo Vạc.',
-        descEn: "Morning visit to Dong Van old quarter and Vuong Palace — unique H'Mong architecture. Afternoon conquering Ma Pi Leng Pass — one of Vietnam's 4 legendary passes — overlooking the 700m deep Tu San Canyon. Overnight Meo Vac.",
+        highlights: ['Phố cổ Đồng Văn', 'Dinh họ Vương', 'Đèo Mã Pí Lèng', 'Thị trấn Yên Minh'],
+        highlightsEn: ['Dong Van Old Quarter', 'Vuong Palace', 'Ma Pi Leng Pass', 'Yen Minh Town'],
+        desc: 'Buổi sáng tham quan Đồng Văn và Dinh họ Vương. Sau đó vượt đèo Mã Pí Lèng sang Mèo Vạc ngắm hẻm Tu Sản, rồi quay về Yên Minh nghỉ đêm theo tuyến vòng cung chuẩn.',
+        descEn: 'Morning visit to Dong Van and Vuong Palace. Cross Ma Pi Leng Pass to Meo Vac for Tu San canyon views, then return to Yen Minh for overnight on the classic loop route.',
         meal: 'Sáng + Trưa + Tối / Breakfast + Lunch + Dinner',
-        hotel: 'Khách sạn Mèo Vạc',
+        hotel: 'Homestay Yên Minh',
     },
     {
         day: 'Ngày 3', dayEn: 'Day 3',
-        title: 'Mèo Vạc → Du Già → Hà Giang',
-        titleEn: 'Meo Vac → Du Gia → Ha Giang',
+        title: 'Yên Minh → Hà Giang',
+        titleEn: 'Yen Minh → Ha Giang',
         icon: '🌿', color: '#2563eb',
         img: 'https://images.pexels.com/photos/10077653/pexels-photo-10077653.jpeg?auto=compress&cs=tinysrgb&w=700',
-        highlights: ['Ruộng bậc thang Du Già', 'Suối Tiên Du Già', 'Làng văn hóa', 'Về TP Hà Giang'],
-        highlightsEn: ['Du Gia Rice Terraces', 'Du Gia Stream', 'Ethnic Village', 'Return Ha Giang'],
-        desc: 'Sáng thăm ruộng bậc thang Du Già xanh mướt, tắm suối Tiên trong mát giữa rừng. Chiều qua làng văn hóa mua đặc sản: mật ong bạc hà, chè shan tuyết, thổ cẩm. Về lại TP Hà Giang chiều tối.',
-        descEn: "Morning at Du Gia lush rice terraces and a refreshing swim in Du Gia stream amid the forest. Afternoon through ethnic villages — shop for buckwheat honey, Shan Tuyet tea, hand-embroidered brocade. Return to Ha Giang by late afternoon.",
+        highlights: ['Rừng thông Yên Minh', 'Làng văn hóa', 'Điểm dừng Quản Bạ', 'Về TP Hà Giang'],
+        highlightsEn: ['Yen Minh Pine Forest', 'Ethnic Village', 'Quan Ba Stop', 'Return Ha Giang'],
+        desc: 'Rời Yên Minh về lại TP Hà Giang, dừng các điểm ngắm cảnh và làng văn hóa trên đường. Kết thúc hành trình vòng cung tại trung tâm Hà Giang vào chiều tối.',
+        descEn: 'Depart Yen Minh back to Ha Giang city, stopping at scenic viewpoints and ethnic villages along the way. Finish the loop in central Ha Giang by late afternoon.',
         meal: 'Sáng + Trưa / Breakfast + Lunch',
         hotel: 'Về TP Hà Giang / Return Ha Giang',
     },
@@ -50,53 +50,53 @@ const ITINERARY_3D = [
 const ITINERARY_4D = [
     {
         day: 'Ngày 1', dayEn: 'Day 1',
-        title: 'Hà Giang → Quản Bạ → Yên Minh',
-        titleEn: 'Ha Giang → Quan Ba → Yen Minh',
+        title: 'Hà Giang → Quản Bạ → Đồng Văn',
+        titleEn: 'Ha Giang → Quan Ba → Dong Van',
         icon: '🌄', color: '#16a34a',
         img: 'https://images.pexels.com/photos/27568660/pexels-photo-27568660.jpeg?auto=compress&cs=tinysrgb&w=700',
-        highlights: ['Cổng trời Quản Bạ', 'Núi Đôi huyền thoại', 'Cao nguyên đá', 'Bản người Mông'],
-        highlightsEn: ["Quan Ba Heaven Gate", "Twin Mountains", "Rock Plateau", "H'Mong Village"],
-        desc: 'Khởi hành sáng sớm từ TP Hà Giang theo QL4C lên cổng trời Quản Bạ — ngắm Núi Đôi từ trên cao. Tiếp tục vào Yên Minh qua vô số khúc cua núi uốn lượn, tối ngủ tại homestay địa phương.',
-        descEn: "Early morning departure from Ha Giang along QL4C to Quan Ba Heaven Gate — panoramic views of the famous Twin Mountains. Continue to Yen Minh through winding mountain roads. Overnight at a local homestay.",
+        highlights: ['Cổng trời Quản Bạ', 'Núi Đôi huyền thoại', 'Rừng thông Yên Minh', 'Phố cổ Đồng Văn'],
+        highlightsEn: ['Quan Ba Heaven Gate', 'Twin Mountains', 'Yen Minh Pine Forest', 'Dong Van Old Quarter'],
+        desc: 'Khởi hành từ TP Hà Giang, tham quan Quản Bạ và Núi Đôi, đi qua rừng thông Yên Minh và tới Đồng Văn nghỉ đêm.',
+        descEn: 'Depart Ha Giang city, visit Quan Ba and Twin Mountains, pass Yen Minh pine forest and overnight in Dong Van.',
         meal: 'Trưa + Tối / Lunch + Dinner',
-        hotel: 'Homestay Yên Minh',
-    },
-    {
-        day: 'Ngày 2', dayEn: 'Day 2',
-        title: 'Yên Minh → Lũng Cú → Đồng Văn',
-        titleEn: 'Yen Minh → Lung Cu → Dong Van',
-        icon: '🏴', color: '#7c3aed',
-        img: 'https://images.pexels.com/photos/15997684/pexels-photo-15997684.jpeg?auto=compress&cs=tinysrgb&w=700',
-        highlights: ['Cột cờ Lũng Cú', 'Điểm cực Bắc Việt Nam', 'Phố cổ Đồng Văn', 'Dinh họ Vương'],
-        highlightsEn: ['Lung Cu Flag Tower', "Vietnam's Northernmost Point", 'Dong Van Old Quarter', 'Vuong Palace'],
-        desc: 'Buổi sáng chinh phục cột cờ Lũng Cú — điểm cực Bắc Việt Nam trên đỉnh núi Rồng 1.470m — phóng tầm mắt sang đất Trung Quốc. Chiều xuống phố cổ Đồng Văn, thăm Dinh họ Vương kiến trúc H\'Mông độc đáo. Tối tại Đồng Văn.',
-        descEn: "Morning conquering Lung Cu Flag Tower — Vietnam's northernmost point on 1,470m Dragon Mountain — with views into China. Afternoon down to Dong Van Old Quarter and the unique H'Mong Vuong Palace. Overnight Dong Van.",
-        meal: 'Sáng + Trưa + Tối / Breakfast + Lunch + Dinner',
         hotel: 'Homestay Đồng Văn',
     },
     {
+        day: 'Ngày 2', dayEn: 'Day 2',
+        title: 'Đồng Văn → Lũng Cú → Mèo Vạc',
+        titleEn: 'Dong Van → Lung Cu → Meo Vac',
+        icon: '🏴', color: '#7c3aed',
+        img: 'https://images.pexels.com/photos/15997684/pexels-photo-15997684.jpeg?auto=compress&cs=tinysrgb&w=700',
+        highlights: ['Cột cờ Lũng Cú', 'Điểm cực Bắc Việt Nam', 'Đèo Mã Pí Lèng', 'Hẻm Tu Sản'],
+        highlightsEn: ['Lung Cu Flag Tower', "Vietnam's Northernmost Point", 'Ma Pi Leng Pass', 'Tu San Canyon'],
+        desc: 'Rời Đồng Văn đi Lũng Cú buổi sáng, sau đó quay lại tuyến chính và vượt Mã Pí Lèng để sang Mèo Vạc. Nghỉ đêm tại Mèo Vạc.',
+        descEn: 'Leave Dong Van for Lung Cu in the morning, then return to the main route and cross Ma Pi Leng to Meo Vac. Overnight in Meo Vac.',
+        meal: 'Sáng + Trưa + Tối / Breakfast + Lunch + Dinner',
+        hotel: 'Homestay Mèo Vạc',
+    },
+    {
         day: 'Ngày 3', dayEn: 'Day 3',
-        title: 'Đồng Văn → Đèo Mã Pí Lèng → Mèo Vạc',
-        titleEn: 'Dong Van → Ma Pi Leng Pass → Meo Vac',
+        title: 'Mèo Vạc → Yên Minh',
+        titleEn: 'Meo Vac → Yen Minh',
         icon: '🏔️', color: '#d97706',
         img: 'https://images.pexels.com/photos/35792511/pexels-photo-35792511.jpeg?auto=compress&cs=tinysrgb&w=700',
-        highlights: ['Đèo Mã Pí Lèng', 'Hẻm Tu Sản 700m', 'Chợ Mèo Vạc', 'Hoàng hôn cao nguyên'],
-        highlightsEn: ['Ma Pi Leng Pass', '700m Tu San Canyon', 'Meo Vac Market', 'Highland Sunset'],
-        desc: 'Vượt đèo Mã Pí Lèng — "đệ nhất hùng quan" Đông Nam Á — với những khúc cua tay áo bên vực thẳm. Dừng nhìn xuống hẻm Tu Sản — hẻm vực sâu nhất Đông Nam Á. Tối thăm chợ đêm Mèo Vạc, thưởng thức thắng cố.',
-        descEn: "Traverse Ma Pi Leng Pass — Southeast Asia's greatest mountain road — with hairpin bends over sheer cliffs. Stop to gaze into Tu San Canyon — SEA's deepest gorge. Evening at Meo Vac night market, taste the local Thang Co stew.",
+        highlights: ['Chợ Mèo Vạc', 'Đường đèo cao nguyên đá', 'Bản làng ven núi', 'Thị trấn Yên Minh'],
+        highlightsEn: ['Meo Vac Market', 'Karst Plateau Roads', 'Mountain Villages', 'Yen Minh Town'],
+        desc: 'Buổi sáng khám phá chợ Mèo Vạc, sau đó di chuyển về Yên Minh theo cung đường núi đá. Chiều dạo thị trấn và nghỉ đêm tại Yên Minh.',
+        descEn: 'Explore Meo Vac market in the morning, then ride back to Yen Minh through karst mountain roads. Evening walk and overnight in Yen Minh.',
         meal: 'Sáng + Trưa + Tối / Breakfast + Lunch + Dinner',
-        hotel: 'Khách sạn Mèo Vạc',
+        hotel: 'Homestay Yên Minh',
     },
     {
         day: 'Ngày 4', dayEn: 'Day 4',
-        title: 'Mèo Vạc → Du Già → Hà Giang',
-        titleEn: 'Meo Vac → Du Gia → Ha Giang',
+        title: 'Yên Minh → Hà Giang',
+        titleEn: 'Yen Minh → Ha Giang',
         icon: '🌿', color: '#2563eb',
         img: 'https://images.pexels.com/photos/10077653/pexels-photo-10077653.jpeg?auto=compress&cs=tinysrgb&w=700',
-        highlights: ['Ruộng bậc thang Du Già', 'Suối Tiên Du Già', 'Làng văn hóa', 'Kết thúc hành trình'],
-        highlightsEn: ['Du Gia Rice Terraces', 'Du Gia Stream', 'Ethnic Village', 'End of Tour'],
-        desc: 'Sáng thăm ruộng bậc thang Du Già xanh mướt, tắm suối Tiên trong mát giữa rừng. Chiều mua đặc sản: mật ong bạc hà, chè shan tuyết, thổ cẩm thêu tay. Về lại TP Hà Giang, kết thúc hành trình.',
-        descEn: "Morning at Du Gia lush rice terraces and a refreshing swim in Du Gia stream amid the forest. Afternoon shop for local specialties: buckwheat honey, Shan Tuyet tea, hand-embroidered brocade. Return to Ha Giang — end of tour.",
+        highlights: ['Rừng thông Yên Minh', 'Điểm dừng Quản Bạ', 'Làng văn hóa', 'Kết thúc hành trình'],
+        highlightsEn: ['Yen Minh Pine Forest', 'Quan Ba Stop', 'Ethnic Village', 'End of Tour'],
+        desc: 'Từ Yên Minh trở về TP Hà Giang, dừng chân chụp ảnh và mua đặc sản địa phương trên đường. Kết thúc tour tại trung tâm thành phố.',
+        descEn: 'From Yen Minh return to Ha Giang city, with photo stops and local specialty shopping along the route. Tour ends in city center.',
         meal: 'Sáng + Trưa / Breakfast + Lunch',
         hotel: 'Về TP Hà Giang / Return Ha Giang',
     },
@@ -104,10 +104,10 @@ const ITINERARY_4D = [
 
 /* ── Includes / Excludes ─────────────────────────────── */
 const INCLUDES = [
-    { icon: '🏍️', text: 'Easy Rider guide lái xe + xe máy bản địa', en: 'Local Easy Rider guide (driver) + motorbike' },
-    { icon: '🏨', text: 'Homestay/khách sạn 2–3★ (số đêm theo gói)', en: 'Homestay/hotel 2–3★ (nights per package)' },
+    { icon: '🏍️', text: 'Easy Rider local dẫn đường + xe máy bản địa', en: 'Local Easy Rider lead rider + motorbike' },
+    { icon: '🏨', text: 'Homestay địa phương (số đêm theo gói)', en: 'Local homestay stay (nights per package)' },
     { icon: '🍽️', text: 'Bữa ăn theo chương trình (7 bữa/3N·10 bữa/4N)', en: 'Meals per itinerary (7 meals/3D · 10 meals/4D)' },
-    { icon: '🧭', text: 'Hướng dẫn viên địa phương song ngữ Việt–Anh', en: 'Bilingual (VN–EN) local Easy Rider guide' },
+    { icon: '🧭', text: 'Local dẫn đường song ngữ Việt–Anh', en: 'Bilingual (VN–EN) local lead rider' },
     { icon: '🎫', text: 'Vé tham quan: Dinh họ Vương, Núi Đôi, Lũng Cú', en: 'Entrance fees: Vuong Palace, Twin Mountains, Lung Cu' },
     { icon: '⛑️', text: 'Mũ bảo hiểm đủ tiêu chuẩn', en: 'Full-face helmets provided' },
     { icon: '💊', text: 'Bảo hiểm du lịch cơ bản', en: 'Basic travel insurance' },
@@ -117,7 +117,7 @@ const INCLUDES = [
 const EXCLUDES = [
     { vn: 'Vé xe/máy bay đến TP Hà Giang', en: 'Transport to/from Ha Giang city' },
     { vn: 'Đồ uống và chi tiêu cá nhân', en: 'Drinks and personal expenses' },
-    { vn: 'Tiền tip hướng dẫn viên (tự nguyện)', en: 'Guide tip (voluntary)' },
+    { vn: 'Tiền tip local dẫn đường (tự nguyện)', en: 'Local lead tip (voluntary)' },
     { vn: 'Chi phí phát sinh ngoài chương trình', en: 'Extra costs outside the itinerary' },
 ]
 
@@ -133,13 +133,28 @@ const GALLERY_FALLBACK = [
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
+const TOUR_PACKAGES = {
+    '3d2n': {
+        price: 4000000,
+        oldPrice: 4800000,
+        nights: '3 Ngày 2 Đêm',
+        nightsEn: '3 Days 2 Nights',
+    },
+    '4d3n': {
+        price: 5000000,
+        oldPrice: 5500000,
+        nights: '4 Ngày 3 Đêm',
+        nightsEn: '4 Days 3 Nights',
+    },
+}
+
 /* ── FAQ ─────────────────────────────────────────────── */
 const FAQ = [
     {
         q: 'Easy Rider là gì? Tôi có phải lái xe không?',
         en_q: 'What is Easy Rider? Do I need to ride a motorbike?',
-        a: 'Easy Rider là hình thức du lịch xe máy truyền thống — bạn ngồi sau hướng dẫn viên bản địa (người Mông/Tày), họ lái xe và dẫn đường. Bạn không cần bằng lái hay kinh nghiệm lái xe máy. Nếu muốn tự lái, có thể thuê xe bán số riêng (thêm phí).',
-        en_a: "Easy Rider is a traditional motorbike touring style — you ride pillion behind a local H'Mong/Tay guide who drives and navigates. No license or experience needed. Prefer to self-ride? A semi-automatic motorbike rental is available at extra cost.",
+        a: 'Easy Rider là hình thức du lịch xe máy truyền thống — bạn ngồi sau local dẫn đường bản địa (người Mông/Tày), họ lái xe và dẫn tuyến. Bạn không cần bằng lái hay kinh nghiệm lái xe máy. Nếu muốn tự lái, có thể thuê xe bán số riêng (thêm phí).',
+        en_a: "Easy Rider is a traditional motorbike touring style — you ride pillion behind a local H'Mong/Tay lead rider who drives and navigates. No license or experience needed. Prefer to self-ride? A semi-automatic motorbike rental is available at extra cost.",
     },
     {
         q: '3 ngày 2 đêm hay 4 ngày 3 đêm — nên chọn gói nào?',
@@ -169,7 +184,7 @@ const FAQ = [
 
 /* ── BookingForm ─────────────────────────────────────── */
 function BookingForm({ tourType, onSuccess }) {
-    const price = tourType === '4d3n' ? 4500000 : 4000000
+    const price = TOUR_PACKAGES[tourType]?.price || TOUR_PACKAGES['3d2n'].price
     const [form, setForm] = useState({ name: '', phone: '', date: '', guests: 1, note: '' })
     const [loading, setLoading] = useState(false)
 
@@ -293,10 +308,11 @@ export default function HaGiangLoopPage() {
     }, [])
 
     const itinerary = tourType === '4d3n' ? ITINERARY_4D : ITINERARY_3D
-    const price = tourType === '4d3n' ? 4500000 : 4000000
-    const oldPrice = tourType === '4d3n' ? 5500000 : 4800000
-    const nights = tourType === '4d3n' ? '4 Ngày 3 Đêm' : '3 Ngày 2 Đêm'
-    const nightsEn = tourType === '4d3n' ? '4 Days 3 Nights' : '3 Days 2 Nights'
+    const activePackage = TOUR_PACKAGES[tourType] || TOUR_PACKAGES['3d2n']
+    const price = activePackage.price
+    const oldPrice = activePackage.oldPrice
+    const nights = activePackage.nights
+    const nightsEn = activePackage.nightsEn
 
     const handleBookingSuccess = (form) => {
         addStamp('tour')
@@ -338,17 +354,25 @@ export default function HaGiangLoopPage() {
                                 Easy Rider Motorbike Tour · {nightsEn}
                             </div>
                             <p style={{ color: '#a7f3d0', fontSize: 15, lineHeight: 1.7, margin: '0 0 4px', maxWidth: 480 }}>
-                                🏍️ Ngồi sau hướng dẫn viên bản địa người Mông — chinh phục Mã Pí Lèng, phố cổ Đồng Văn, ruộng bậc thang Du Già trên yên xe máy.
+                                🏍️ Ngồi sau local dẫn đường bản địa người Mông — chinh phục Mã Pí Lèng, phố cổ Đồng Văn, ruộng bậc thang Du Già trên yên xe máy.
                             </p>
                             <p style={{ color: '#6ee7b7', fontSize: 13, lineHeight: 1.6, margin: '0 0 22px', maxWidth: 480, fontStyle: 'italic' }}>
-                                Ride pillion with a local H'Mong Easy Rider guide — conquer Ma Pi Leng Pass, Dong Van Old Town & terraced rice fields by motorbike.
+                                Ride pillion with a local H'Mong Easy Rider lead rider — conquer Ma Pi Leng Pass, Dong Van Old Town & terraced rice fields by motorbike.
                             </p>
 
                             {/* Tour type selector */}
                             <div style={{ display: 'flex', gap: 10, marginBottom: 22 }}>
                                 {[
-                                    { id: '3d2n', label: '3 Ngày 2 Đêm', sub: '3D2N · 3.200.000đ/người' },
-                                    { id: '4d3n', label: '4 Ngày 3 Đêm', sub: '4D3N · 4.200.000đ/người — Thêm Lũng Cú' },
+                                    {
+                                        id: '3d2n',
+                                        label: '3 Ngày 2 Đêm',
+                                        sub: `3D2N · ${TOUR_PACKAGES['3d2n'].price.toLocaleString('vi-VN')}đ/người`,
+                                    },
+                                    {
+                                        id: '4d3n',
+                                        label: '4 Ngày 3 Đêm',
+                                        sub: `4D3N · ${TOUR_PACKAGES['4d3n'].price.toLocaleString('vi-VN')}đ/người — Thêm Lũng Cú`,
+                                    },
                                 ].map(opt => (
                                     <button
                                         key={opt.id}
@@ -415,9 +439,9 @@ export default function HaGiangLoopPage() {
                                 🔥 Ưu đãi mùa hè / Summer Deal
                             </div>
                             <div style={{ color: '#d1fae5', fontSize: 13, lineHeight: 2, textAlign: 'left' }}>
-                                <div>✅ Easy Rider guide + xe máy</div>
+                                <div>✅ Easy Rider local dẫn đường + xe máy</div>
                                 <div>✅ Ăn, ngủ trọn gói</div>
-                                <div>✅ HDV song ngữ Việt–Anh</div>
+                                <div>✅ Local dẫn đường song ngữ Việt–Anh</div>
                                 <div>✅ Vé tham quan + bảo hiểm</div>
                             </div>
                         </div>
@@ -453,10 +477,10 @@ export default function HaGiangLoopPage() {
                                     Easy Rider là gì? / What is Easy Rider?
                                 </h2>
                                 <p style={{ color: '#78350f', fontSize: 14, lineHeight: 1.7, margin: '0 0 6px' }}>
-                                    Bạn <strong>ngồi sau</strong> hướng dẫn viên bản địa (người Mông/Tày) — họ lái xe, dẫn đường và kể chuyện văn hóa. Không cần bằng lái, không cần kinh nghiệm lái xe. Trải nghiệm <em>thực sự cùng người địa phương</em>.
+                                    Bạn <strong>ngồi sau</strong> local dẫn đường bản địa (người Mông/Tày) — họ lái xe, dẫn đường và kể chuyện văn hóa. Không cần bằng lái, không cần kinh nghiệm lái xe. Trải nghiệm <em>thực sự cùng người địa phương</em>.
                                 </p>
                                 <p style={{ color: '#a16207', fontSize: 13, lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>
-                                    You ride pillion with a local H'Mong/Tay guide who drives, navigates, and shares cultural stories. No driving license or experience needed — a truly authentic local experience.
+                                    You ride pillion with a local H'Mong/Tay lead rider who drives, navigates, and shares cultural stories. No driving license or experience needed — a truly authentic local experience.
                                 </p>
                             </div>
                         </div>
@@ -467,7 +491,7 @@ export default function HaGiangLoopPage() {
                                 🎯 Tuỳ chọn / Options
                             </div>
                             {[
-                                { icon: '👤', vn: 'Ngồi sau Easy Rider (mặc định)', en: 'Ride pillion with guide (default)' },
+                                { icon: '👤', vn: 'Ngồi sau Easy Rider local (mặc định)', en: 'Ride pillion with local lead (default)' },
                                 { icon: '🏍️', vn: 'Tự lái xe bán số (+phí thuê)', en: 'Self-ride semi-auto (+rental fee)' },
                                 { icon: '🚗', vn: 'Xe ô tô riêng (theo yêu cầu)', en: 'Private car option (on request)' },
                             ].map((opt, i) => (
@@ -723,8 +747,8 @@ export default function HaGiangLoopPage() {
                             {/* Tour type mini-selector inside form */}
                             <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
                                 {[
-                                    { id: '3d2n', label: '3N2Đ · 3.200.000đ' },
-                                    { id: '4d3n', label: '4N3Đ · 4.200.000đ' },
+                                    { id: '3d2n', label: `3N2Đ · ${TOUR_PACKAGES['3d2n'].price.toLocaleString('vi-VN')}đ` },
+                                    { id: '4d3n', label: `4N3Đ · ${TOUR_PACKAGES['4d3n'].price.toLocaleString('vi-VN')}đ` },
                                 ].map(opt => (
                                     <button key={opt.id} type="button" onClick={() => setTourType(opt.id)}
                                         style={{
@@ -800,7 +824,7 @@ export default function HaGiangLoopPage() {
                     Ready to conquer the Ha Giang Loop on an Easy Rider?
                 </p>
                 <p style={{ color: '#a7f3d0', fontSize: 14, marginBottom: 28 }}>
-                    Chỉ còn <strong style={{ color: '#fbbf24' }}>vài suất</strong> trong tháng 6 — đặt ngay để nhận giá ưu đãi!
+                    Chỉ còn <strong style={{ color: '#fbbf24' }}>vài suất</strong> mỗi tuần — đặt sớm để giữ mức giá ưu đãi!
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
                     <a

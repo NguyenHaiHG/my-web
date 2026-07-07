@@ -19,6 +19,8 @@ const heroSectionRouter = require('./routes/heroSection')
 const discoverContentRouter = require('./routes/discoverContent')
 const ecoSystemRouter = require('./routes/ecoSystem')
 const siteImagesRouter = require('./routes/siteImages')
+const natureMemoryImagesRouter = require('./routes/natureMemoryImages')
+const natureMemoriesRouter = require('./routes/natureMemories')
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -66,6 +68,8 @@ app.use('/api/hero-section', heroSectionRouter)
 app.use('/api/discover-content', discoverContentRouter)
 app.use('/api/eco-system', ecoSystemRouter)
 app.use('/api/site-images', siteImagesRouter)
+app.use('/api/nature-memory-images', natureMemoryImagesRouter)
+app.use('/api/nature-memories', natureMemoriesRouter)
 
 // Health check
 app.get('/api/health', (req, res) => {

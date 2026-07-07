@@ -11429,6 +11429,201 @@ select option {
    font-size: 15px;
 }
 
+.ws-service-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+   gap: 16px;
+}
+
+.ws-service-card {
+   border: 1px solid #d1fae5;
+   background: linear-gradient(180deg, #ffffff 0%, #f7fffc 100%);
+   border-radius: 16px;
+   padding: 16px;
+   box-shadow: 0 2px 10px rgba(13, 148, 136, 0.08);
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+}
+
+.ws-service-head {
+   display: flex;
+   align-items: flex-start;
+   gap: 10px;
+}
+
+.ws-service-head h3 {
+   font-size: 16px;
+   margin: 0;
+   color: #0f172a;
+   line-height: 1.35;
+}
+
+.ws-service-head p {
+   margin: 2px 0 0;
+   font-size: 12px;
+   color: #64748b;
+}
+
+.ws-service-icon {
+   width: 36px;
+   height: 36px;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 20px;
+   background: #ecfeff;
+   border-radius: 10px;
+   border: 1px solid #a5f3fc;
+   flex-shrink: 0;
+}
+
+.ws-service-meta {
+   display: flex;
+   gap: 8px;
+   flex-wrap: wrap;
+}
+
+.ws-service-meta span {
+   font-size: 11px;
+   color: #0f766e;
+   font-weight: 700;
+   background: #f0fdfa;
+   border: 1px solid #99f6e4;
+   border-radius: 999px;
+   padding: 4px 9px;
+}
+
+.ws-service-price {
+   display: flex;
+   align-items: baseline;
+   gap: 8px;
+}
+
+.ws-service-price strong {
+   font-size: 22px;
+   color: #c2410c;
+}
+
+.ws-service-price span {
+   color: #64748b;
+   font-size: 12px;
+}
+
+.ws-service-includes {
+   margin: 0;
+   padding: 0;
+   list-style: none;
+   display: grid;
+   gap: 5px;
+   color: #334155;
+   font-size: 13px;
+   flex: 1;
+}
+
+.ws-combo-box {
+   background: linear-gradient(135deg, #0f172a, #134e4a);
+   border-radius: 18px;
+   color: #fff;
+   padding: 18px;
+   margin-top: 8px;
+}
+
+.ws-combo-head {
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-start;
+   gap: 14px;
+   flex-wrap: wrap;
+}
+
+.ws-combo-kicker {
+   margin: 0 0 6px;
+   color: #99f6e4;
+   font-weight: 700;
+   font-size: 12px;
+   text-transform: uppercase;
+   letter-spacing: .08em;
+}
+
+.ws-combo-head h3 {
+   margin: 0;
+   font-size: 22px;
+}
+
+.ws-combo-head p {
+   margin: 4px 0 0;
+   font-size: 13px;
+   color: rgba(255, 255, 255, .78);
+}
+
+.ws-combo-price {
+   text-align: right;
+}
+
+.ws-combo-price span {
+   display: block;
+   color: #99f6e4;
+   font-size: 12px;
+}
+
+.ws-combo-price strong {
+   font-size: 28px;
+   line-height: 1.2;
+}
+
+.ws-combo-list {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+   gap: 8px;
+   margin: 14px 0;
+}
+
+.ws-combo-item {
+   border: 1px solid rgba(255, 255, 255, .2);
+   border-radius: 10px;
+   background: rgba(255, 255, 255, .08);
+   padding: 7px 10px;
+   font-size: 13px;
+}
+
+.ws-combo-quote {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   flex-wrap: wrap;
+   border-top: 1px solid rgba(255, 255, 255, .2);
+   padding-top: 12px;
+}
+
+.ws-combo-quote label {
+   font-size: 13px;
+   color: rgba(255, 255, 255, .85);
+}
+
+.ws-combo-quote input {
+   width: 90px;
+   border-radius: 10px;
+   border: 1px solid rgba(255, 255, 255, .35);
+   background: rgba(255, 255, 255, .12);
+   color: #fff;
+   padding: 7px 10px;
+   font-weight: 700;
+   outline: none;
+}
+
+.ws-quote-values {
+   display: flex;
+   flex-direction: column;
+   gap: 4px;
+   font-size: 13px;
+}
+
+.ws-solo-note {
+   color: #fcd34d;
+   font-size: 12px;
+}
+
 @media (max-width: 600px) {
    .ws-hero {
       padding: 56px 0 44px;
@@ -11446,4 +11641,122 @@ select option {
    .ws-grid {
       grid-template-columns: 1fr;
    }
+
+   .ws-combo-head h3 {
+      font-size: 20px;
+   }
+
+   .ws-combo-price strong {
+      font-size: 24px;
+   }
+}
+
+/* ══════════════════════════════════════════════════════
+   PASSPORT — Google Login Section
+   ══════════════════════════════════════════════════════ */
+.pp-google-login {
+   margin-bottom: 14px;
+   padding: 10px 12px;
+   background: #f8f4ec;
+   border-radius: 10px;
+   border: 1px solid #f0e8d8;
+}
+
+.pp-google-hint {
+   font-size: 12px;
+   color: #64748b;
+   margin: 0 0 8px;
+}
+
+.pp-google-user {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   padding: 8px 10px;
+   background: #f0fdf4;
+   border: 1.5px solid #bbf7d0;
+   border-radius: 10px;
+   margin-bottom: 12px;
+}
+
+.pp-google-avatar {
+   width: 36px;
+   height: 36px;
+   border-radius: 50%;
+   object-fit: cover;
+   flex-shrink: 0;
+}
+
+.pp-google-info {
+   flex: 1;
+   min-width: 0;
+}
+
+.pp-google-name {
+   font-size: 13px;
+   font-weight: 700;
+   color: #1a3a4a;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+.pp-google-email {
+   font-size: 11px;
+   color: #64748b;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+.pp-google-logout {
+   font-size: 11px;
+   padding: 4px 10px;
+   border-radius: 20px;
+   border: 1px solid #ef4444;
+   background: transparent;
+   color: #ef4444;
+   cursor: pointer;
+   flex-shrink: 0;
+   transition: background .15s;
+}
+
+.pp-google-logout:hover {
+   background: #fef2f2;
+}
+
+/* ══ Stamp toggle visual cues ══ */
+.pp-stamp-toggle:hover .pp-stamp-circle {
+   transform: scale(1.08);
+   transition: transform .15s;
+}
+
+.pp-stamp-remove {
+   display: inline-block;
+   margin-left: 6px;
+   font-size: 10px;
+   color: #ef4444;
+   opacity: 0;
+   transition: opacity .15s;
+}
+
+.pp-stamp-toggle:hover .pp-stamp-remove {
+   opacity: 1;
+}
+
+/* ══ Cert unclaim button ══ */
+.pp-unclaim-btn {
+   font-size: 11px !important;
+   padding: 2px 8px !important;
+   border: 1px solid #ef4444 !important;
+   border-radius: 20px !important;
+   color: #ef4444 !important;
+   background: transparent !important;
+   cursor: pointer !important;
+   margin-top: 4px !important;
+   transition: background .15s;
+}
+
+.pp-unclaim-btn:hover {
+   background: #fef2f2 !important;
 }

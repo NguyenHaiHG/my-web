@@ -50,7 +50,7 @@ export default function BlogPostPage() {
     }
 
     const handleDelete = async () => {
-        if (!window.confirm('Bạn có chắc muốn xoá bài viết này?')) return
+        if (!window.confirm('Bạn có chắc muốn xoá câu chuyện này?')) return
         await deleteItem('post', post.id)
         showToast(t('blog_deleted'))
         navigate('/blog')
@@ -59,7 +59,7 @@ export default function BlogPostPage() {
     if (!post) {
         return (
             <div className="page-enter" style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-                <p style={{ fontSize: 18, color: '#64748b' }}>Bài viết không tồn tại hoặc đã bị xoá.</p>
+                <p style={{ fontSize: 18, color: '#64748b' }}>Câu chuyện không tồn tại hoặc đã bị xoá.</p>
                 <button className="btn3d btn3d-blue btn-sm" onClick={() => navigate('/blog')}>
                     <ArrowLeft size={16} /> {t('blog_back')}
                 </button>

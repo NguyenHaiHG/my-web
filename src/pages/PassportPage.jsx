@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { usePassport, STAMP_DEFS, CERT_TYPES, GPS_LANDMARKS } from '../context/PassportContext'
 import { useLang } from '../context/LanguageContext'
@@ -167,7 +167,7 @@ async function buildCertificateCanvas({ certDef, holder, earnedStamps, isBasic =
 
     ctx.fillStyle = '#fdf9f0'
     ctx.font = '20px Georgia, serif'
-    ctx.fillText('HTX Trường Hải · Tuyên Quang · Việt Nam', W / 2, 138)
+    ctx.fillText('HTX Thương mại Sáng tạo Trường Hải, Hà Giang 2, Tuyên Quang, Việt Nam', W / 2, 138)
 
     // Cert type icon
     const typeIcon = certDef?.icon || '🌸'
@@ -191,7 +191,7 @@ async function buildCertificateCanvas({ certDef, holder, earnedStamps, isBasic =
     ctx.fillStyle = '#4a4a4a'; ctx.font = '22px Georgia, serif'; ctx.textAlign = 'center'
     if (isBasic) {
         ctx.fillText('đã hoàn thành hành trình khám phá và trải nghiệm', W / 2, 435)
-        ctx.fillText('tại HTX Trường Hải, Tuyên Quang', W / 2, 465)
+        ctx.fillText('tại HTX Thương mại Sáng tạo Trường Hải, Hà Giang 2, Tuyên Quang, Việt Nam', W / 2, 465)
     } else {
         ctx.fillText(`đã hoàn thành trải nghiệm "${certDef.title}"`, W / 2, 435)
         ctx.fillText('tại vùng đất Hà Giang – Di sản địa chất UNESCO', W / 2, 465)
@@ -796,9 +796,69 @@ function GpsCheckInTab({ passport, addGpsStamp, hasGpsStamp }) {
 }
 
 /* ══════════════════════════════════════════════════════
+   GOOGLE LOGIN SECTION
+   ══════════════════════════════════════════════════════ */
+function GoogleLoginSection({ googleUser, loginWithGoogle, logoutGoogle }) {
+    const btnRef = useRef(null)
+
+    useEffect(() => {
+        if (googleUser) return
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+        if (!clientId || !btnRef.current) return
+
+        const render = () => {
+            if (!window.google?.accounts?.id) return false
+            window.google.accounts.id.initialize({
+                client_id: clientId,
+                callback: (r) => loginWithGoogle(r.credential),
+            })
+            window.google.accounts.id.renderButton(btnRef.current, {
+                theme: 'outline',
+                size: 'large',
+                text: 'signin_with',
+                locale: 'vi',
+                width: 240,
+            })
+            return true
+        }
+
+        if (!render()) {
+            const t = setInterval(() => { if (render()) clearInterval(t) }, 150)
+            return () => clearInterval(t)
+        }
+    }, [googleUser, loginWithGoogle])
+
+    if (googleUser) {
+        return (
+            <div className="pp-google-user">
+                {googleUser.picture && (
+                    <img src={googleUser.picture} alt="" className="pp-google-avatar" referrerPolicy="no-referrer" />
+                )}
+                <div className="pp-google-info">
+                    <div className="pp-google-name">{googleUser.name}</div>
+                    <div className="pp-google-email">{googleUser.email}</div>
+                </div>
+                <button className="pp-google-logout" onClick={logoutGoogle}>Đăng xuất</button>
+            </div>
+        )
+    }
+
+    const hasClientId = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID)
+    return (
+        <div className="pp-google-login">
+            <p className="pp-google-hint">🔐 Đăng nhập Google để lưu hộ chiếu của bạn</p>
+            {hasClientId
+                ? <div ref={btnRef} style={{ minHeight: 44 }} />
+                : <p style={{ fontSize: 11, color: '#c8963e' }}>Cần cấu hình VITE_GOOGLE_CLIENT_ID</p>
+            }
+        </div>
+    )
+}
+
+/* ══════════════════════════════════════════════════════
    BASIC TAB — 6 original stamps
    ══════════════════════════════════════════════════════ */
-function BasicTab({ passport, hasStamp, handleDownloadBasicPng, handleDownloadBasicPdf, passportPoints }) {
+function BasicTab({ passport, hasStamp, addStamp, removeStamp, handleDownloadBasicPng, handleDownloadBasicPdf, passportPoints }) {
     const { t, lang } = useLang()
     const [previewSrc, setPreviewSrc] = useState(null)
     const [previewing, setPreviewing] = useState(false)
@@ -821,13 +881,21 @@ function BasicTab({ passport, hasStamp, handleDownloadBasicPng, handleDownloadBa
                     const earned = hasStamp(type)
                     const stamp = earned ? passport.stamps.find(s => s.type === type) : null
                     return (
-                        <div key={type} className={`pp-stamp ${earned ? 'pp-stamp-earned' : 'pp-stamp-locked'}`} style={{ '--sc': def.color }}>
+                        <div key={type}
+                            className={`pp-stamp ${earned ? 'pp-stamp-earned' : 'pp-stamp-locked'} pp-stamp-toggle`}
+                            style={{ '--sc': def.color, cursor: 'pointer' }}
+                            onClick={() => earned ? removeStamp(type) : addStamp(type)}
+                            title={earned ? 'Nhấn để bỏ tem' : 'Nhấn để nhận tem'}
+                        >
                             <div className="pp-stamp-circle">
                                 <span className="pp-stamp-icon">{def.icon}</span>
                                 {earned && <div className="pp-stamp-check-badge">✓</div>}
                             </div>
                             <div className="pp-stamp-label">{lang === 'en' ? (def.label_en || def.label) : def.label}</div>
-                            {earned ? <div className="pp-stamp-date">{stamp.earnedAt}</div> : <div className="pp-stamp-how">{lang === 'en' ? (def.how_en || def.how) : def.how}</div>}
+                            {earned
+                                ? <div className="pp-stamp-date">{stamp.earnedAt} <span className="pp-stamp-remove">✕</span></div>
+                                : <div className="pp-stamp-how">{lang === 'en' ? (def.how_en || def.how) : def.how}</div>
+                            }
                         </div>
                     )
                 })}
@@ -871,7 +939,7 @@ function BasicTab({ passport, hasStamp, handleDownloadBasicPng, handleDownloadBa
 /* ══════════════════════════════════════════════════════
    CERT TAB — Loop / Culture / Volunteer / Products
    ══════════════════════════════════════════════════════ */
-function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCount, addReview, getReviews, holderName, addStamp, passportPoints, registerCertificate }) {
+function CertTab({ certDef, passport, hasCertStamp, addCertStamp, removeCertStamp, getCertStampCount, addReview, getReviews, holderName, addStamp, passportPoints, registerCertificate }) {
     const { t, lang } = useLang()
     const earnedCount = getCertStampCount(certDef.id)
     const totalCount = Object.keys(certDef.stamps).length
@@ -994,7 +1062,14 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
                             </div>
                             <div className="pp-cs-label">{lang === 'en' ? (def.label_en || def.label) : def.label}</div>
                             {earned
-                                ? <div className="pp-cs-date">{earnedData?.earnedAt}</div>
+                                ? (
+                                    <div>
+                                        <div className="pp-cs-date">{earnedData?.earnedAt}</div>
+                                        <button className="pp-claim-btn pp-unclaim-btn" onClick={() => removeCertStamp(certDef.id, type)}>
+                                            ✕ Bỏ tem
+                                        </button>
+                                    </div>
+                                )
                                 : (
                                     <div>
                                         <div className="pp-cs-how">{lang === 'en' ? (def.how_en || def.how) : def.how}</div>
@@ -1090,13 +1165,14 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, getCertStampCo
 export default function PassportPage() {
     const {
         passport, setHolderName,
-        addStamp, hasStamp,
-        addCertStamp, hasCertStamp, getCertStamps, getCertStampCount,
+        addStamp, hasStamp, removeStamp,
+        addCertStamp, hasCertStamp, removeCertStamp, getCertStamps, getCertStampCount,
         markCertIssued,
         addReview, getReviews,
         addGpsStamp, hasGpsStamp,
         getEcoPoints,
         registerCertificate,
+        googleUser, loginWithGoogle, logoutGoogle,
     } = usePassport()
     const { t, lang } = useLang()
 
@@ -1323,6 +1399,7 @@ export default function PassportPage() {
 
                     <div className="pp-data-page">
                         <h3 className="pp-dp-title">{t('pp_dp_title')}</h3>
+                        <GoogleLoginSection googleUser={googleUser} loginWithGoogle={loginWithGoogle} logoutGoogle={logoutGoogle} />
                         {editingName ? (
                             <div className="pp-name-edit">
                                 <input className="form-input" placeholder={t('pp_name_ph')}
@@ -1471,6 +1548,8 @@ export default function PassportPage() {
                             <BasicTab
                                 passport={passport}
                                 hasStamp={hasStamp}
+                                addStamp={addStamp}
+                                removeStamp={removeStamp}
                                 handleDownloadBasicPng={handleDownloadBasicPng}
                                 handleDownloadBasicPdf={handleDownloadBasicPdf}
                                 passportPoints={passportPoints}
@@ -1483,6 +1562,7 @@ export default function PassportPage() {
                                     passport={passport}
                                     hasCertStamp={hasCertStamp}
                                     addCertStamp={addCertStamp}
+                                    removeCertStamp={removeCertStamp}
                                     getCertStampCount={getCertStampCount}
                                     addReview={addReview}
                                     getReviews={getReviews}

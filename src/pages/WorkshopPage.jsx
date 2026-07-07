@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useData } from '../context/DataContext'
 
 const CATEGORY_INFO = {
@@ -9,6 +9,8 @@ const CATEGORY_INFO = {
     cooking: { icon: '🍜', label: 'Nấu ăn bản địa', labelEn: 'Local Cooking' },
     other: { icon: '🌿', label: 'Khác', labelEn: 'Other' },
 }
+
+const HIDDEN_CATEGORIES = new Set(['sewing', 'digital'])
 
 const DEFAULT_WORKSHOPS = [
     {
@@ -70,55 +72,140 @@ const DEFAULT_WORKSHOPS = [
     },
 ]
 
+const PRICING = {
+    currency: 'VND',
+    exchangeRateUsd: 25000,
+    comboPackages: [
+        {
+            comboId: 'hg_cultural_experience_01',
+            nameVi: 'Combo Trải Nghiệm Văn Hóa Trọn Gói 2N1Đ',
+            nameEn: 'Full Cultural Experience Combo (2D1N)',
+            minPax: 2,
+            comboPricePerPax: 1200000,
+            soloTravelerSurchargePercent: 25,
+        },
+    ],
+}
+
+function formatVnd(value) {
+    return new Intl.NumberFormat('vi-VN').format(value) + ' VND'
+}
+
+function formatUsdFromVnd(valueVnd) {
+    const usd = valueVnd / PRICING.exchangeRateUsd
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 2,
+    }).format(usd)
+}
+
 export default function WorkshopPage() {
     const { workshops } = useData()
     const [filter, setFilter] = useState('all')
+    const [comboPax, setComboPax] = useState(2)
 
-    const items = workshops.length > 0 ? workshops : DEFAULT_WORKSHOPS
+    const combo = PRICING.comboPackages[0]
+
+    const comboQuote = useMemo(() => {
+        const pax = Number(comboPax) || 1
+        const isSolo = pax < combo.minPax
+        const base = combo.comboPricePerPax * pax
+        const surcharge = isSolo
+            ? Math.round((combo.comboPricePerPax * combo.soloTravelerSurchargePercent) / 100)
+            : 0
+        return {
+            pax,
+            isSolo,
+            surcharge,
+            total: base + surcharge,
+        }
+    }, [combo, comboPax])
+
+    const sourceItems = workshops.length > 0 ? workshops : DEFAULT_WORKSHOPS
+    const items = sourceItems.filter(w => !HIDDEN_CATEGORIES.has(w.category))
     const filtered = filter === 'all' ? items : items.filter(w => w.category === filter)
     const categories = ['all', ...new Set(items.map(w => w.category).filter(Boolean))]
-
     return (
         <div className="page-enter">
             {/* ── Hero ── */}
             <section className="ws-hero">
                 <div className="ws-hero-content container">
-                    <span className="ws-hero-tag">🌿 HTX Trường Hải · Hà Giang</span>
+                    <span className="ws-hero-tag">🌿 BookHaGiang · Bảng Giá Workshop & Lưu Trú</span>
                     <h1 className="ws-hero-h1">Trải nghiệm<br /><span className="ws-hero-hl">Workshop</span></h1>
                     <p className="ws-hero-sub">
-                        Thêu thổ cẩm, nấu ăn bản địa, kỹ năng số — trải nghiệm thực tế
-                        do cộng đồng vùng cao tổ chức, miễn phí hoặc chi phí nguyên liệu.
+                        Dịch vụ thu phí minh bạch cho workshop văn hóa, lớp nấu ăn, trekking và lưu trú dorm.
+                        Giá được tính theo VND và quy đổi USD để du khách quốc tế dễ đặt chỗ.
                     </p>
                     <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic', marginTop: -4, marginBottom: 8 }}>
-                        Embroidery, local cooking, digital skills — real hands-on experiences hosted by the highland community, free or materials cost only.
+                        Paid experiences with transparent pricing in VND and USD estimation.
                     </p>
                     <div className="ws-hero-btns">
                         <a href="https://zalo.me/0385737705" target="_blank" rel="noreferrer"
                             className="btn3d btn3d-orange">
-                            💬 Đăng ký qua Zalo / Register
+                            💬 Đặt workshop qua Zalo
                         </a>
-                        <a href="/ho-chieu" className="btn3d btn3d-outline-white">
-                            🎖️ Nhận tem Hộ chiếu / Passport Stamp
+                        <a href="https://wa.me/84385737705" className="btn3d btn3d-outline-white" target="_blank" rel="noreferrer">
+                            Đặt qua WhatsApp
                         </a>
                     </div>
                 </div>
             </section>
 
-            {/* ── Passport stamp note ── */}
+            {/* ── Pricing note ── */}
             <div className="container">
                 <div className="ws-stamp-note">
-                    <span className="ws-stamp-icon">🎖️</span>
+                    <span className="ws-stamp-icon">💳</span>
                     <div>
-                        <p style={{ margin: 0 }}>Tham gia workshop sẽ được <strong>đóng dấu Hộ chiếu Hà Giang</strong> và tích điểm trải nghiệm cộng đồng HTX Trường Hải.</p>
-                        <p style={{ margin: '2px 0 0', fontSize: 13, color: '#64748b', fontStyle: 'italic' }}>Attend a workshop to earn a <strong>Ha Giang Passport stamp</strong> and community experience points.</p>
+                        <p style={{ margin: 0 }}><strong>Currency:</strong> {PRICING.currency} · <strong>Rate:</strong> 1 USD = {new Intl.NumberFormat('vi-VN').format(PRICING.exchangeRateUsd)} VND</p>
+                        <p style={{ margin: '2px 0 0', fontSize: 13, color: '#64748b', fontStyle: 'italic' }}>Bảng giá có thể cập nhật theo mùa cao điểm và ngày lễ.</p>
                     </div>
-                    <a href="/ho-chieu" className="ws-stamp-link">Xem Hộ chiếu / Passport →</a>
+                    <a href="/lien-he" className="ws-stamp-link">Yêu cầu báo giá nhóm →</a>
                 </div>
             </div>
 
-            {/* ── Category filter ── */}
+            {/* ── Combo package ── */}
+            <section className="container" style={{ paddingBottom: 18 }}>
+                <div className="ws-combo-box">
+                    <div className="ws-combo-head">
+                        <div>
+                            <p className="ws-combo-kicker">Combo package</p>
+                            <h3>{combo.nameVi}</h3>
+                            <p>{combo.nameEn}</p>
+                        </div>
+                        <div className="ws-combo-price">
+                            <span>Giá từ</span>
+                            <strong>{formatVnd(combo.comboPricePerPax)}/pax</strong>
+                        </div>
+                    </div>
+
+                    <div className="ws-combo-quote">
+                        <label htmlFor="comboPax">Số lượng khách</label>
+                        <input
+                            id="comboPax"
+                            type="number"
+                            min={1}
+                            max={30}
+                            value={comboPax}
+                            onChange={(e) => setComboPax(e.target.value)}
+                        />
+                        <div className="ws-quote-values">
+                            <span>Tổng tạm tính: <strong>{formatVnd(comboQuote.total)}</strong> ({formatUsdFromVnd(comboQuote.total)})</span>
+                            {comboQuote.isSolo && (
+                                <span className="ws-solo-note">+ Phụ phí solo {combo.soloTravelerSurchargePercent}%: {formatVnd(comboQuote.surcharge)}</span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Workshop schedule ── */}
             {categories.length > 2 && (
                 <div className="container">
+                    <div className="section-header-center" style={{ marginBottom: 10 }}>
+                        <h2 style={{ marginBottom: 6 }}>Lịch workshop mở</h2>
+                        <p style={{ color: '#64748b', margin: 0 }}>Danh sách lớp đang mở theo chủ đề để bạn chọn nhanh.</p>
+                    </div>
                     <div className="ws-filters">
                         {categories.map(cat => (
                             <button
@@ -152,12 +239,12 @@ export default function WorkshopPage() {
             <section className="ng-cta">
                 <div className="ng-cta-overlay" />
                 <div className="container ng-cta-inner">
-                    <h2>Muốn tham gia workshop? <span style={{ display: 'block', fontSize: '0.6em', fontWeight: 400, opacity: 0.85 }}>Want to join a workshop?</span></h2>
-                    <p>Các workshop thường miễn phí hoặc chỉ thu tiền nguyên liệu. Đặt chỗ sớm vì số lượng có hạn.</p>
-                    <p style={{ fontSize: 14, opacity: 0.8, fontStyle: 'italic', marginTop: -8 }}>Most workshops are free or charge materials cost only. Book early — spots are limited.</p>
+                    <h2>Cần tư vấn báo giá nhóm?<span style={{ display: 'block', fontSize: '0.6em', fontWeight: 400, opacity: 0.85 }}>Need a custom quote for your group?</span></h2>
+                    <p>BookHaGiang hỗ trợ lịch trình riêng cho gia đình, nhóm bạn và tour học đường.</p>
+                    <p style={{ fontSize: 14, opacity: 0.8, fontStyle: 'italic', marginTop: -8 }}>Custom schedules are available for families, friends, and school groups.</p>
                     <div className="ng-cta-btns">
                         <a className="btn3d btn3d-orange" href="https://zalo.me/0385737705"
-                            target="_blank" rel="noreferrer">💬 Zalo / Register</a>
+                            target="_blank" rel="noreferrer">💬 Đặt qua Zalo</a>
                         <a className="btn3d btn3d-outline-white" href="https://wa.me/84385737705"
                             target="_blank" rel="noreferrer">WhatsApp</a>
                     </div>
@@ -199,7 +286,7 @@ function WorkshopCard({ ws }) {
                     </span>
                     <a href="https://zalo.me/0385737705" target="_blank" rel="noreferrer"
                         className="btn3d btn-sm btn3d-orange">
-                        Đăng ký / Join
+                        Đặt lịch
                     </a>
                 </div>
             </div>

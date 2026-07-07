@@ -363,7 +363,7 @@ export default function QuickMenu() {
                     {tab === 'create' && (
                         <div className="qm-panel">
                             <p className="qm-panel-desc">
-                                🎓 Workshop miễn phí — dành cho phụ nữ dân tộc &amp; du khách yêu thích trải nghiệm thực
+                                �️ Workshop văn hoá bản địa — trải nghiệm thực tế do cộng đồng tổ chức
                             </p>
                             <div className="qm-create-grid">
                                 {WORKSHOPS_SAMPLE.map((w, i) => (

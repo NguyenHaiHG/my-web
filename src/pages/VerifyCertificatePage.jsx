@@ -28,7 +28,7 @@ export default function VerifyCertificatePage() {
 
                 <p className="verify-sub">
                     {cert
-                        ? 'Mã chứng nhận đã được phát hành bởi HTX Trường Hải và lưu trong hệ thống Passport Hà Giang Loop.'
+                        ? 'Mã chứng nhận đã được phát hành bởi HTX Thương mại Sáng tạo Trường Hải, Hà Giang 2, Tuyên Quang, Việt Nam và lưu trong hệ thống Passport Hà Giang Loop.'
                         : 'Mã xác thực không tồn tại trong Passport registry. Hãy kiểm tra lại QR hoặc liên hệ admin.'}
                 </p>
 

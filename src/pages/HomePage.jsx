@@ -3,7 +3,8 @@ import { useState, useEffect, useMemo } from 'react'
 import { ArrowRight, Heart, Leaf } from 'lucide-react'
 import { useLang } from '../context/LanguageContext'
 import { useData } from '../context/DataContext'
-import { useAuth } from '../context/AuthContext'
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 function loadNaturePhotos() {
     try {
@@ -24,27 +25,35 @@ function loadNaturePhotos() {
 
 const QUICK_CARDS = [
     {
-        emoji: '🎖️',
-        title: 'Hộ chiếu Hà Giang',
-        desc: 'Tạo hộ chiếu số miễn phí, quét QR tại điểm sinh thái, nhận tem & tải chứng nhận hành trình thực tế.',
-        path: '/ho-chieu',
-        cta: 'Tạo hộ chiếu →',
-        highlight: true,
-    },
-    {
         emoji: '🧵',
-        title: 'Trải nghiệm Workshop',
-        desc: 'Thêu thổ cẩm, nấu ăn bản địa, kỹ năng số — trải nghiệm thực tế do cộng đồng vùng cao tổ chức.',
+        title: 'Workshop Văn Hoá',
+        desc: 'Thêu thổ cẩm, nấu ăn bản địa, nhạc cụ dân tộc — trải nghiệm văn hoá Tày, H\u2019Mông do cộng đồng tổ chức.',
         path: '/workshop',
-        cta: 'Xem Workshop →',
+        cta: 'Đặt workshop →',
         highlight: true,
     },
     {
         emoji: '🌿',
-        title: 'Nhật Ký Thiên Nhiên',
-        desc: 'Ghi chép quan sát cây cối, côn trùng, chim chóc — tỉ mỉ như người Nhật. Lưu ảnh, ghi chú, thời tiết.',
+        title: 'Học Bảo Tồn Thiên Nhiên',
+        desc: 'Quan sát cây cối, côn trùng, chim chóc trong khu di sản nguyên sinh. Ghi nhật ký, tìm hiểu hệ sinh thái.',
         path: '/nhat-ky-thien-nhien',
         cta: 'Mở nhật ký →',
+        highlight: true,
+    },
+    {
+        emoji: '🛏️',
+        title: 'Dorm Lưu Trú',
+        desc: 'Phòng dorm sạch sẽ, giá tốt ngay tại Phường Hà Giang 2 — cách Ha Giang Loop 500m, gần thiên nhiên, gần cộng đồng.',
+        path: '/lien-he',
+        cta: 'Đặt phòng →',
+        highlight: true,
+    },
+    {
+        emoji: '🎖️',
+        title: 'Hộ Chiếu Hà Giang',
+        desc: 'Tạo hộ chiếu số, quét QR tại các điểm sinh thái, nhận tem & tải chứng nhận hành trình thực tế.',
+        path: '/ho-chieu',
+        cta: 'Tạo hộ chiếu →',
         highlight: false,
     },
 ]
@@ -69,32 +78,31 @@ export default function HomePage() {
     const navigate = useNavigate()
     const { t } = useLang()
     const { communityImages } = useData()
-    const { isAdmin, isMod } = useAuth()
-    const canEdit = isAdmin || isMod
 
     // ── Hero slideshow ───────────────────────────────────────────────
-    const [heroImages, setHeroImages] = useState(() => {
-        try {
-            const saved = localStorage.getItem('hagiang_hero_v2')
-            if (saved) return JSON.parse(saved)
-        } catch { /* ignore */ }
-        return HERO_IMAGES_DEFAULT
-    })
+    const [heroImages, setHeroImages] = useState(HERO_IMAGES_DEFAULT)
     const [heroIdx, setHeroIdx] = useState(0)
-    const [showHeroAdmin, setShowHeroAdmin] = useState(false)
-    const [newHeroUrl, setNewHeroUrl] = useState('')
-    const [newHeroCaption, setNewHeroCaption] = useState('')
+
+    // Fetch admin-uploaded hero images from backend
+    useEffect(() => {
+        fetch(`${API}/api/site-images`)
+            .then(r => r.json())
+            .then(arr => {
+                if (!Array.isArray(arr)) return
+                const slots = arr
+                    .filter(img => img.slot?.startsWith('homepage-hero-') && img.url)
+                    .sort((a, b) => a.slot.localeCompare(b.slot))
+                    .map(img => ({ url: img.url, caption: img.caption || '' }))
+                if (slots.length > 0) setHeroImages(slots)
+            })
+            .catch(() => { })
+    }, [])
 
     useEffect(() => {
         if (heroImages.length <= 1) return
         const t = setInterval(() => setHeroIdx(i => (i + 1) % heroImages.length), 7000)
         return () => clearInterval(t)
     }, [heroImages.length])
-
-    const saveHeroImages = (imgs) => {
-        setHeroImages(imgs)
-        localStorage.setItem('hagiang_hero_v2', JSON.stringify(imgs))
-    }
 
     // Always show default Pexels Ha Giang photos; community uploads added on top
     const communityMapped = communityImages
@@ -132,23 +140,6 @@ export default function HomePage() {
                 />
                 <div className="ng-hero-overlay" />
 
-                {/* Admin edit button */}
-                {canEdit && (
-                    <button
-                        onClick={() => setShowHeroAdmin(true)}
-                        style={{
-                            position: 'absolute', top: 16, right: 16, zIndex: 10,
-                            background: 'rgba(0,0,0,0.55)', color: '#fff',
-                            border: '1px solid rgba(255,255,255,0.35)',
-                            borderRadius: 8, padding: '6px 14px', cursor: 'pointer',
-                            fontSize: 13, display: 'flex', alignItems: 'center', gap: 6,
-                            backdropFilter: 'blur(4px)',
-                        }}
-                    >
-                        🖼️ Sửa ảnh bìa
-                    </button>
-                )}
-
                 {/* Slideshow dots */}
                 {heroImages.length > 1 && (
                     <div style={{
@@ -185,113 +176,25 @@ export default function HomePage() {
                 )}
 
                 <div className="ng-hero-content">
-                    <h1>{t('hp_h1_pre')} <span className="ng-hl">{t('hp_h1_hl')}</span><br />{t('hp_h1_post')}</h1>
+                    <p className="ng-hero-eyebrow">{t('hp_hero_badge')}</p>
+                    <h1><span className="ng-hl">{t('hp_h1_hl')}</span></h1>
                     <p>{t('hp_hero_sub')}</p>
                     <div className="ng-hero-btns">
-                        <button className="btn3d btn3d-orange" onClick={() => navigate('/workshop')}>
-                            Khám phá Workshop <ArrowRight size={16} />
+                        <button className="btn3d btn3d-orange" onClick={() => navigate('/thu-vien')}>
+                            {t('hp_hero_btn1')} <ArrowRight size={16} />
                         </button>
-                        <button className="btn3d btn3d-outline-white" onClick={() => navigate('/ho-chieu')}>
-                            Tạo hộ chiếu →
+                        <button className="btn3d btn3d-outline-white" onClick={() => navigate('/lien-he')}>
+                            {t('hp_hero_btn2')} →
                         </button>
                     </div>
                 </div>
             </section>
 
-            {/* ── Hero Admin Modal ─────────────────────────────────────── */}
-            {showHeroAdmin && (
-                <div
-                    style={{
-                        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)',
-                        zIndex: 9000, display: 'flex', alignItems: 'center',
-                        justifyContent: 'center', padding: 16,
-                    }}
-                    onClick={() => setShowHeroAdmin(false)}
-                >
-                    <div
-                        style={{
-                            background: '#fff', borderRadius: 18, padding: 24,
-                            maxWidth: 500, width: '100%', maxHeight: '85vh', overflowY: 'auto',
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
-                        }}
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <h3 style={{ margin: '0 0 4px', fontSize: 17 }}>🖼️ Quản lý ảnh bìa trang chủ</h3>
-                        <p style={{ color: '#64748b', fontSize: 12, margin: '0 0 16px' }}>Kéo URL ảnh vào để thêm. Ảnh hiện tại sẽ tự chuyển mỗi 7 giây.</p>
-
-                        {heroImages.map((img, i) => (
-                            <div key={i} style={{
-                                display: 'flex', gap: 10, marginBottom: 8,
-                                alignItems: 'center', background: i === heroIdx ? '#f0fdf4' : '#f8fafc',
-                                borderRadius: 10, padding: 8, border: i === heroIdx ? '1.5px solid #16a34a' : '1.5px solid #e2e8f0',
-                            }}>
-                                <img
-                                    src={img.url} alt=""
-                                    style={{ width: 72, height: 46, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }}
-                                    onError={e => { e.target.style.background = '#e2e8f0'; e.target.src = '' }}
-                                />
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                        {img.caption || '(chưa có caption)'}
-                                    </div>
-                                    <div style={{ fontSize: 11, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                        {img.url}
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => { setHeroIdx(0); saveHeroImages(heroImages.filter((_, j) => j !== i)) }}
-                                    style={{ background: '#fee2e2', border: 'none', borderRadius: 6, padding: '5px 9px', cursor: 'pointer', color: '#dc2626', flexShrink: 0, fontWeight: 700 }}
-                                    title="Xoá ảnh này"
-                                >✕</button>
-                            </div>
-                        ))}
-
-                        <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8, borderTop: '1px solid #e2e8f0', paddingTop: 16 }}>
-                            <p style={{ margin: 0, fontWeight: 700, fontSize: 13 }}>+ Thêm ảnh mới</p>
-                            <input
-                                value={newHeroUrl}
-                                onChange={e => setNewHeroUrl(e.target.value)}
-                                placeholder="Dán URL ảnh (Unsplash, hoặc link ảnh của bạn)…"
-                                style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}
-                            />
-                            <input
-                                value={newHeroCaption}
-                                onChange={e => setNewHeroCaption(e.target.value)}
-                                placeholder="Caption (vd: Nông dân thu hoạch lúa)"
-                                style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}
-                            />
-                            <button
-                                onClick={() => {
-                                    if (!newHeroUrl.trim()) return
-                                    saveHeroImages([...heroImages, { url: newHeroUrl.trim(), caption: newHeroCaption.trim() }])
-                                    setNewHeroUrl(''); setNewHeroCaption('')
-                                }}
-                                style={{ background: '#16a34a', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 16px', cursor: 'pointer', fontWeight: 700 }}
-                            >
-                                + Thêm ảnh
-                            </button>
-                            <button
-                                onClick={() => { saveHeroImages(HERO_IMAGES_DEFAULT); setHeroIdx(0) }}
-                                style={{ background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontSize: 12 }}
-                            >
-                                ↺ Khôi phục ảnh mặc định
-                            </button>
-                            <button
-                                onClick={() => setShowHeroAdmin(false)}
-                                style={{ background: '#0f172a', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 16px', cursor: 'pointer', fontWeight: 700 }}
-                            >
-                                ✓ Xong
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             <section className="farmer-film" aria-label="Ảnh cộng đồng & thiên nhiên">
                 <div className="container">
                     <div className="farmer-film-head">
-                        <strong>Nông dân vùng cao Hà Giang</strong>
-                        <p>Ảnh nông dân & nhật ký thiên nhiên của học sinh.</p>
+                        <strong>BookHaGiang — văn hoá, kết nối và lưu trữ</strong>
+                        <p>Ảnh workshop, đời sống cộng đồng và những ký ức địa phương được lưu giữ mỗi ngày.</p>
                     </div>
                 </div>
                 <div className="farmer-film-window">
@@ -311,8 +214,8 @@ export default function HomePage() {
 
             <section className="container py-section" style={{ marginTop: 8 }}>
                 <div className="section-header-center" style={{ marginBottom: 16 }}>
-                    <h2 style={{ marginBottom: 6 }}>Khám phá tính năng</h2>
-                    <p style={{ color: '#64748b', margin: 0 }}>Chọn mục bạn muốn trải nghiệm — tất cả miễn phí.</p>
+                    <h2 style={{ marginBottom: 6 }}>Bạn muốn trải nghiệm gì?</h2>
+                    <p style={{ color: '#64748b', margin: 0 }}>Workshop · Thiên nhiên · Lưu trú · Hành trình — chọn điều phù hợp với bạn.</p>
                 </div>
 
                 <div className="cards-grid">
@@ -337,11 +240,14 @@ export default function HomePage() {
                     <h2>{t('hp_cta_h2')}</h2>
                     <p>{t('hp_cta_sub')}</p>
                     <div className="ng-cta-btns">
-                        <button className="btn3d btn3d-orange" onClick={() => navigate('/ho-chieu')}>
-                            <Heart size={16} /> Tạo hộ chiếu
+                        <button className="btn3d btn3d-orange" onClick={() => navigate('/workshop')}>
+                            <Leaf size={16} /> Đặt Workshop
                         </button>
-                        <button className="btn3d btn3d-blue" onClick={() => navigate('/workshop')}>
-                            <Leaf size={16} /> Xem Workshop
+                        <button className="btn3d btn3d-blue" onClick={() => navigate('/lien-he')}>
+                            <Heart size={16} /> Đặt phòng dorm
+                        </button>
+                        <button className="btn3d btn3d-outline-white" onClick={() => navigate('/nhat-ky-thien-nhien')}>
+                            🌿 Nhật ký thiên nhiên
                         </button>
                     </div>
                 </div>

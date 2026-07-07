@@ -14,6 +14,7 @@ import HeroSectionEditor from '../components/HeroSectionEditor'
 import DiscoverContentEditor from '../components/DiscoverContentEditor'
 import AdminCommunityGallery from '../components/AdminCommunityGallery'
 import AdminSiteImages from '../components/AdminSiteImages'
+import AdminNatureMemory from '../components/AdminNatureMemory'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -44,6 +45,7 @@ const NAV_ITEMS = [
     { key: 'hero-section', icon: <Image size={18} />, label: 'Hero Section' },
     { key: 'community-gallery', icon: <Image size={18} />, label: 'Ảnh cộng đồng' },
     { key: 'site-images', icon: <Image size={18} />, label: 'Ảnh trang web' },
+    { key: 'nature-memory', icon: <Image size={18} />, label: '🌿 Nhật Ký Thiên Nhiên' },
     { key: 'workshops', icon: <Users size={18} />, label: 'Workshop' },
     { key: 'workshop-regs', icon: <Check size={18} />, label: 'Đăng ký WS' },
     { key: 'passport-sites', icon: <MapPin size={18} />, label: '🎖️ Điểm Hộ chiếu' },
@@ -645,6 +647,8 @@ export default function DashboardPage() {
                 return <AdminCommunityGallery />
             case 'site-images':
                 return <AdminSiteImages />
+            case 'nature-memory':
+                return <AdminNatureMemory />
             default:
                 return null
         }

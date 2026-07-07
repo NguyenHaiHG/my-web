@@ -366,10 +366,10 @@ function Header() {
       <div className="header-inner">
         <Link to="/" className="logo" onClick={() => setOpen(false)}>
           <div className="logo-top">
-            <span className="logo-htm">HTX</span>
-            <span className="logo-name"> TRƯỜNG HẢI</span>
+            <span className="logo-htm">Book</span>
+            <span className="logo-name"> Hà Giang</span>
           </div>
-          <div className="logo-sub">{t('logo_sub')}</div>
+          <div className="logo-sub">Khám phá · Học hỏi · Lưu trú</div>
         </Link>
 
         <nav className={`nav ${open ? 'nav-open' : ''}`}>
@@ -491,7 +491,7 @@ function SOSButton() {
   const contacts = [
     { label: '🚨 Công an', number: '113', desc: 'Police / Cảnh sát' },
     { label: '🚑 Cấp cứu', number: '115', desc: 'Ambulance / Y tế' },
-    { label: '🏠 HTX Trường Hải', number: '0385737705', desc: 'Hỗ trợ phụ nữ & du khách' },
+    { label: '🏠 HTX Thương mại Sáng tạo Trường Hải', number: '0385737705', desc: 'BookHaGiang' },
     { label: '📞 Hỗ trợ khác', number: '0832311689', desc: 'Support line 2' },
   ]
   return (
@@ -510,7 +510,7 @@ function SOSButton() {
               <span style={{ fontSize: 22 }}>🆘</span>
               <div>
                 <div style={{ fontWeight: 800, fontSize: 16, color: '#dc2626' }}>Hỗ trợ khẩn cấp</div>
-                <div style={{ fontSize: 12, color: '#64748b', fontStyle: 'italic' }}>Emergency support for women & travellers</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontStyle: 'italic' }}>BookHaGiang — Emergency support</div>
               </div>
             </div>
             {contacts.map(c => (
@@ -644,7 +644,7 @@ function AppInner() {
       <MobileAppDock />
       <footer className="footer app-footer">
         <div className="footer-inner">
-          <p>🌿 <strong>HTX Trường Hải</strong> – Tổ 5 Quang Trung · Phường Hà Giang 2 · Tuyên Quang</p>
+          <p>� <strong>BookHaGiang</strong> – HTX Thương mại Sáng tạo Trường Hải, Hà Giang 2, Tuyên Quang, Việt Nam</p>
           <div className="footer-links">
             <a href="/workshop">Workshop</a>
             <a href="/ha-giang-loop">Loop Tour</a>
