@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
 import {
-  User, LogOut, Menu, X, MessageCircle, House, BookOpen, Phone,
+  User, LogOut, Menu, X, MessageCircle, House, BookOpen, Phone, Mail,
   Upload, Plus, LayoutDashboard, WifiOff, Save, GraduationCap, Map, Leaf, MoreHorizontal
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -19,6 +19,7 @@ import HaGiangLoopPage from './pages/HaGiangLoopPage'
 import VerifyCertificatePage from './pages/VerifyCertificatePage'
 import NatureMemoryPage from './pages/NatureMemoryPage'
 import LibraryPage from './pages/LibraryPage'
+import PenpalPage from './pages/PenpalPage'
 import './App.css'
 
 /* ──────────────────────────────────────────────────────
@@ -572,6 +573,7 @@ function MobileAppDock() {
   const moreItems = [
     { to: '/thu-vien', label: 'Thư viện', icon: <BookOpen size={18} /> },
     { to: '/nhat-ky-thien-nhien', label: 'Nhật Ký TN', icon: <Leaf size={18} /> },
+    { to: '/penpal', label: 'Penpal', icon: <Mail size={18} /> },
     { to: '/lien-he', label: 'Liên hệ', icon: <Phone size={18} /> },
   ]
 
@@ -639,6 +641,7 @@ function AppInner() {
           <Route path="/verify/:certCode" element={<VerifyCertificatePage />} />
           <Route path="/nhat-ky-thien-nhien" element={<NatureMemoryPage />} />
           <Route path="/thu-vien" element={<LibraryPage />} />
+          <Route path="/penpal" element={<PenpalPage />} />
         </Routes>
       </main>
       <MobileAppDock />
