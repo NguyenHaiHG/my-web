@@ -15,9 +15,9 @@ const HIDDEN_CATEGORIES = new Set(['sewing', 'digital'])
 const DEFAULT_WORKSHOPS = [
     {
         id: 'ws-1',
-        title: 'Thêu thổ cẩm truyền thống',
-        desc: 'Học kỹ thuật thêu hoa văn dân tộc từ nghệ nhân địa phương. Tự tay tạo nên tác phẩm thổ cẩm độc đáo mang về nhà.',
-        date: 'Thứ 7 hàng tuần',
+        title: 'Thêu thổ cẩm truyền thống / Traditional Brocade Embroidery',
+        desc: 'Học kỹ thuật thêu hoa văn dân tộc từ nghệ nhân địa phương. Tự tay tạo nên tác phẩm thổ cẩm độc đáo mang về nhà. / Learn ethnic embroidery patterns from local artisans and craft your own unique brocade piece to take home.',
+        date: 'Thứ 7 hàng tuần / Every Saturday',
         time: '08:00 – 11:00',
         category: 'embroidery',
         isFree: true,
@@ -26,13 +26,13 @@ const DEFAULT_WORKSHOPS = [
     },
     {
         id: 'ws-2',
-        title: 'Nấu ăn bản địa Hà Giang',
-        desc: 'Chế biến các món đặc sản vùng cao:bánh cuốn Hà Giang, chè shan tuyết. Trải nghiệm văn hóa ẩm thực địa phương.',
-        date: 'Chủ nhật hàng tuần',
+        title: 'Nấu ăn bản địa Hà Giang / Ha Giang Local Cooking',
+        desc: 'Chế biến các món đặc sản vùng cao: bánh cuốn Hà Giang, chè shan tuyết. Trải nghiệm văn hóa ẩm thực địa phương. / Cook highland specialties: Ha Giang rolled rice cake, Shan Tuyet tea dishes. Experience authentic local food culture.',
+        date: 'Chủ nhật hàng tuần / Every Sunday',
         time: '09:00 – 12:00',
         category: 'cooking',
         isFree: false,
-        price: '150.000đ',
+        price: '150.000đ / ~6 USD',
         capacity: 10,
         status: 'upcoming',
     },
@@ -85,22 +85,21 @@ export default function WorkshopPage() {
             {/* ── Hero ── */}
             <section className="ws-hero">
                 <div className="ws-hero-content container">
-                    <span className="ws-hero-tag">🌿 BookHaGiang · Bảng Giá Workshop & Lưu Trú</span>
+                    <span className="ws-hero-tag">🌿 BookHaGiang · Workshop & Experiences</span>
                     <h1 className="ws-hero-h1">Trải nghiệm<br /><span className="ws-hero-hl">Workshop</span></h1>
                     <p className="ws-hero-sub">
-                        Dịch vụ thu phí minh bạch cho workshop văn hóa, lớp nấu ăn, trekking và lưu trú dorm.
-                        Giá được tính theo VND và quy đổi USD để du khách quốc tế dễ đặt chỗ.
+                        Khám phá văn hóa bản địa qua các lớp học thực hành cùng người dân địa phương.
                     </p>
                     <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic', marginTop: -4, marginBottom: 8 }}>
-                        Paid experiences with transparent pricing in VND and USD estimation.
+                        Discover local culture through hands-on classes with community members.
                     </p>
                     <div className="ws-hero-btns">
                         <a href="https://zalo.me/0385737705" target="_blank" rel="noreferrer"
                             className="btn3d btn3d-orange">
-                            💬 Đặt workshop qua Zalo
+                            💬 Đặt workshop qua Zalo / Book via Zalo
                         </a>
                         <a href="https://wa.me/84385737705" className="btn3d btn3d-outline-white" target="_blank" rel="noreferrer">
-                            Đặt qua WhatsApp
+                            WhatsApp
                         </a>
                     </div>
                 </div>
@@ -110,8 +109,8 @@ export default function WorkshopPage() {
             {categories.length > 2 && (
                 <div className="container">
                     <div className="section-header-center" style={{ marginBottom: 10 }}>
-                        <h2 style={{ marginBottom: 6 }}>Lịch workshop mở</h2>
-                        <p style={{ color: '#64748b', margin: 0 }}>Danh sách lớp đang mở theo chủ đề để bạn chọn nhanh.</p>
+                        <h2 style={{ marginBottom: 6 }}>Lịch workshop mở / Open Workshops</h2>
+                        <p style={{ color: '#64748b', margin: 0 }}>Danh sách lớp đang mở theo chủ đề để bạn chọn nhanh. / Browse open classes by topic.</p>
                     </div>
                     <div className="ws-filters">
                         {categories.map(cat => (
@@ -193,7 +192,7 @@ function WorkshopCard({ ws }) {
                     </span>
                     <a href="https://zalo.me/0385737705" target="_blank" rel="noreferrer"
                         className="btn3d btn-sm btn3d-orange">
-                        Đặt lịch
+                        Đặt lịch / Book
                     </a>
                 </div>
             </div>
