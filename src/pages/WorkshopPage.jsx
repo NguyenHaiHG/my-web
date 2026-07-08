@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useData } from '../context/DataContext'
 
 const CATEGORY_INFO = {
@@ -27,7 +27,7 @@ const DEFAULT_WORKSHOPS = [
     {
         id: 'ws-2',
         title: 'Nấu ăn bản địa Hà Giang',
-        desc: 'Chế biến các món đặc sản vùng cao: thắng cố, bánh cuốn Hà Giang, chè shan tuyết. Trải nghiệm văn hóa ẩm thực địa phương.',
+        desc: 'Chế biến các món đặc sản vùng cao:bánh cuốn Hà Giang, chè shan tuyết. Trải nghiệm văn hóa ẩm thực địa phương.',
         date: 'Chủ nhật hàng tuần',
         time: '09:00 – 12:00',
         category: 'cooking',
@@ -72,55 +72,9 @@ const DEFAULT_WORKSHOPS = [
     },
 ]
 
-const PRICING = {
-    currency: 'VND',
-    exchangeRateUsd: 25000,
-    comboPackages: [
-        {
-            comboId: 'hg_cultural_experience_01',
-            nameVi: 'Combo Trải Nghiệm Văn Hóa Trọn Gói 2N1Đ',
-            nameEn: 'Full Cultural Experience Combo (2D1N)',
-            minPax: 2,
-            comboPricePerPax: 1200000,
-            soloTravelerSurchargePercent: 25,
-        },
-    ],
-}
-
-function formatVnd(value) {
-    return new Intl.NumberFormat('vi-VN').format(value) + ' VND'
-}
-
-function formatUsdFromVnd(valueVnd) {
-    const usd = valueVnd / PRICING.exchangeRateUsd
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 2,
-    }).format(usd)
-}
-
 export default function WorkshopPage() {
     const { workshops } = useData()
     const [filter, setFilter] = useState('all')
-    const [comboPax, setComboPax] = useState(2)
-
-    const combo = PRICING.comboPackages[0]
-
-    const comboQuote = useMemo(() => {
-        const pax = Number(comboPax) || 1
-        const isSolo = pax < combo.minPax
-        const base = combo.comboPricePerPax * pax
-        const surcharge = isSolo
-            ? Math.round((combo.comboPricePerPax * combo.soloTravelerSurchargePercent) / 100)
-            : 0
-        return {
-            pax,
-            isSolo,
-            surcharge,
-            total: base + surcharge,
-        }
-    }, [combo, comboPax])
 
     const sourceItems = workshops.length > 0 ? workshops : DEFAULT_WORKSHOPS
     const items = sourceItems.filter(w => !HIDDEN_CATEGORIES.has(w.category))
@@ -148,53 +102,6 @@ export default function WorkshopPage() {
                         <a href="https://wa.me/84385737705" className="btn3d btn3d-outline-white" target="_blank" rel="noreferrer">
                             Đặt qua WhatsApp
                         </a>
-                    </div>
-                </div>
-            </section>
-
-            {/* ── Pricing note ── */}
-            <div className="container">
-                <div className="ws-stamp-note">
-                    <span className="ws-stamp-icon">💳</span>
-                    <div>
-                        <p style={{ margin: 0 }}><strong>Currency:</strong> {PRICING.currency} · <strong>Rate:</strong> 1 USD = {new Intl.NumberFormat('vi-VN').format(PRICING.exchangeRateUsd)} VND</p>
-                        <p style={{ margin: '2px 0 0', fontSize: 13, color: '#64748b', fontStyle: 'italic' }}>Bảng giá có thể cập nhật theo mùa cao điểm và ngày lễ.</p>
-                    </div>
-                    <a href="/lien-he" className="ws-stamp-link">Yêu cầu báo giá nhóm →</a>
-                </div>
-            </div>
-
-            {/* ── Combo package ── */}
-            <section className="container" style={{ paddingBottom: 18 }}>
-                <div className="ws-combo-box">
-                    <div className="ws-combo-head">
-                        <div>
-                            <p className="ws-combo-kicker">Combo package</p>
-                            <h3>{combo.nameVi}</h3>
-                            <p>{combo.nameEn}</p>
-                        </div>
-                        <div className="ws-combo-price">
-                            <span>Giá từ</span>
-                            <strong>{formatVnd(combo.comboPricePerPax)}/pax</strong>
-                        </div>
-                    </div>
-
-                    <div className="ws-combo-quote">
-                        <label htmlFor="comboPax">Số lượng khách</label>
-                        <input
-                            id="comboPax"
-                            type="number"
-                            min={1}
-                            max={30}
-                            value={comboPax}
-                            onChange={(e) => setComboPax(e.target.value)}
-                        />
-                        <div className="ws-quote-values">
-                            <span>Tổng tạm tính: <strong>{formatVnd(comboQuote.total)}</strong> ({formatUsdFromVnd(comboQuote.total)})</span>
-                            {comboQuote.isSolo && (
-                                <span className="ws-solo-note">+ Phụ phí solo {combo.soloTravelerSurchargePercent}%: {formatVnd(comboQuote.surcharge)}</span>
-                            )}
-                        </div>
                     </div>
                 </div>
             </section>
