@@ -20,6 +20,7 @@ import VerifyCertificatePage from './pages/VerifyCertificatePage'
 import NatureMemoryPage from './pages/NatureMemoryPage'
 import LibraryPage from './pages/LibraryPage'
 import PenpalPage from './pages/PenpalPage'
+import { uploadImageDataUrl } from './utils/uploadImage'
 import './App.css'
 
 /* ──────────────────────────────────────────────────────
@@ -111,6 +112,7 @@ function AdminModal() {
     e.preventDefault()
     try {
       const payload = { ...form, tag: type }
+      if (payload.img) payload.img = await uploadImageDataUrl(payload.img, `${payload.title || type}.jpg`)
       if (!payload.date) payload.date = new Date().toLocaleDateString('vi-VN')
       if (type === 'workshop') { payload.status = 'upcoming' }
       // Strip empty strings so Mongoose uses model defaults (avoids enum validation errors)
@@ -280,7 +282,9 @@ function EditModal() {
     e.preventDefault()
     setSaving(true)
     try {
-      await updateItem(type, item.id, form)
+      const payload = { ...form }
+      if (payload.img) payload.img = await uploadImageDataUrl(payload.img, `${payload.title || type}.jpg`)
+      await updateItem(type, item.id, payload)
       showToast(`✅ Đã lưu ${EDIT_LABEL[type] || type}!`)
       setEditItem(null)
     } catch (err) {

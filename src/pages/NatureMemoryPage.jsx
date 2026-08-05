@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { X, Plus, ChevronLeft, Trash2, Search, Leaf, Award } from 'lucide-react'
+import { X, Plus, ChevronLeft, Trash2, Search, Leaf, Award, Upload, RefreshCw, WifiOff } from 'lucide-react'
 import './NatureMemory.css'
+import { uploadImageDataUrl } from '../utils/uploadImage'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -314,6 +315,7 @@ async function fetchRemoteMemories() {
 }
 
 async function createRemoteMemory(entry) {
+    const imageUrl = await uploadImageDataUrl(entry.img || '', `${entry.name || 'nature-memory'}.jpg`)
     const payload = {
         clientId: entry.clientId || entry.id || '',
         name: entry.name || '',
@@ -324,7 +326,7 @@ async function createRemoteMemory(entry) {
         weather: entry.weather || '',
         season: entry.season || '',
         mood: entry.mood || '',
-        img: entry.img || '',
+        img: imageUrl,
         time: entry.time || '',
         createdAt: entry.createdAt || Date.now(),
     }
@@ -510,14 +512,32 @@ const BLANK = {
     img: '', time: '',
 }
 
-function AddModal({ onClose, onSave }) {
+function AddModal({ onClose, onSave, initialFile }) {
     const [form, setForm] = useState({ ...BLANK, season: getSeason() })
     const [preview, setPreview] = useState('')
     const [saving, setSaving] = useState(false)
     const [imgErr, setImgErr] = useState('')
+    const [saveErr, setSaveErr] = useState('')
     const fileRef = useRef()
 
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+    useEffect(() => {
+        if (!initialFile) return
+
+        let cancelled = false
+        compressImage(initialFile)
+            .then(compressed => {
+                if (cancelled) return
+                setPreview(compressed)
+                setForm(current => ({ ...current, img: compressed }))
+            })
+            .catch(() => {
+                if (!cancelled) setImgErr('Không đọc được ảnh, thử file khác')
+            })
+
+        return () => { cancelled = true }
+    }, [initialFile])
 
     const handleFile = async (e) => {
         const file = e.target.files?.[0]
@@ -531,9 +551,10 @@ function AddModal({ onClose, onSave }) {
         } catch { setImgErr('Không đọc được ảnh, thử file khác') }
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         setSaving(true)
+        setSaveErr('')
         const now = Date.now()
         const entry = {
             ...form,
@@ -541,7 +562,12 @@ function AddModal({ onClose, onSave }) {
             createdAt: now,
             time: form.time || new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         }
-        onSave(entry)
+        try {
+            await onSave(entry)
+        } catch (err) {
+            setSaveErr(err?.message || 'Không lưu được ghi chép lên server')
+            setSaving(false)
+        }
     }
 
     return (
@@ -664,8 +690,9 @@ function AddModal({ onClose, onSave }) {
                     </div>
 
                     <button type="submit" className="nm-btn-primary nm-btn-full" disabled={saving}>
-                        {saving ? '⏳ Đang lưu…' : '📝 Lưu ghi chép  /  Save entry'}
+                        {saving ? '⏳ Đang đăng tải lên server…' : '📝 Đăng tải ghi chép  /  Upload entry'}
                     </button>
+                    {saveErr && <p className="nm-err">{saveErr}. Vui lòng kiểm tra server và thử lại.</p>}
                 </form>
             </div>
         </div>
@@ -683,6 +710,27 @@ export default function NatureMemoryPage() {
     const [detail, setDetail] = useState(null)
     const [showSearch, setShowSearch] = useState(false)
     const [showCert, setShowCert] = useState(false)
+    const [uploadFile, setUploadFile] = useState(null)
+    const [serverStatus, setServerStatus] = useState('checking')
+    const [saveNotice, setSaveNotice] = useState('')
+    const uploadRef = useRef()
+
+    const checkServer = useCallback(async () => {
+        setServerStatus('checking')
+        const controller = new AbortController()
+        const timeout = window.setTimeout(() => controller.abort(), 6000)
+        try {
+            const res = await fetch(`${API}/api/health`, { signal: controller.signal })
+            const health = res.ok ? await res.json() : null
+            setServerStatus(health?.status === 'ok' && health?.dbConnected !== false ? 'online' : 'offline')
+        } catch {
+            setServerStatus('offline')
+        } finally {
+            window.clearTimeout(timeout)
+        }
+    }, [])
+
+    useEffect(() => { checkServer() }, [checkServer])
 
     // Persist on every change
     useEffect(() => { saveMemories(memories) }, [memories])
@@ -736,18 +784,36 @@ export default function NatureMemoryPage() {
     }, [])
 
     const handleSave = useCallback(async (entry) => {
-        setShowAdd(false)
+        setSaveNotice('')
         try {
             const created = await createRemoteMemory(entry)
             const normalized = normalizeMemory(created)
             if (normalized) {
                 setMemories(m => [normalized, ...m.filter(x => x.id !== normalized.id && x.clientId !== normalized.clientId)])
+                setServerStatus('online')
+                setSaveNotice('Đã đăng tải ảnh và ghi chép lên server.')
+                setShowAdd(false)
+                setUploadFile(null)
                 return
             }
-        } catch {
-            // If backend is unavailable, keep old local behavior.
+            throw new Error('Server không trả về ghi chép đã lưu')
+        } catch (err) {
+            setServerStatus('offline')
+            throw err
         }
-        setMemories(m => [entry, ...m])
+    }, [])
+
+    const handleUploadPick = useCallback((event) => {
+        const file = event.target.files?.[0]
+        if (!file) return
+        if (file.size > 25 * 1024 * 1024) {
+            setSaveNotice('Ảnh quá lớn — vui lòng chọn ảnh dưới 25MB.')
+            event.target.value = ''
+            return
+        }
+        setUploadFile(file)
+        setShowAdd(true)
+        event.target.value = ''
     }, [])
 
     const handleDelete = useCallback(async (id) => {
@@ -819,6 +885,7 @@ export default function NatureMemoryPage() {
                     ))}
                 </div>
                 <div className="nm-toolbar-right">
+                    <input ref={uploadRef} type="file" accept="image/*" hidden onChange={handleUploadPick} />
                     <button className="nm-icon-btn nm-search-toggle"
                         onClick={() => setShowSearch(s => !s)} title="Tìm kiếm / Search">
                         <Search size={18} />
@@ -828,11 +895,33 @@ export default function NatureMemoryPage() {
                             <Award size={16} /> Chứng nhận
                         </button>
                     )}
+                    <button className="nm-btn-upload" onClick={() => uploadRef.current?.click()}>
+                        <Upload size={17} /> Đăng tải ảnh
+                    </button>
                     <button className="nm-btn-add" onClick={() => setShowAdd(true)}>
                         <Plus size={18} /> Ghi chép <span style={{ opacity: .7, fontWeight: 400, fontSize: 12 }}>/ New</span>
                     </button>
                 </div>
             </div>
+
+            {serverStatus === 'offline' && (
+                <div className="nm-server-notice nm-server-offline">
+                    <WifiOff size={16} />
+                    <span>Không kết nối được server. Chưa thể đăng tải ảnh hoặc ghi chép.</span>
+                    <button type="button" onClick={checkServer}><RefreshCw size={14} /> Thử lại</button>
+                </div>
+            )}
+            {serverStatus === 'checking' && (
+                <div className="nm-server-notice">
+                    <RefreshCw className="nm-spin" size={15} />
+                    <span>Đang kiểm tra kết nối server…</span>
+                </div>
+            )}
+            {saveNotice && (
+                <div className={`nm-save-notice${serverStatus === 'offline' ? ' nm-save-local' : ''}`}>
+                    {saveNotice}
+                </div>
+            )}
 
             {/* SEARCH BAR */}
             {showSearch && (
@@ -873,7 +962,11 @@ export default function NatureMemoryPage() {
 
             {/* MODALS */}
             {showAdd && (
-                <AddModal onClose={() => setShowAdd(false)} onSave={handleSave} />
+                <AddModal
+                    initialFile={uploadFile}
+                    onClose={() => { setShowAdd(false); setUploadFile(null) }}
+                    onSave={handleSave}
+                />
             )}
             {detail && (
                 <DetailModal

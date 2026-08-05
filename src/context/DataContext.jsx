@@ -25,21 +25,9 @@ function lsLoad(type) {
 function lsSave(type, list) {
   try { localStorage.setItem(LS_KEY(type), JSON.stringify(list)) } catch { /* quota */ }
 }
-function lsAdd(type, item) {
-  const list = [item, ...lsLoad(type)]
-  lsSave(type, list)
-}
-function lsUpdate(type, id, data) {
-  const list = lsLoad(type).map(i => (i.id === id ? { ...i, ...data } : i))
-  lsSave(type, list)
-}
 function lsDelete(type, id) {
   lsSave(type, lsLoad(type).filter(i => i.id !== id))
 }
-function makeLocalId() {
-  return 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7)
-}
-
 export function DataProvider({ children }) {
   const [posts, setPosts] = useState([])
   const [products, setProducts] = useState([])
@@ -110,12 +98,7 @@ export function DataProvider({ children }) {
         signal: AbortSignal.timeout(10000),
       })
     } catch {
-      // Offline fallback — save locally with a local ID
-      const localItem = { ...item, id: makeLocalId(), _local: true }
-      if (SETTERS[type]) {
-        SETTERS[type](p => { const list = [localItem, ...p]; lsSave(type, list); return list })
-      }
-      return localItem
+      throw new Error('Không kết nối được server — dữ liệu chưa được lưu')
     }
     if (!res.ok) {
       const raw = await res.text().catch(() => '')
@@ -140,12 +123,7 @@ export function DataProvider({ children }) {
         signal: AbortSignal.timeout(10000),
       })
     } catch {
-      // Offline fallback — update locally
-      const updated = { ...data, id }
-      if (SETTERS[type]) {
-        SETTERS[type](list => { const next = list.map(i => i.id === id ? { ...i, ...data } : i); lsSave(type, next); return next })
-      }
-      return updated
+      throw new Error('Không kết nối được server — thay đổi chưa được lưu')
     }
     if (!res.ok) {
       const raw = await res.text().catch(() => '')

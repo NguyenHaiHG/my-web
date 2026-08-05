@@ -189,6 +189,84 @@
     background: #2d4a1e;
 }
 
+.nm-btn-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 7px 14px;
+    border: 1.5px solid #3a5f3a;
+    border-radius: 20px;
+    background: #fff;
+    color: #2d4a1e;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+}
+
+.nm-btn-upload:hover {
+    background: #e8f2e5;
+}
+
+.nm-server-notice,
+.nm-save-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #eef5ec;
+    border-bottom: 1px solid #cbdcc7;
+    color: #365b32;
+    font-size: 12.5px;
+    text-align: center;
+}
+
+.nm-server-offline,
+.nm-save-local {
+    background: #fff7e6;
+    border-bottom-color: #f1d49d;
+    color: #8a5a12;
+}
+
+.nm-server-notice button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border: 1px solid currentColor;
+    border-radius: 14px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.nm-spin {
+    animation: nm-spin 0.9s linear infinite;
+}
+
+@keyframes nm-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 720px) {
+    .nm-btn-upload {
+        padding: 7px 10px;
+    }
+
+    .nm-btn-add {
+        display: none;
+    }
+
+    .nm-server-notice {
+        flex-wrap: wrap;
+    }
+}
+
 /* ── Search bar ── */
 .nm-searchbar {
     display: flex;

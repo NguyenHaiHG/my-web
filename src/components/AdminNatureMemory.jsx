@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Upload, Trash2, ImagePlus } from 'lucide-react'
 import { useUI } from '../context/UIContext'
+import { uploadImageDataUrl } from '../utils/uploadImage'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -42,13 +43,17 @@ export default function AdminNatureMemory() {
     const [uploading, setUploading] = useState(false)
     const [dragOver, setDragOver] = useState(false)
     const [loading, setLoading] = useState(true)
+    const [serverOnline, setServerOnline] = useState(true)
     const fileRef = useRef()
 
     useEffect(() => {
         fetch(`${API}/api/nature-memory-images`)
-            .then(r => r.json())
-            .then(data => { setImages(data); setLoading(false) })
-            .catch(() => setLoading(false))
+            .then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}`)
+                return r.json()
+            })
+            .then(data => { setImages(data); setServerOnline(true); setLoading(false) })
+            .catch(() => { setServerOnline(false); setLoading(false) })
     }, [])
 
     const addFiles = (files) => {
@@ -76,24 +81,32 @@ export default function AdminNatureMemory() {
         if (!queue.length) return
         setUploading(true)
         let ok = 0
+        const failed = []
         for (const item of queue) {
             try {
-                const url = await compressImage(item.file)
+                const compressed = await compressImage(item.file)
+                const url = await uploadImageDataUrl(compressed, item.file.name)
                 const res = await fetch(`${API}/api/nature-memory-images`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url, caption: item.caption, category: item.category }),
                 })
+                if (!res.ok) throw new Error(`HTTP ${res.status}`)
                 const saved = await res.json()
                 setImages(prev => [saved, ...prev])
                 ok++
             } catch {
-                showToast('❌ Lỗi upload 1 ảnh — bỏ qua')
+                failed.push(item)
             }
         }
-        setQueue([])
+        setQueue(failed)
         setUploading(false)
-        showToast(`✅ Đã thêm ${ok} ảnh vào Nhật Ký Thiên Nhiên!`)
+        setServerOnline(failed.length === 0)
+        if (failed.length) {
+            showToast(`❌ Không kết nối được server — còn ${failed.length} ảnh chưa đăng tải`)
+        } else {
+            showToast(`✅ Đã thêm ${ok} ảnh vào Nhật Ký Thiên Nhiên!`)
+        }
     }
 
     const handleDelete = async (id) => {
@@ -110,9 +123,20 @@ export default function AdminNatureMemory() {
     return (
         <div className="acg-wrap">
             <div className="acg-header">
-                <h2 className="acg-title">🌿 Ảnh Nhật Ký Thiên Nhiên</h2>
+                <div className="acg-title-row">
+                    <h2 className="acg-title">🌿 Ảnh Nhật Ký Thiên Nhiên</h2>
+                    <button className="acg-btn-upload" type="button" onClick={() => fileRef.current?.click()}>
+                        <Upload size={15} /> Đăng tải ảnh
+                    </button>
+                </div>
                 <p className="acg-sub">Tải ảnh mẫu các loài lên đây. Ảnh sẽ được lưu vào cơ sở dữ liệu.</p>
             </div>
+
+            {!serverOnline && (
+                <div className="acg-server-error">
+                    Không kết nối được server. Hãy khởi động backend rồi nhấn “Tải lên tất cả” để thử lại.
+                </div>
+            )}
 
             {/* DROP ZONE */}
             <div

@@ -1260,6 +1260,29 @@ select option {
    margin-bottom: 20px;
 }
 
+.acg-title-row {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 12px;
+   margin-bottom: 4px;
+}
+
+.acg-title-row .acg-title {
+   margin-bottom: 0;
+}
+
+.acg-server-error {
+   margin: -8px 0 16px;
+   padding: 10px 12px;
+   border: 1px solid #f3c98b;
+   border-radius: 9px;
+   background: #fff7e6;
+   color: #9a5b0a;
+   font-size: 13px;
+   font-weight: 600;
+}
+
 .acg-title {
    font-size: 1.25rem;
    font-weight: 800;

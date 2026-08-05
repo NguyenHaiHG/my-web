@@ -16,3 +16,5 @@ services:
         sync: false        # bạn điền thủ công trên Render dashboard
       - key: FRONTEND_URL
         value: https://htxtruonghai.com
+      - key: PUBLIC_API_URL
+        value: https://hagiang-backend.onrender.com

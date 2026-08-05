@@ -6,6 +6,7 @@ import { useUI } from '../context/UIContext'
 import { useLang } from '../context/LanguageContext'
 import { useState } from 'react'
 import { Edit2, Trash2, Upload, X } from 'lucide-react'
+import { compressImageFile, uploadImageDataUrl } from '../utils/uploadImage'
 
 export default function BlogPostPage() {
     const { id } = useParams()
@@ -27,21 +28,28 @@ export default function BlogPostPage() {
         setEditOpen(true)
     }
 
-    const handleEditFile = (e) => {
+    const handleEditFile = async (e) => {
         const file = e.target.files?.[0]
         if (!file) return
-        const reader = new FileReader()
-        reader.onload = (ev) => {
-            setEditPreview(ev.target.result)
-            setEditForm(f => ({ ...f, img: ev.target.result }))
+        if (file.size > 20 * 1024 * 1024) {
+            showToast('Ảnh quá lớn (tối đa 20MB)')
+            return
         }
-        reader.readAsDataURL(file)
+        try {
+            const compressed = await compressImageFile(file)
+            setEditPreview(compressed)
+            setEditForm(f => ({ ...f, img: compressed }))
+        } catch {
+            showToast('Không đọc được ảnh, vui lòng chọn ảnh khác')
+        }
     }
 
     const saveEdit = async (e) => {
         e.preventDefault()
         try {
-            await updateItem('post', post.id, editForm)
+            const payload = { ...editForm }
+            if (payload.img) payload.img = await uploadImageDataUrl(payload.img, `${payload.title || 'post'}.jpg`)
+            await updateItem('post', post.id, payload)
             setEditOpen(false)
             showToast(t('admin_update_btn'))
         } catch (err) {

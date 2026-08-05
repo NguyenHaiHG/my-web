@@ -22,8 +22,10 @@ const siteImagesRouter = require('./routes/siteImages')
 const natureMemoryImagesRouter = require('./routes/natureMemoryImages')
 const natureMemoriesRouter = require('./routes/natureMemories')
 const penpalsRouter = require('./routes/penpals')
+const uploadsRouter = require('./routes/uploads')
 
 const app = express()
+app.set('trust proxy', 1)
 const PORT = process.env.PORT || 5000
 let dbConnected = false
 let memoryMongo = null
@@ -37,6 +39,8 @@ app.use(cors({
         const allowed = [
             'http://localhost:5173',
             'http://localhost:4173',
+            'http://127.0.0.1:5173',
+            'http://127.0.0.1:4173',
             'https://htxtruonghai.com',
             'https://www.htxtruonghai.com',
             'https://nguyenhaiHG.github.io',
@@ -72,6 +76,7 @@ app.use('/api/site-images', siteImagesRouter)
 app.use('/api/nature-memory-images', natureMemoryImagesRouter)
 app.use('/api/nature-memories', natureMemoriesRouter)
 app.use('/api/penpals', penpalsRouter)
+app.use('/api/uploads', uploadsRouter)
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -95,6 +100,12 @@ async function connectDatabase() {
         return
     } catch (err) {
         console.warn('MongoDB local chưa sẵn sàng:', err.message)
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+        dbConnected = false
+        console.error('MongoDB production không kết nối được; từ chối lưu tạm để tránh mất dữ liệu.')
+        return
     }
 
     try {

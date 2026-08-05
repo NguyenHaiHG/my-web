@@ -2,27 +2,7 @@ import { useRef } from 'react'
 import { Camera } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useUI } from '../context/UIContext'
-
-function compressImage(file, maxW = 1200, quality = 0.82) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onerror = reject
-        reader.onload = ev => {
-            const img = new Image()
-            img.onerror = reject
-            img.onload = () => {
-                const scale = Math.min(1, maxW / Math.max(img.width, img.height))
-                const canvas = document.createElement('canvas')
-                canvas.width = Math.round(img.width * scale)
-                canvas.height = Math.round(img.height * scale)
-                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-                resolve(canvas.toDataURL('image/jpeg', quality))
-            }
-            img.src = ev.target.result
-        }
-        reader.readAsDataURL(file)
-    })
-}
+import { compressImageFile, uploadImageDataUrl } from '../utils/uploadImage'
 
 /**
  * Overlay xuất hiện khi admin hover lên ảnh — click để đổi ảnh ngay.
@@ -39,11 +19,14 @@ export default function AdminImgBtn({ type, itemId }) {
         e.target.value = ''
         if (file.size > 20 * 1024 * 1024) { showToast('❌ Ảnh quá lớn (tối đa 20MB)'); return }
         try {
-            showToast('⏳ Đang nén ảnh…')
-            const compressed = await compressImage(file)
-            await updateItem(type, itemId, { img: compressed })
+            showToast('⏳ Đang đăng tải ảnh lên server…')
+            const compressed = await compressImageFile(file, 1200)
+            const imageUrl = await uploadImageDataUrl(compressed, file.name)
+            await updateItem(type, itemId, { img: imageUrl })
             showToast('✅ Đã đổi ảnh!')
-        } catch { showToast('❌ Không đổi được ảnh, thử lại') }
+        } catch (err) {
+            showToast('❌ ' + (err?.message || 'Không đổi được ảnh, thử lại'))
+        }
     }
 
     return (

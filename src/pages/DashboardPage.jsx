@@ -15,6 +15,7 @@ import DiscoverContentEditor from '../components/DiscoverContentEditor'
 import AdminCommunityGallery from '../components/AdminCommunityGallery'
 import AdminSiteImages from '../components/AdminSiteImages'
 import AdminNatureMemory from '../components/AdminNatureMemory'
+import { uploadImageDataUrl } from '../utils/uploadImage'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -256,8 +257,13 @@ function EditModal({ type, item, onClose, onSave }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSaving(true)
-        await onSave(form)
-        setSaving(false)
+        try {
+            const payload = { ...form }
+            if (payload.img) payload.img = await uploadImageDataUrl(payload.img, `${payload.title || type}.jpg`)
+            await onSave(payload)
+        } finally {
+            setSaving(false)
+        }
     }
 
     const TYPE_LABELS = { post: 'Bài viết', workshop: 'Workshop', library: 'Thư viện', product: 'Sản phẩm', tour: 'Discover', review: 'Review' }
