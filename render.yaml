@@ -28,3 +28,5 @@ services:
         value: Admin
       - key: ADMIN_PASSWORD
         sync: false
+      - key: ADMIN_PASSWORD_RESET_VERSION
+        value: initial-2026-08

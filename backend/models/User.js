@@ -5,6 +5,7 @@ const UserSchema = new mongoose.Schema({
     displayName: { type: String, required: true, trim: true, default: 'Admin' },
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ['admin'], default: 'admin' },
+    bootstrapVersion: { type: String, default: '' },
     lastLoginAt: { type: Date },
 }, { timestamps: true })
 
