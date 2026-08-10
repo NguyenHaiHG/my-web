@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const Order = require('../models/Order')
+const { adminOnly } = require('../middleware/auth')
 
 function isDbReady() {
     return mongoose.connection.readyState === 1
@@ -31,7 +32,7 @@ router.post('/', async (req, res) => {
 })
 
 // Lấy tất cả đơn hàng (admin)
-router.get('/', async (req, res) => {
+router.get('/', adminOnly, async (req, res) => {
     if (!isDbReady()) {
         return res.json([])
     }
@@ -44,7 +45,7 @@ router.get('/', async (req, res) => {
 })
 
 // Xóa toàn bộ đơn test (dùng cho môi trường dev/admin)
-router.delete('/test', async (req, res) => {
+router.delete('/test', adminOnly, async (req, res) => {
     if (!isDbReady()) {
         return res.status(503).json({ error: 'Database is offline' })
     }
@@ -63,7 +64,7 @@ router.delete('/test', async (req, res) => {
 })
 
 // Cập nhật trạng thái đơn hàng
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', adminOnly, async (req, res) => {
     if (!isDbReady()) {
         return res.status(503).json({ error: 'Database is offline' })
     }
@@ -76,7 +77,7 @@ router.patch('/:id', async (req, res) => {
 })
 
 // Xóa một đơn hàng
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', adminOnly, async (req, res) => {
     if (!isDbReady()) {
         return res.status(503).json({ error: 'Database is offline' })
     }

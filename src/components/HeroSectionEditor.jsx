@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Upload, Save, X, ImagePlus, Sparkles, Eye } from 'lucide-react'
 import { useUI } from '../context/UIContext'
+import { apiFetch, responseError } from '../utils/api'
+import { compressImageFile, uploadImageDataUrl } from '../utils/uploadImage'
 import './HeroSectionEditor.css'
 import cityPreset1 from '../assets/ha-giang-city-1.svg'
 import cityPreset2 from '../assets/ha-giang-city-2.svg'
@@ -25,6 +27,7 @@ export default function HeroSectionEditor() {
     })
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [uploading, setUploading] = useState(false)
     const [imageLabel, setImageLabel] = useState('Chưa chọn ảnh')
     const { showToast } = useUI()
 
@@ -44,14 +47,20 @@ export default function HeroSectionEditor() {
             })
     }, [])
 
-    const handleImageUpload = (file) => {
+    const handleImageUpload = async (file) => {
         if (!file) return
         setImageLabel(file.name)
-        const reader = new FileReader()
-        reader.onload = (e) => {
-            setForm(p => ({ ...p, imageUrl: e.target.result }))
+        setUploading(true)
+        try {
+            const compressed = await compressImageFile(file, 1600)
+            const imageUrl = await uploadImageDataUrl(compressed, file.name)
+            setForm(p => ({ ...p, imageUrl }))
+        } catch (err) {
+            setImageLabel('Chưa chọn ảnh')
+            showToast(`❌ ${err.message || 'Không thể tải ảnh'}`)
+        } finally {
+            setUploading(false)
         }
-        reader.readAsDataURL(file)
     }
 
     const openFilePicker = () => {
@@ -66,17 +75,17 @@ export default function HeroSectionEditor() {
 
         setSaving(true)
         try {
-            const res = await fetch('/api/hero-section', {
+            const res = await apiFetch('/api/hero-section', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)
             })
+            if (!res.ok) throw await responseError(res, 'Không thể cập nhật hero section')
             const data = await res.json()
             if (data._id || data.id) {
                 showToast('✅ Cập nhật hero section thành công!')
                 setForm(data)
             } else {
-                showToast('❌ Cập nhật thất bại')
+                throw new Error('Server không trả về hero section đã lưu')
             }
         } catch (err) {
             console.error('Lỗi khi cập nhật:', err)
@@ -166,8 +175,8 @@ export default function HeroSectionEditor() {
                     <div className="hero-upload-footer">
                         <div className="hero-upload-file">{imageLabel}</div>
                         <div className="hero-upload-actions">
-                            <button className="btn-small" type="button" onClick={openFilePicker}>
-                                <Upload size={14} /> Đổi ảnh
+                            <button className="btn-small" type="button" onClick={openFilePicker} disabled={uploading}>
+                                <Upload size={14} /> {uploading ? 'Đang tải...' : 'Đổi ảnh'}
                             </button>
                             {form.imageUrl && (
                                 <button className="btn-small hero-upload-delete" type="button"
@@ -266,7 +275,7 @@ export default function HeroSectionEditor() {
             </div>
 
             <div className="db-form-actions">
-                <button className="btn3d btn3d-green" onClick={handleSave} disabled={saving}>
+                <button className="btn3d btn3d-green" onClick={handleSave} disabled={saving || uploading}>
                     <Save size={16} /> {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
                 </button>
             </div>

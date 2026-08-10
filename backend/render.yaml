@@ -18,3 +18,13 @@ services:
         value: https://htxtruonghai.com
       - key: PUBLIC_API_URL
         value: https://hagiang-backend.onrender.com
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: ADMIN_USERNAME
+        value: haihg
+      - key: ADMIN_DISPLAY_NAME
+        value: Admin
+      - key: ADMIN_PASSWORD
+        sync: false

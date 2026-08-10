@@ -2,8 +2,9 @@ const express = require('express')
 const router = express.Router()
 const WorkshopReg = require('../models/WorkshopReg')
 const { sendThankYouAndCertificate } = require('../utils/email')
+const { adminOnly } = require('../middleware/auth')
 
-router.get('/', async (req, res) => {
+router.get('/', adminOnly, async (req, res) => {
     try {
         const regs = await WorkshopReg.find().sort({ createdAt: -1 })
         res.json(regs)
@@ -17,7 +18,7 @@ router.post('/', async (req, res) => {
     } catch (err) { res.status(400).json({ error: err.message }) }
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', adminOnly, async (req, res) => {
     try {
         const prev = await WorkshopReg.findById(req.params.id)
         const reg = await WorkshopReg.findByIdAndUpdate(req.params.id, req.body, { new: true })
@@ -34,7 +35,7 @@ router.put('/:id', async (req, res) => {
     } catch (err) { res.status(400).json({ error: err.message }) }
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', adminOnly, async (req, res) => {
     try {
         await WorkshopReg.findByIdAndDelete(req.params.id)
         res.json({ success: true })

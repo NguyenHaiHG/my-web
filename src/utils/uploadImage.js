@@ -1,4 +1,4 @@
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { apiFetch, responseError } from './api'
 
 export function isLocalImageData(value) {
     return typeof value === 'string' && value.startsWith('data:image/')
@@ -30,9 +30,8 @@ export async function uploadImageDataUrl(dataUrl, filename = 'image.jpg') {
 
     let response
     try {
-        response = await fetch(`${API}/api/uploads`, {
+        response = await apiFetch('/api/uploads', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ dataUrl, filename }),
             signal: AbortSignal.timeout(20000),
         })
@@ -41,8 +40,7 @@ export async function uploadImageDataUrl(dataUrl, filename = 'image.jpg') {
     }
 
     if (!response.ok) {
-        const body = await response.json().catch(() => null)
-        throw new Error(body?.error || `Không đăng tải được ảnh (${response.status})`)
+        throw await responseError(response, 'Không đăng tải được ảnh')
     }
 
     const uploaded = await response.json()

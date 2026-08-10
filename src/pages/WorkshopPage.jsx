@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { useData } from '../context/DataContext'
+import { useAuth } from '../context/AuthContext'
+import { useUI } from '../context/UIContext'
+import { Edit2, Plus, Trash2 } from 'lucide-react'
 
 const CATEGORY_INFO = {
     sewing: { icon: '🧵', label: 'May vá', labelEn: 'Sewing' },
@@ -72,31 +75,34 @@ const DEFAULT_WORKSHOPS = [
     },
 ]
 
-export default function WorkshopPage() {
-    const { workshops } = useData()
+export default function WorkshopPage({ siteContent = {} }) {
+    const { workshops, deleteItem } = useData()
+    const { isAdmin } = useAuth()
+    const { setAdminModal, setEditItem, showToast } = useUI()
     const [filter, setFilter] = useState('all')
 
     const sourceItems = workshops.length > 0 ? workshops : DEFAULT_WORKSHOPS
     const items = sourceItems.filter(w => !HIDDEN_CATEGORIES.has(w.category))
     const filtered = filter === 'all' ? items : items.filter(w => w.category === filter)
     const categories = ['all', ...new Set(items.map(w => w.category).filter(Boolean))]
+    const cmsHero = siteContent.hero || {}
     return (
         <div className="page-enter">
             {/* ── Hero ── */}
-            <section className="ws-hero">
+            <section className="ws-hero" style={cmsHero.image ? { backgroundImage: `linear-gradient(#092e1fbb,#092e1fbb),url("${cmsHero.image}")` } : undefined}>
                 <div className="ws-hero-content container">
                     <span className="ws-hero-tag">🌿 BookHaGiang · Workshop & Experiences</span>
-                    <h1 className="ws-hero-h1">Trải nghiệm<br /><span className="ws-hero-hl">Workshop</span></h1>
+                    <h1 className="ws-hero-h1">{cmsHero.title || <>Trải nghiệm<br /><span className="ws-hero-hl">Workshop</span></>}</h1>
                     <p className="ws-hero-sub">
-                        Khám phá văn hóa bản địa qua các lớp học thực hành cùng người dân địa phương.
+                        {cmsHero.subtitle || cmsHero.body || 'Khám phá văn hóa bản địa qua các lớp học thực hành cùng người dân địa phương.'}
                     </p>
                     <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic', marginTop: -4, marginBottom: 8 }}>
                         Discover local culture through hands-on classes with community members.
                     </p>
                     <div className="ws-hero-btns">
-                        <a href="https://zalo.me/0385737705" target="_blank" rel="noreferrer"
+                        <a href={cmsHero.buttonHref || 'https://zalo.me/0385737705'} target="_blank" rel="noreferrer"
                             className="btn3d btn3d-orange">
-                            💬 Đặt workshop qua Zalo / Book via Zalo
+                            {cmsHero.buttonLabel || '💬 Đặt workshop qua Zalo / Book via Zalo'}
                         </a>
                         <a href="https://wa.me/84385737705" className="btn3d btn3d-outline-white" target="_blank" rel="noreferrer">
                             WhatsApp
@@ -130,12 +136,33 @@ export default function WorkshopPage() {
 
             {/* ── Workshop grid ── */}
             <section className="container py-section">
+                {isAdmin && (
+                    <div className="page-toolbar" style={{ justifyContent: 'flex-end', marginBottom: 18 }}>
+                        <button className="btn3d btn3d-green btn-sm" onClick={() => setAdminModal('workshop')}>
+                            <Plus size={15} /> Thêm workshop
+                        </button>
+                    </div>
+                )}
                 {filtered.length === 0 ? (
                     <p className="ws-empty">Chưa có workshop nào trong danh mục này. / No workshops in this category yet.</p>
                 ) : (
                     <div className="ws-grid">
                         {filtered.map(ws => (
-                            <WorkshopCard key={ws.id || ws._id} ws={ws} />
+                            <WorkshopCard
+                                key={ws.id || ws._id}
+                                ws={ws}
+                                canEdit={isAdmin && workshops.length > 0}
+                                onEdit={() => setEditItem({ type: 'workshop', item: ws })}
+                                onDelete={async () => {
+                                    if (!window.confirm('Xóa workshop này?')) return
+                                    try {
+                                        await deleteItem('workshop', ws.id || ws._id)
+                                        showToast('Đã xóa workshop trên server')
+                                    } catch (err) {
+                                        showToast('❌ ' + err.message)
+                                    }
+                                }}
+                            />
                         ))}
                     </div>
                 )}
@@ -160,7 +187,7 @@ export default function WorkshopPage() {
     )
 }
 
-function WorkshopCard({ ws }) {
+function WorkshopCard({ ws, canEdit, onEdit, onDelete }) {
     const cat = CATEGORY_INFO[ws.category] ?? CATEGORY_INFO.other
     const statusLabel = ws.status === 'upcoming' ? 'Sắp diễn ra / Upcoming'
         : ws.status === 'ongoing' ? 'Đang diễn ra / Ongoing' : 'Đã kết thúc / Ended'
@@ -195,6 +222,12 @@ function WorkshopCard({ ws }) {
                         Đặt lịch / Book
                     </a>
                 </div>
+                {canEdit && (
+                    <div className="blog-actions">
+                        <button className="btn3d btn3d-orange btn-sm" onClick={onEdit}><Edit2 size={14} /> Sửa</button>
+                        <button className="btn-card-del" onClick={onDelete}><Trash2 size={14} /></button>
+                    </div>
+                )}
             </div>
         </article>
     )

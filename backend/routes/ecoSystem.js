@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const { adminOnly } = require('../middleware/auth')
 const EcoSite = require('../models/EcoSite')
 const EcoScan = require('../models/EcoScan')
 const EcoStore = require('../models/EcoStore')
@@ -257,7 +258,7 @@ router.get('/sites', async (req, res) => {
     }
 })
 
-router.post('/sites', async (req, res) => {
+router.post('/sites', adminOnly, async (req, res) => {
     try {
         const created = await EcoSite.create(req.body)
         res.json(created)
@@ -266,7 +267,7 @@ router.post('/sites', async (req, res) => {
     }
 })
 
-router.put('/sites/:id', async (req, res) => {
+router.put('/sites/:id', adminOnly, async (req, res) => {
     try {
         const updated = await EcoSite.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
         if (!updated) return res.status(404).json({ error: 'Site not found' })
@@ -276,7 +277,7 @@ router.put('/sites/:id', async (req, res) => {
     }
 })
 
-router.delete('/sites/:id', async (req, res) => {
+router.delete('/sites/:id', adminOnly, async (req, res) => {
     try {
         await EcoSite.findByIdAndDelete(req.params.id)
         res.json({ success: true })
@@ -368,7 +369,7 @@ router.get('/leaderboard', async (req, res) => {
     }
 })
 
-router.get('/business-dashboard', async (req, res) => {
+router.get('/business-dashboard', adminOnly, async (req, res) => {
     try {
         await ensureSeedSites()
         const sites = await EcoSite.find().sort({ 'stats.totalScans': -1 })
@@ -405,7 +406,7 @@ router.get('/stores', async (req, res) => {
     }
 })
 
-router.post('/stores', async (req, res) => {
+router.post('/stores', adminOnly, async (req, res) => {
     try {
         const created = await EcoStore.create(req.body)
         res.json(created)
@@ -507,7 +508,7 @@ router.get('/store-leaderboard', async (req, res) => {
     }
 })
 
-router.get('/store-insights', async (req, res) => {
+router.get('/store-insights', adminOnly, async (req, res) => {
     try {
         await ensureSeedStores()
         const stores = await EcoStore.find().sort({ 'stats.totalVisits': -1, name: 1 })

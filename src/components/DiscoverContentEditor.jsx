@@ -3,6 +3,8 @@ import Cropper from 'react-easy-crop'
 import { ArrowDown, ArrowUp, Plus, Save, Trash2, Upload, X, WandSparkles } from 'lucide-react'
 import { useUI } from '../context/UIContext'
 import { createEmptyDiscoverContent, normalizeDiscoverContent } from '../content/discoverDefaults'
+import { apiFetch, responseError } from '../utils/api'
+import { compressImageFile, uploadImageDataUrl } from '../utils/uploadImage'
 import './DiscoverContentEditor.css'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
@@ -51,44 +53,6 @@ async function cropImageDataUrl(imageSrc, cropPixels, options = {}) {
         canvas.height
     )
     return canvas.toDataURL('image/jpeg', quality)
-}
-
-function compressImage(file, options = {}) {
-    const { maxW = 1400, quality = 0.82, ratio = '16:9' } = options
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onerror = reject
-        reader.onload = ev => {
-            const image = new Image()
-            image.onerror = reject
-            image.onload = () => {
-                const targetRatio = parseRatio(ratio)
-                const sourceRatio = image.width / image.height
-
-                let sx = 0
-                let sy = 0
-                let sw = image.width
-                let sh = image.height
-
-                if (sourceRatio > targetRatio) {
-                    sw = Math.round(image.height * targetRatio)
-                    sx = Math.round((image.width - sw) / 2)
-                } else {
-                    sh = Math.round(image.width / targetRatio)
-                    sy = Math.round((image.height - sh) / 2)
-                }
-
-                const scale = Math.min(1, maxW / Math.max(sw, sh))
-                const canvas = document.createElement('canvas')
-                canvas.width = Math.round(sw * scale)
-                canvas.height = Math.round(sh * scale)
-                canvas.getContext('2d').drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
-                resolve(canvas.toDataURL('image/jpeg', quality))
-            }
-            image.src = ev.target.result
-        }
-        reader.readAsDataURL(file)
-    })
 }
 
 const EMPTY_JOURNEY = () => ({ id: '', title: '', route: '', duration: '', description: '', highlight: '', imageUrl: '', tags: '', accent: 'amber' })
@@ -246,18 +210,19 @@ export default function DiscoverContentEditor() {
             setCroppedAreaPixels(null)
             setPendingTarget({ section, index })
             setCropOpen(true)
-        } catch (err) {
+        } catch {
             showToast('❌ Không đọc được ảnh này')
         }
     }
 
-    const handleQuickCrop = async (section, index, file, ratio = cropPreset) => {
+    const handleQuickCrop = async (section, index, file) => {
         if (!file) return
         try {
-            const compressed = await compressImage(file, { ratio })
-            applyImageValue(section, index, compressed)
+            const compressed = await compressImageFile(file, 1400)
+            const imageUrl = await uploadImageDataUrl(compressed, file.name)
+            applyImageValue(section, index, imageUrl)
         } catch (err) {
-            showToast('❌ Không đọc được ảnh này')
+            showToast(`❌ ${err.message || 'Không tải được ảnh này'}`)
         }
     }
 
@@ -265,12 +230,13 @@ export default function DiscoverContentEditor() {
         if (!pendingTarget || !cropSource) return
         try {
             const cropped = await cropImageDataUrl(cropSource, croppedAreaPixels)
-            applyImageValue(pendingTarget.section, pendingTarget.index, cropped)
+            const imageUrl = await uploadImageDataUrl(cropped, `discover-${pendingTarget.section}-${Date.now()}.jpg`)
+            applyImageValue(pendingTarget.section, pendingTarget.index, imageUrl)
             setCropOpen(false)
             setCropSource('')
             setPendingTarget(null)
         } catch (err) {
-            showToast('❌ Không thể crop ảnh, thử lại')
+            showToast(`❌ ${err.message || 'Không thể crop và tải ảnh'}`)
         }
     }
 
@@ -281,13 +247,12 @@ export default function DiscoverContentEditor() {
                 ...content,
                 journeys: content.journeys.map(item => ({ ...item, tags: parseList(item.tags) })),
             }
-            const res = await fetch(`${API}/api/discover-content`, {
+            const res = await apiFetch('/api/discover-content', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             })
+            if (!res.ok) throw await responseError(res, 'Không thể lưu nội dung Discover')
             const data = await res.json()
-            if (!res.ok) throw new Error(data.error || 'Không thể lưu')
             setContent(normalizeDiscoverContent(data))
             showToast('✅ Đã lưu nội dung Discover')
         } catch (err) {
@@ -628,7 +593,7 @@ export default function DiscoverContentEditor() {
                 </div>
             </SectionCard>
 
-            {activeImage && <p className="discover-editor-hint">Ảnh vừa tải đã được nén, crop theo tỉ lệ, và lưu vào form hiện tại.</p>}
+            {activeImage && <p className="discover-editor-hint">Ảnh vừa tải đã được nén, upload lên server, và lưu URL vào form hiện tại.</p>}
 
             {cropOpen && (
                 <div className="discover-crop-backdrop" onClick={() => setCropOpen(false)}>

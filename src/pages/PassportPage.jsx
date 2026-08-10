@@ -1162,7 +1162,7 @@ function CertTab({ certDef, passport, hasCertStamp, addCertStamp, removeCertStam
 /* ══════════════════════════════════════════════════════
    MAIN PAGE
    ══════════════════════════════════════════════════════ */
-export default function PassportPage() {
+export default function PassportPage({ siteContent = {} }) {
     const {
         passport, setHolderName,
         addStamp, hasStamp, removeStamp,
@@ -1175,6 +1175,7 @@ export default function PassportPage() {
         googleUser, loginWithGoogle, logoutGoogle,
     } = usePassport()
     const { t, lang } = useLang()
+    const cmsHero = siteContent.hero || {}
 
     const [activeTab, setActiveTab] = useState('basic')
     const [editingName, setEditingName] = useState(!passport.holderName)
@@ -1332,12 +1333,12 @@ export default function PassportPage() {
                 <Link to="/" className="btn-back"><ArrowLeft size={16} /> {t('pp_back')}</Link>
             </div>
 
-            <section className="hgp-hero container">
+            <section className="hgp-hero container" style={cmsHero.image ? { backgroundImage: `url("${cmsHero.image}")` } : undefined}>
                 <div className="hgp-hero-overlay" />
                 <div className="hgp-hero-content">
                     <p className="hgp-overline">WELCOME TO</p>
-                    <h1>HA GIANG LOOP PASSPORT</h1>
-                    <p>Collect memories, stamps and sisterhood across the mountains.</p>
+                    <h1>{cmsHero.title || 'HA GIANG LOOP PASSPORT'}</h1>
+                    <p>{cmsHero.subtitle || cmsHero.body || 'Collect memories, stamps and sisterhood across the mountains.'}</p>
                     <div className="hgp-hero-actions">
                         <Link className="hgp-btn hgp-btn-primary" to="/tours"><MapPin size={16} /> Đặt tour ngay</Link>
                         <button className="hgp-btn hgp-btn-secondary" onClick={() => document.querySelector('.pp-layout')?.scrollIntoView({ behavior: 'smooth' })}><BookOpen size={16} /> Tạo hộ chiếu</button>

@@ -136,7 +136,7 @@ function LibCard({ item, onClick, onEdit, isMod }) {
 }
 
 /* ── MAIN PAGE ── */
-export default function LibraryPage() {
+export default function LibraryPage({ siteContent = {} }) {
     const { libraryItems, deleteItem } = useData()
     const { isMod } = useAuth()
     const { setAdminModal, setEditItem, showToast } = useUI()
@@ -144,6 +144,7 @@ export default function LibraryPage() {
     const [search, setSearch] = useState('')
     const [showSearch, setShowSearch] = useState(false)
     const [detail, setDetail] = useState(null)
+    const cmsHero = siteContent.hero || {}
 
     const filtered = useMemo(() => {
         const q = search.toLowerCase()
@@ -174,14 +175,14 @@ export default function LibraryPage() {
     return (
         <div className="lp-page page-enter">
             {/* HERO */}
-            <div className="lp-hero">
+            <div className="lp-hero" style={cmsHero.image ? { backgroundImage: `linear-gradient(#4d241dcc,#4d241dcc),url("${cmsHero.image}")`, backgroundSize: 'cover' } : undefined}>
                 <div className="lp-hero-deco" aria-hidden>
                     <span>🌿</span><span>🗣️</span><span>🎭</span><span>🧵</span><span>📖</span>
                 </div>
                 <div className="lp-hero-content">
                     <div className="lp-hero-badge"><BookOpen size={13} /> Thư viện số</div>
-                    <h1>Kho tri thức bản địa</h1>
-                    <p>Thiên nhiên · Ngôn ngữ · Văn hoá · Thủ công · Ẩm thực — của các dân tộc vùng cao Hà Giang</p>
+                    <h1>{cmsHero.title || 'Kho tri thức bản địa'}</h1>
+                    <p>{cmsHero.subtitle || cmsHero.body || 'Thiên nhiên · Ngôn ngữ · Văn hoá · Thủ công · Ẩm thực — của các dân tộc vùng cao Hà Giang'}</p>
                 </div>
             </div>
 

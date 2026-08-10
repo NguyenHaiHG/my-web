@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { MapPin, Clock, Users, Star, Check, X, Phone, ChevronDown, ChevronUp, Calendar, Shield, Camera, Mountain } from 'lucide-react'
 import { useUI } from '../context/UIContext'
 import { usePassport } from '../context/PassportContext'
+import { useOrder } from '../context/OrderContext'
+import InlineSiteImage from '../components/InlineSiteImage'
 
 /* ── 3D2N Itinerary ─────────────────────────────────── */
 const ITINERARY_3D = [
@@ -184,17 +186,29 @@ const FAQ = [
 
 /* ── BookingForm ─────────────────────────────────────── */
 function BookingForm({ tourType, onSuccess }) {
-    const price = TOUR_PACKAGES[tourType]?.price || TOUR_PACKAGES['3d2n'].price
+    const tourPackage = TOUR_PACKAGES[tourType] || TOUR_PACKAGES['3d2n']
+    const price = tourPackage.price
+    const { submitTourBooking } = useOrder()
+    const { showToast } = useUI()
     const [form, setForm] = useState({ name: '', phone: '', date: '', guests: 1, note: '' })
     const [loading, setLoading] = useState(false)
 
-    const submit = (e) => {
+    const submit = async (e) => {
         e.preventDefault()
         setLoading(true)
-        setTimeout(() => {
+        try {
+            await submitTourBooking({
+                ...form,
+                tourTitle: `Hà Giang Loop ${tourPackage.nights}`,
+                tourPrice: tourPackage.price,
+                tourType,
+            })
             setLoading(false)
             onSuccess(form)
-        }, 600)
+        } catch (err) {
+            setLoading(false)
+            showToast('❌ ' + (err?.message || 'Không thể lưu đặt tour'))
+        }
     }
 
     return (
@@ -284,13 +298,14 @@ function FaqItem({ item }) {
 }
 
 /* ── Main Page ───────────────────────────────────────── */
-export default function HaGiangLoopPage() {
+export default function HaGiangLoopPage({ siteContent = {} }) {
     const { showToast } = useUI()
     const { addStamp } = usePassport()
     const [bookingDone, setBookingDone] = useState(false)
     const [galleryIdx, setGalleryIdx] = useState(null)
     const [tourType, setTourType] = useState('3d2n') // '3d2n' | '4d3n'
     const [gallery, setGallery] = useState(GALLERY_FALLBACK)
+    const cmsHero = siteContent.hero || {}
 
     useEffect(() => {
         fetch(`${API}/api/site-images`)
@@ -326,7 +341,9 @@ export default function HaGiangLoopPage() {
             {/* ── HERO ── */}
             <section style={{
                 position: 'relative', minHeight: 500,
-                background: 'linear-gradient(135deg, #064e3b 0%, #065f46 40%, #1a3a2a 100%)',
+                background: cmsHero.image
+                    ? `linear-gradient(#064e3bcc,#064e3bcc),url("${cmsHero.image}") center/cover`
+                    : 'linear-gradient(135deg, #064e3b 0%, #065f46 40%, #1a3a2a 100%)',
                 display: 'flex', alignItems: 'center', overflow: 'hidden',
             }}>
                 <div style={{ position: 'absolute', top: -60, right: -60, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
@@ -345,7 +362,7 @@ export default function HaGiangLoopPage() {
                                 🗺️ HTX Trường Hải · Hà Giang
                             </span>
                             <h1 style={{ color: '#fff', fontSize: 'clamp(1.8rem,5vw,3rem)', fontWeight: 900, margin: '0 0 6px', lineHeight: 1.1 }}>
-                                Hà Giang Loop
+                                {cmsHero.title || 'Hà Giang Loop'}
                             </h1>
                             <div style={{ color: '#34d399', fontSize: 'clamp(1rem,3vw,1.5rem)', fontWeight: 900, marginBottom: 4 }}>
                                 {nights}
@@ -354,7 +371,7 @@ export default function HaGiangLoopPage() {
                                 Easy Rider Motorbike Tour · {nightsEn}
                             </div>
                             <p style={{ color: '#a7f3d0', fontSize: 15, lineHeight: 1.7, margin: '0 0 4px', maxWidth: 480 }}>
-                                🏍️ Ngồi sau local dẫn đường bản địa người Mông — chinh phục Mã Pí Lèng, phố cổ Đồng Văn, ruộng bậc thang Du Già trên yên xe máy.
+                                {cmsHero.subtitle || cmsHero.body || '🏍️ Ngồi sau local dẫn đường bản địa người Mông — chinh phục Mã Pí Lèng, phố cổ Đồng Văn, ruộng bậc thang Du Già trên yên xe máy.'}
                             </p>
                             <p style={{ color: '#6ee7b7', fontSize: 13, lineHeight: 1.6, margin: '0 0 22px', maxWidth: 480, fontStyle: 'italic' }}>
                                 Ride pillion with a local H'Mong Easy Rider lead rider — conquer Ma Pi Leng Pass, Dong Van Old Town & terraced rice fields by motorbike.
@@ -681,6 +698,11 @@ export default function HaGiangLoopPage() {
                                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                             >
                                 <img src={img.src} alt={img.caption} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <InlineSiteImage
+                                    slot={`hg-gallery-${i + 1}`}
+                                    caption={img.caption}
+                                    onChanged={url => setGallery(prev => prev.map((entry, idx) => idx === i ? { ...entry, src: url } : entry))}
+                                />
                                 <div style={{
                                     position: 'absolute', bottom: 0, left: 0, right: 0,
                                     background: 'linear-gradient(transparent, rgba(0,0,0,0.75))',

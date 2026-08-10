@@ -1,6 +1,9 @@
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { ShieldCheck, ShieldAlert, ArrowLeft, Award, CalendarDays, ScanLine } from 'lucide-react'
 import { usePassport } from '../context/PassportContext'
+import { useEffect, useState } from 'react'
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 function normalizeCode(code) {
     return String(code || '').trim()
@@ -14,7 +17,18 @@ export default function VerifyCertificatePage() {
     const q = new URLSearchParams(location.search)
     const queryCode = q.get('code')
     const code = normalizeCode(certCode || queryCode)
-    const cert = findCertificateByCode(code)
+    const localCert = findCertificateByCode(code)
+    const [remoteCert, setRemoteCert] = useState(null)
+    const [checking, setChecking] = useState(!localCert)
+    const cert = localCert || remoteCert
+
+    useEffect(() => {
+        if (!code || localCert) return
+        fetch(`${API}/api/passports/verify/${encodeURIComponent(code)}`)
+            .then(response => response.ok ? response.json() : null)
+            .then(setRemoteCert)
+            .finally(() => setChecking(false))
+    }, [code, localCert])
 
     return (
         <div className="verify-page container py-section">
@@ -23,7 +37,7 @@ export default function VerifyCertificatePage() {
             <div className={`verify-card ${cert ? 'is-valid' : 'is-invalid'}`}>
                 <div className="verify-status">
                     {cert ? <ShieldCheck size={22} /> : <ShieldAlert size={22} />}
-                    <h1>{cert ? 'Chứng Nhận Hợp Lệ' : 'Không Tìm Thấy Chứng Nhận'}</h1>
+                    <h1>{checking ? 'Đang kiểm tra chứng nhận…' : cert ? 'Chứng Nhận Hợp Lệ' : 'Không Tìm Thấy Chứng Nhận'}</h1>
                 </div>
 
                 <p className="verify-sub">

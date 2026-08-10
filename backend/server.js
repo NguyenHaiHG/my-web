@@ -23,6 +23,11 @@ const natureMemoryImagesRouter = require('./routes/natureMemoryImages')
 const natureMemoriesRouter = require('./routes/natureMemories')
 const penpalsRouter = require('./routes/penpals')
 const uploadsRouter = require('./routes/uploads')
+const authRouter = require('./routes/auth')
+const passportsRouter = require('./routes/passports')
+const siteContentRouter = require('./routes/siteContent')
+const ensureAdminUser = require('./utils/ensureAdmin')
+const { protectAdminMutations } = require('./middleware/auth')
 
 const app = express()
 app.set('trust proxy', 1)
@@ -57,23 +62,26 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }))
 
 // Routes
-app.use('/api/tours', toursRouter)
-app.use('/api/products', productsRouter)
-app.use('/api/posts', postsRouter)
-app.use('/api/workshops', workshopsRouter)
-app.use('/api/library', libraryRouter)
+app.use('/api/auth', authRouter)
+app.use('/api/passports', passportsRouter)
+app.use('/api/site-content', siteContentRouter)
+app.use('/api/tours', protectAdminMutations, toursRouter)
+app.use('/api/products', protectAdminMutations, productsRouter)
+app.use('/api/posts', protectAdminMutations, postsRouter)
+app.use('/api/workshops', protectAdminMutations, workshopsRouter)
+app.use('/api/library', protectAdminMutations, libraryRouter)
 app.use('/api/reviews', reviewsRouter)
 
 app.use('/api/workshop-regs', workshopRegsRouter)
 app.use('/api/orders', ordersRouter)
 
 app.use('/api/volunteers', volunteersRouter)
-app.use('/api/community-images', communityImagesRouter)
-app.use('/api/hero-section', heroSectionRouter)
-app.use('/api/discover-content', discoverContentRouter)
+app.use('/api/community-images', protectAdminMutations, communityImagesRouter)
+app.use('/api/hero-section', protectAdminMutations, heroSectionRouter)
+app.use('/api/discover-content', protectAdminMutations, discoverContentRouter)
 app.use('/api/eco-system', ecoSystemRouter)
-app.use('/api/site-images', siteImagesRouter)
-app.use('/api/nature-memory-images', natureMemoryImagesRouter)
+app.use('/api/site-images', protectAdminMutations, siteImagesRouter)
+app.use('/api/nature-memory-images', protectAdminMutations, natureMemoryImagesRouter)
 app.use('/api/nature-memories', natureMemoriesRouter)
 app.use('/api/penpals', penpalsRouter)
 app.use('/api/uploads', uploadsRouter)
@@ -97,6 +105,7 @@ async function connectDatabase() {
         })
         dbConnected = true
         console.log('MongoDB connected')
+        await ensureAdminUser()
         return
     } catch (err) {
         console.warn('MongoDB local chưa sẵn sàng:', err.message)
@@ -116,6 +125,7 @@ async function connectDatabase() {
         })
         dbConnected = true
         console.log('Mongo Memory Server connected for local development')
+        await ensureAdminUser()
     } catch (err) {
         dbConnected = false
         console.error('Không thể khởi động Mongo Memory Server:', err.message)

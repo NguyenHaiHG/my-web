@@ -1,7 +1,9 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 
 const LS_KEY = 'hagiang_passport'
 const GOOGLE_LS_KEY = 'hagiang_google_user'
+const SERVER_KEY = 'hagiang_passport_server_key'
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 function parseGoogleJwt(credential) {
     try {
@@ -16,6 +18,22 @@ function getCurrentPassportKey() {
         const sub = raw ? JSON.parse(raw)?.sub : null
         return sub ? `${LS_KEY}_${sub}` : LS_KEY
     } catch { return LS_KEY }
+}
+
+function getServerPassportKey() {
+    try {
+        const googleRaw = localStorage.getItem(GOOGLE_LS_KEY)
+        const googleSub = googleRaw ? JSON.parse(googleRaw)?.sub : null
+        if (googleSub) return `google_${googleSub}`
+        let key = localStorage.getItem(SERVER_KEY)
+        if (!key) {
+            key = `guest_${crypto.randomUUID().replace(/-/g, '')}`
+            localStorage.setItem(SERVER_KEY, key)
+        }
+        return key
+    } catch {
+        return 'guest_unavailable_key'
+    }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -227,7 +245,14 @@ const load = (key) => {
         return raw
     } catch { return null }
 }
-const save = (p) => { try { localStorage.setItem(getCurrentPassportKey(), JSON.stringify(p)) } catch { /* noop */ } }
+const save = (p) => {
+    try { localStorage.setItem(getCurrentPassportKey(), JSON.stringify(p)) } catch { /* noop */ }
+    fetch(`${API}/api/passports/${encodeURIComponent(getServerPassportKey())}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(p),
+    }).catch(() => { /* local cache remains available until the next sync */ })
+}
 
 export function PassportProvider({ children }) {
     const [passport, setPassport] = useState(() => load() || fresh())
@@ -244,6 +269,21 @@ export function PassportProvider({ children }) {
         'CS-BAOTANG-HG2': 'hg2_history',
         'EZ-QUANGTRUNG-T5': 'qt_landscape',
     }
+
+    useEffect(() => {
+        const key = getServerPassportKey()
+        fetch(`${API}/api/passports/${encodeURIComponent(key)}`)
+            .then(response => response.ok ? response.json() : null)
+            .then(remote => {
+                if (remote) {
+                    setPassport(remote)
+                    try { localStorage.setItem(getCurrentPassportKey(), JSON.stringify(remote)) } catch { /* noop */ }
+                } else {
+                    save(passport)
+                }
+            })
+            .catch(() => { })
+    }, [googleUser])
 
     const update = (next) => { setPassport(next); save(next) }
     const setHolderName = (name) => update({ ...passport, holderName: name })

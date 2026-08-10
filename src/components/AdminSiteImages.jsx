@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Upload, X } from 'lucide-react'
 import { useUI } from '../context/UIContext'
+import { apiFetch, responseError } from '../utils/api'
+import { compressImageFile, uploadImageDataUrl } from '../utils/uploadImage'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -19,27 +21,6 @@ const SLOTS = [
     { slot: 'hg-gallery-5', label: 'Ha Giang Loop #5', fallback: '/hg-city-2.svg' },
     { slot: 'hg-gallery-6', label: 'Ha Giang Loop #6', fallback: '/hg-city-3.svg' },
 ]
-
-function compressImage(file, maxW = 1200, quality = 0.82) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onerror = reject
-        reader.onload = ev => {
-            const img = new Image()
-            img.onerror = reject
-            img.onload = () => {
-                const scale = Math.min(1, maxW / Math.max(img.width, img.height))
-                const canvas = document.createElement('canvas')
-                canvas.width = Math.round(img.width * scale)
-                canvas.height = Math.round(img.height * scale)
-                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-                resolve(canvas.toDataURL('image/jpeg', quality))
-            }
-            img.src = ev.target.result
-        }
-        reader.readAsDataURL(file)
-    })
-}
 
 export default function AdminSiteImages() {
     const { showToast } = useUI()
@@ -68,49 +49,54 @@ export default function AdminSiteImages() {
         if (!file) return
         setSaving(slot)
         try {
-            const url = await compressImage(file)
-            const res = await fetch(`${API}/api/site-images/${slot}`, {
+            const compressed = await compressImageFile(file, 1200)
+            const url = await uploadImageDataUrl(compressed, file.name)
+            const res = await apiFetch(`/api/site-images/${slot}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url, caption: captions[slot] || '' }),
             })
+            if (!res.ok) throw await responseError(res, 'Không thể cập nhật ảnh')
             const data = await res.json()
             setImages(prev => ({ ...prev, [slot]: data }))
             showToast('✅ Đã cập nhật ảnh!')
-        } catch {
-            showToast('❌ Lỗi upload ảnh')
+        } catch (err) {
+            showToast(`❌ ${err.message || 'Lỗi upload ảnh'}`)
+        } finally {
+            setSaving(null)
         }
-        setSaving(null)
     }
 
     const saveCaption = async (slot) => {
         setSaving(slot + '-cap')
         try {
             const img = images[slot] || {}
-            await fetch(`${API}/api/site-images/${slot}`, {
+            const res = await apiFetch(`/api/site-images/${slot}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url: img.url || '', caption: captions[slot] || '' }),
             })
+            if (!res.ok) throw await responseError(res, 'Không thể lưu caption')
             setImages(prev => ({ ...prev, [slot]: { ...prev[slot], caption: captions[slot] } }))
             showToast('✅ Đã lưu caption!')
-        } catch {
-            showToast('❌ Lỗi lưu')
+        } catch (err) {
+            showToast(`❌ ${err.message || 'Lỗi lưu'}`)
+        } finally {
+            setSaving(null)
         }
-        setSaving(null)
     }
 
     const clearSlot = async (slot) => {
         if (!window.confirm('Xóa ảnh này? Sẽ hiển thị ảnh mặc định.')) return
         setSaving(slot)
         try {
-            await fetch(`${API}/api/site-images/${slot}`, { method: 'DELETE' })
+            const res = await apiFetch(`/api/site-images/${slot}`, { method: 'DELETE' })
+            if (!res.ok) throw await responseError(res, 'Không thể xóa ảnh')
             setImages(prev => ({ ...prev, [slot]: { ...prev[slot], url: '' } }))
             showToast('✅ Đã xóa ảnh')
-        } catch {
-            showToast('❌ Lỗi xóa')
+        } catch (err) {
+            showToast(`❌ ${err.message || 'Lỗi xóa'}`)
+        } finally {
+            setSaving(null)
         }
-        setSaving(null)
     }
 
     const renderSlotGrid = (slotList) => slotList.map(({ slot, label, fallback }) => {

@@ -1,8 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const VolunteerApp = require('../models/VolunteerApp')
+const { adminOnly } = require('../middleware/auth')
 
-router.get('/', async (req, res) => {
+router.get('/', adminOnly, async (req, res) => {
     try {
         const apps = await VolunteerApp.find().sort({ createdAt: -1 })
         res.json(apps)
@@ -16,7 +17,7 @@ router.post('/', async (req, res) => {
     } catch (err) { res.status(400).json({ error: err.message }) }
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', adminOnly, async (req, res) => {
     try {
         const app = await VolunteerApp.findByIdAndUpdate(req.params.id, req.body, { new: true })
         if (!app) return res.status(404).json({ error: 'Không tìm thấy đơn' })
@@ -24,7 +25,7 @@ router.put('/:id', async (req, res) => {
     } catch (err) { res.status(400).json({ error: err.message }) }
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', adminOnly, async (req, res) => {
     try {
         await VolunteerApp.findByIdAndDelete(req.params.id)
         res.json({ success: true })

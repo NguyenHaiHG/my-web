@@ -3,6 +3,7 @@ const router = express.Router()
 const Penpal = require('../models/Penpal')
 const PenpalLetter = require('../models/PenpalLetter')
 const nodemailer = require('nodemailer')
+const { adminOnly } = require('../middleware/auth')
 
 /* ── GET all active penpals ── */
 router.get('/', async (req, res) => {
@@ -89,7 +90,7 @@ router.post('/:id/letter', async (req, res) => {
 })
 
 /* ── GET letters for a penpal (admin use) ── */
-router.get('/:id/letters', async (req, res) => {
+router.get('/:id/letters', adminOnly, async (req, res) => {
     try {
         const letters = await PenpalLetter.find({ toPenpalId: req.params.id }).sort({ createdAt: -1 })
         res.json(letters)
@@ -99,7 +100,7 @@ router.get('/:id/letters', async (req, res) => {
 })
 
 /* ── DELETE penpal (admin) ── */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', adminOnly, async (req, res) => {
     try {
         await Penpal.findByIdAndDelete(req.params.id)
         res.json({ message: 'Đã xoá penpal' })

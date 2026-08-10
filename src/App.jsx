@@ -20,6 +20,9 @@ import VerifyCertificatePage from './pages/VerifyCertificatePage'
 import NatureMemoryPage from './pages/NatureMemoryPage'
 import LibraryPage from './pages/LibraryPage'
 import PenpalPage from './pages/PenpalPage'
+import BlogPage from './pages/BlogPage'
+import BlogPostPage from './pages/BlogPostPage'
+import PageContentShell from './components/PageContentShell'
 import { uploadImageDataUrl } from './utils/uploadImage'
 import './App.css'
 
@@ -32,8 +35,14 @@ function LoginModal() {
   const { t } = useLang()
   const [u, setU] = useState('')
   const [p, setP] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const close = () => { setLoginError(''); setShowLogin(false) }
-  const submit = (e) => { e.preventDefault(); if (login(u, p)) close() }
+  const submit = async (e) => {
+    e.preventDefault()
+    setSubmitting(true)
+    if (await login(u, p)) close()
+    setSubmitting(false)
+  }
 
   return (
     <div className="modal-backdrop" onClick={close}>
@@ -48,7 +57,9 @@ function LoginModal() {
           <input className="form-input" type="password" placeholder={t('login_password_ph')} value={p}
             onChange={e => setP(e.target.value)} required />
           {loginError && <p className="login-error">{loginError}</p>}
-          <button type="submit" className="btn3d btn3d-orange btn-full">{t('login_btn')}</button>
+          <button type="submit" className="btn3d btn3d-orange btn-full" disabled={submitting}>
+            {submitting ? 'Đang đăng nhập…' : t('login_btn')}
+          </button>
         </form>
       </div>
     </div>
@@ -388,7 +399,7 @@ function Header() {
           {user ? (
             <div className="nav-user">
               <span className={`role-badge role-${user.role}`}>{user.role.toUpperCase()}</span>
-              <span className="nav-username">{user.name}</span>
+              <span className="nav-username">{user.displayName}</span>
               {isMod && (
                 <NavLink to="/dashboard" className={({ isActive }) => `nav-dashboard ${isActive ? 'nav-active' : ''}`}
                   onClick={() => setOpen(false)}>
@@ -636,16 +647,18 @@ function AppInner() {
       <Header />
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/ho-chieu" element={<PassportPage />} />
-          <Route path="/workshop" element={<WorkshopPage />} />
-          <Route path="/ha-giang-loop" element={<HaGiangLoopPage />} />
-          <Route path="/lien-he" element={<ContactPage />} />
+          <Route path="/" element={<PageContentShell page="home"><HomePage /></PageContentShell>} />
+          <Route path="/ho-chieu" element={<PageContentShell page="passport"><PassportPage /></PageContentShell>} />
+          <Route path="/workshop" element={<PageContentShell page="workshop"><WorkshopPage /></PageContentShell>} />
+          <Route path="/ha-giang-loop" element={<PageContentShell page="ha-giang-loop"><HaGiangLoopPage /></PageContentShell>} />
+          <Route path="/lien-he" element={<PageContentShell page="contact"><ContactPage /></PageContentShell>} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/verify/:certCode" element={<VerifyCertificatePage />} />
-          <Route path="/nhat-ky-thien-nhien" element={<NatureMemoryPage />} />
-          <Route path="/thu-vien" element={<LibraryPage />} />
-          <Route path="/penpal" element={<PenpalPage />} />
+          <Route path="/nhat-ky-thien-nhien" element={<PageContentShell page="nature"><NatureMemoryPage /></PageContentShell>} />
+          <Route path="/thu-vien" element={<PageContentShell page="library"><LibraryPage /></PageContentShell>} />
+          <Route path="/penpal" element={<PageContentShell page="penpal"><PenpalPage /></PageContentShell>} />
+          <Route path="/blog" element={<PageContentShell page="blog"><BlogPage /></PageContentShell>} />
+          <Route path="/blog/:id" element={<PageContentShell page="blog-post"><BlogPostPage /></PageContentShell>} />
         </Routes>
       </main>
       <MobileAppDock />

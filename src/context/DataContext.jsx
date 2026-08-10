@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { apiFetch, responseError } from '../utils/api'
 
 const DataContext = createContext(null)
 
@@ -91,9 +92,8 @@ export function DataProvider({ children }) {
     if (!ep) throw new Error(`Unknown type: ${type}`)
     let res
     try {
-      res = await fetch(`${API}/api/${ep}`, {
+      res = await apiFetch(`/api/${ep}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(item),
         signal: AbortSignal.timeout(10000),
       })
@@ -101,10 +101,7 @@ export function DataProvider({ children }) {
       throw new Error('Không kết nối được server — dữ liệu chưa được lưu')
     }
     if (!res.ok) {
-      const raw = await res.text().catch(() => '')
-      let msg
-      try { msg = JSON.parse(raw)?.error || raw } catch { msg = raw }
-      throw new Error(`Lỗi ${res.status}: ${msg}`)
+      throw await responseError(res, 'Không thể thêm dữ liệu')
     }
     const newItem = mapId(await res.json())
     SETTERS[type](p => { const list = [newItem, ...p]; lsSave(type, list); return list })
@@ -116,9 +113,8 @@ export function DataProvider({ children }) {
     if (!ep) throw new Error(`Unknown type: ${type}`)
     let res
     try {
-      res = await fetch(`${API}/api/${ep}/${id}`, {
+      res = await apiFetch(`/api/${ep}/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
         signal: AbortSignal.timeout(10000),
       })
@@ -126,10 +122,7 @@ export function DataProvider({ children }) {
       throw new Error('Không kết nối được server — thay đổi chưa được lưu')
     }
     if (!res.ok) {
-      const raw = await res.text().catch(() => '')
-      let msg
-      try { msg = JSON.parse(raw)?.error || raw } catch { msg = raw }
-      throw new Error(`Lỗi ${res.status}: ${msg}`)
+      throw await responseError(res, 'Không thể cập nhật dữ liệu')
     }
     const updated = mapId(await res.json())
     SETTERS[type](list => { const next = list.map(i => i.id === id ? updated : i); lsSave(type, next); return next })
@@ -139,9 +132,13 @@ export function DataProvider({ children }) {
   const deleteItem = async (type, id) => {
     const ep = ENDPOINTS[type]
     if (!ep) throw new Error(`Unknown type: ${type}`)
+    let response
     try {
-      await fetch(`${API}/api/${ep}/${id}`, { method: 'DELETE', signal: AbortSignal.timeout(5000) })
-    } catch { /* offline — still remove from local */ }
+      response = await apiFetch(`/api/${ep}/${id}`, { method: 'DELETE', signal: AbortSignal.timeout(5000) })
+    } catch {
+      throw new Error('Không kết nối được server — dữ liệu chưa bị xóa')
+    }
+    if (!response.ok) throw await responseError(response, 'Không thể xóa dữ liệu')
     SETTERS[type](p => { const next = p.filter(i => i.id !== id); lsSave(type, next); return next })
     lsDelete(type, id)
   }

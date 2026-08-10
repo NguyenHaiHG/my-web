@@ -9,6 +9,7 @@ import { useOrder } from '../context/OrderContext'
 import { useUI } from '../context/UIContext'
 
 /* ── constants ── */
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 const SERVICES = [
     { icon: '🖨️', name: 'In ấn', desc: 'In tài liệu, ảnh, bản đồ', price: 'Từ 2k/trang' },
     { icon: '🚿', name: 'Tắm nhanh', desc: 'Nước nóng 24/7', price: '20k/lượt' },
@@ -59,6 +60,7 @@ function MiniBookingModal({ tour, onClose }) {
         date: '', adults: 1, children: 0,
         name: '', phone: '', email: '', note: '',
     })
+    const [saving, setSaving] = useState(false)
 
     const totalGuests = form.adults + form.children
 
@@ -75,14 +77,20 @@ function MiniBookingModal({ tour, onClose }) {
         }
     }
 
-    const confirm = () => {
-        submitTourBooking({
-            tourTitle: tour.title, tourPrice: tour.price,
-            name: form.name, phone: form.phone,
-            date: form.date, guests: totalGuests, note: form.note,
-        })
-        onClose()
-        showToast('✅ Đặt lịch "' + tour.title + '" thành công! Chúng tôi sẽ liên hệ xác nhận.')
+    const confirm = async () => {
+        setSaving(true)
+        try {
+            await submitTourBooking({
+                tourTitle: tour.title, tourPrice: tour.price,
+                name: form.name, phone: form.phone, email: form.email,
+                date: form.date, guests: totalGuests, note: form.note,
+            })
+            onClose()
+            showToast('✅ Đặt lịch "' + tour.title + '" thành công! Chúng tôi sẽ liên hệ xác nhận.')
+        } catch (err) {
+            showToast('❌ ' + (err?.message || 'Không thể lưu đặt tour'))
+            setSaving(false)
+        }
     }
 
     return (
@@ -178,7 +186,9 @@ function MiniBookingModal({ tour, onClose }) {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
                             <div style={{ display: 'flex', gap: 10 }}>
                                 <button className="btn3d btn3d-blue" style={{ flex: 1 }} onClick={() => setStep(2)}>← Quay lại</button>
-                                <button className="btn3d btn3d-orange" style={{ flex: 2 }} onClick={confirm}>✅ Xác nhận đặt lịch</button>
+                                <button className="btn3d btn3d-orange" style={{ flex: 2 }} onClick={confirm} disabled={saving}>
+                                    {saving ? 'Đang lưu…' : '✅ Xác nhận đặt lịch'}
+                                </button>
                             </div>
                             <a href="tel:0385737705" className="btn3d btn3d-green btn-full"
                                 style={{ textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
@@ -266,7 +276,7 @@ export default function QuickMenu() {
 
     // Lấy dữ liệu hero section từ API
     useEffect(() => {
-        fetch('/api/hero-section')
+        fetch(`${API}/api/hero-section`)
             .then(res => res.json())
             .then(data => setHeroSection(data))
             .catch(err => console.error('Lỗi khi lấy hero section:', err))

@@ -74,7 +74,7 @@ const HERO_IMAGES_DEFAULT = [
     { url: 'https://images.pexels.com/photos/36582384/pexels-photo-36582384.jpeg?auto=compress&cs=tinysrgb&w=1400', caption: 'Phụ nữ H’Mông — sắc màu vùng cao' },
 ]
 
-export default function HomePage() {
+export default function HomePage({ siteContent = {} }) {
     const navigate = useNavigate()
     const { t } = useLang()
     const { communityImages } = useData()
@@ -82,6 +82,7 @@ export default function HomePage() {
     // ── Hero slideshow ───────────────────────────────────────────────
     const [heroImages, setHeroImages] = useState(HERO_IMAGES_DEFAULT)
     const [heroIdx, setHeroIdx] = useState(0)
+    const cmsHero = siteContent.hero || {}
 
     // Fetch admin-uploaded hero images from backend
     useEffect(() => {
@@ -136,7 +137,7 @@ export default function HomePage() {
             <section className="ng-hero" aria-label="Ảnh bìa">
                 <div
                     className="ng-hero-bg"
-                    style={{ backgroundImage: `url(${heroImages[heroIdx]?.url || HERO_IMAGES_DEFAULT[0].url})` }}
+                    style={{ backgroundImage: `url(${cmsHero.image || heroImages[heroIdx]?.url || HERO_IMAGES_DEFAULT[0].url})` }}
                 />
                 <div className="ng-hero-overlay" />
 
@@ -177,11 +178,11 @@ export default function HomePage() {
 
                 <div className="ng-hero-content">
                     <p className="ng-hero-eyebrow">{t('hp_hero_badge')}</p>
-                    <h1><span className="ng-hl">{t('hp_h1_hl')}</span></h1>
-                    <p>{t('hp_hero_sub')}</p>
+                    <h1><span className="ng-hl">{cmsHero.title || t('hp_h1_hl')}</span></h1>
+                    <p>{cmsHero.subtitle || cmsHero.body || t('hp_hero_sub')}</p>
                     <div className="ng-hero-btns">
-                        <button className="btn3d btn3d-orange" onClick={() => navigate('/thu-vien')}>
-                            {t('hp_hero_btn1')} <ArrowRight size={16} />
+                        <button className="btn3d btn3d-orange" onClick={() => navigate(cmsHero.buttonHref || '/thu-vien')}>
+                            {cmsHero.buttonLabel || t('hp_hero_btn1')} <ArrowRight size={16} />
                         </button>
                         <button className="btn3d btn3d-outline-white" onClick={() => navigate('/lien-he')}>
                             {t('hp_hero_btn2')} →

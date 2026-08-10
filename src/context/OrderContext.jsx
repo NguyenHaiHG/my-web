@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { apiFetch, responseError } from '../utils/api'
 
 const OrderContext = createContext(null)
 
@@ -34,12 +35,30 @@ export function OrderProvider({ children }) {
     const [workshopRegs, setWorkshopRegs] = useState([])
     const [volunteerApps, setVolunteerApps] = useState([])
 
-    /* ── Load cart orders from backend on mount ───────────── */
+    const mapId = item => ({ ...item, id: item._id || item.id })
+
+    /* ── Load private admin queues from backend ───────────── */
     useEffect(() => {
-        fetch(`${API}/api/orders`)
-            .then(r => r.ok ? r.json() : [])
-            .then(data => setCartOrders(data.map(o => ({ ...o, id: o._id || o.id }))))
-            .catch(() => { })
+        const loadAdminQueues = async () => {
+            try {
+                const [ordersRes, regsRes, volunteersRes] = await Promise.all([
+                    apiFetch('/api/orders'),
+                    apiFetch('/api/workshop-regs'),
+                    apiFetch('/api/volunteers'),
+                ])
+                if (ordersRes.ok) {
+                    const orders = (await ordersRes.json()).map(mapId)
+                    setCartOrders(orders.filter(o => !['taobao', 'tour'].includes(o.orderType)))
+                    setTaobaoOrders(orders.filter(o => o.orderType === 'taobao'))
+                    setTourBookings(orders.filter(o => o.orderType === 'tour'))
+                }
+                if (regsRes.ok) setWorkshopRegs((await regsRes.json()).map(mapId))
+                if (volunteersRes.ok) setVolunteerApps((await volunteersRes.json()).map(mapId))
+            } catch { /* admin may not be logged in yet */ }
+        }
+        loadAdminQueues()
+        window.addEventListener('admin-authenticated', loadAdminQueues)
+        return () => window.removeEventListener('admin-authenticated', loadAdminQueues)
     }, [])
 
     /* ── NOTIFICATIONS ────────────────────────────────────── */
@@ -61,84 +80,100 @@ export function OrderProvider({ children }) {
     /* ── SUBMIT ORDERS ─────────────────────────────────────── */
     const submitCartOrder = async (orderData, items) => {
         const payload = { ...orderData, items }
-        let saved = { ...payload, id: Date.now(), date: new Date().toLocaleString('vi-VN'), status: 'pending' }
         try {
             const res = await fetch(`${API}/api/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify({ ...payload, orderType: 'cart' }),
             })
-            if (res.ok) {
-                const data = await res.json()
-                saved = { ...data, id: data._id || data.id, date: new Date().toLocaleString('vi-VN') }
-            }
-        } catch { /* offline fallback – order still shows in session */ }
-        setCartOrders(prev => [saved, ...prev])
+            if (!res.ok) throw await responseError(res, 'Không thể gửi đơn hàng')
+            const data = await res.json()
+            const saved = { ...data, id: data._id || data.id, date: new Date().toLocaleString('vi-VN') }
+            setCartOrders(prev => [saved, ...prev])
+        } catch (err) {
+            throw new Error(err?.message || 'Không kết nối được server — đơn hàng chưa được lưu')
+        }
         addNotif(`🛒 Đơn giỏ hàng mới từ ${orderData.name} – SĐT: ${orderData.phone}`, 'cart')
         clearCart()
     }
 
-    const submitTaobaoOrder = (orderData) => {
-        setTaobaoOrders(prev => [{
-            ...orderData,
-            id: Date.now(),
-            date: new Date().toLocaleString('vi-VN'),
-            status: 'pending',
-        }, ...prev])
+    const submitTaobaoOrder = async (orderData) => {
+        const res = await fetch(`${API}/api/orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...orderData, orderType: 'taobao', details: orderData }),
+        })
+        if (!res.ok) throw await responseError(res, 'Không thể gửi đơn Taobao')
+        const saved = mapId(await res.json())
+        setTaobaoOrders(prev => [saved, ...prev])
         addNotif(`🛍️ Đơn Taobao mới từ ${orderData.name} – SĐT: ${orderData.phone}`, 'taobao')
+        return saved
     }
 
-    const submitTourBooking = (bookingData) => {
-        setTourBookings(prev => [{
-            ...bookingData,
-            id: Date.now(),
-            date_submitted: new Date().toLocaleString('vi-VN'),
-            status: 'pending',
-        }, ...prev])
+    const submitTourBooking = async (bookingData) => {
+        const res = await fetch(`${API}/api/orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderType: 'tour',
+                name: bookingData.name,
+                phone: bookingData.phone,
+                email: bookingData.email,
+                note: bookingData.note,
+                details: bookingData,
+            }),
+        })
+        if (!res.ok) throw await responseError(res, 'Không thể gửi đặt tour')
+        const saved = mapId(await res.json())
+        setTourBookings(prev => [saved, ...prev])
         addNotif(`🗺️ Đặt tour: "${bookingData.tourTitle}" – ${bookingData.name} (${bookingData.phone})`, 'tour')
+        return saved
     }
 
-    const submitWorkshopReg = (regData) => {
-        setWorkshopRegs(prev => [{
-            ...regData,
-            id: Date.now(),
-            date: new Date().toLocaleString('vi-VN'),
-            status: 'pending',
-        }, ...prev])
+    const submitWorkshopReg = async (regData) => {
+        const res = await fetch(`${API}/api/workshop-regs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(regData),
+        })
+        if (!res.ok) throw await responseError(res, 'Không thể gửi đăng ký workshop')
+        const saved = mapId(await res.json())
+        setWorkshopRegs(prev => [saved, ...prev])
         addNotif(`🎓 Đăng ký workshop: "${regData.workshopTitle}" – ${regData.name}`, 'workshop')
+        return saved
     }
 
-    const submitVolunteerApp = (appData) => {
-        setVolunteerApps(prev => [{
-            ...appData,
-            id: Date.now(),
-            date: new Date().toLocaleString('vi-VN'),
-            status: 'pending',
-        }, ...prev])
+    const submitVolunteerApp = async (appData) => {
+        const res = await fetch(`${API}/api/volunteers`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(appData),
+        })
+        if (!res.ok) throw await responseError(res, 'Không thể gửi đơn tình nguyện')
+        const saved = mapId(await res.json())
+        setVolunteerApps(prev => [saved, ...prev])
         addNotif(`🙋 Đơn tình nguyện mới từ ${appData.name}`, 'volunteer')
+        return saved
     }
 
-    const updateOrderStatus = (type, id, status) => {
+    const updateOrderStatus = async (type, id, status) => {
+        const route = type === 'workshop' ? 'workshop-regs' : type === 'volunteer' ? 'volunteers' : 'orders'
+        const method = route === 'orders' ? 'PATCH' : 'PUT'
+        const res = await apiFetch(`/api/${route}/${id}`, { method, body: JSON.stringify({ status }) })
+        if (!res.ok) throw await responseError(res, 'Không thể cập nhật trạng thái')
         const upd = list => list.map(o => o.id === id ? { ...o, status } : o)
-        if (type === 'cart') {
-            setCartOrders(upd)
-            fetch(`${API}/api/orders/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status }),
-            }).catch(() => { })
-        }
+        if (type === 'cart') setCartOrders(upd)
         if (type === 'taobao') setTaobaoOrders(upd)
         if (type === 'tour') setTourBookings(upd)
         if (type === 'workshop') setWorkshopRegs(upd)
         if (type === 'volunteer') setVolunteerApps(upd)
     }
 
-    const deleteOrder = (type, id) => {
-        if (type === 'cart') {
-            setCartOrders(p => p.filter(o => o.id !== id))
-            fetch(`${API}/api/orders/${id}`, { method: 'DELETE' }).catch(() => { })
-        }
+    const deleteOrder = async (type, id) => {
+        const route = type === 'workshop' ? 'workshop-regs' : type === 'volunteer' ? 'volunteers' : 'orders'
+        const res = await apiFetch(`/api/${route}/${id}`, { method: 'DELETE' })
+        if (!res.ok) throw await responseError(res, 'Không thể xóa dữ liệu')
+        if (type === 'cart') setCartOrders(p => p.filter(o => o.id !== id))
         if (type === 'taobao') setTaobaoOrders(p => p.filter(o => o.id !== id))
         if (type === 'tour') setTourBookings(p => p.filter(o => o.id !== id))
         if (type === 'workshop') setWorkshopRegs(p => p.filter(o => o.id !== id))

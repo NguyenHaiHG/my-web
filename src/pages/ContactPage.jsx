@@ -3,9 +3,10 @@ import { Phone, MessageSquare, MessageCircle, MapPin, Clock, Send, Check } from 
 import { useUI } from '../context/UIContext'
 import { useLang } from '../context/LanguageContext'
 
-export default function ContactPage() {
+export default function ContactPage({ siteContent = {} }) {
   const { showToast } = useUI()
   const { t } = useLang()
+  const cmsHero = siteContent.hero || {}
   const mapLink = 'https://maps.app.goo.gl/Fm26ka14eoToFq68A'
   const [form, setForm] = useState({ name: '', phone: '', email: '', service: '', msg: '' })
   const [sent, setSent] = useState(false)
@@ -30,11 +31,11 @@ export default function ContactPage() {
 
   return (
     <div className="page-enter">
-      <div className="page-hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1540975038511-ad92c58acd41?w=1400&q=80)' }}>
+      <div className="page-hero" style={{ backgroundImage: `url(${cmsHero.image || 'https://images.unsplash.com/photo-1540975038511-ad92c58acd41?w=1400&q=80'})` }}>
         <div className="ph-overlay" />
         <div className="ph-content">
-          <h1>{t('contact_hero_title')}</h1>
-          <p>{t('contact_hero_sub')}</p>
+          <h1>{cmsHero.title || t('contact_hero_title')}</h1>
+          <p>{cmsHero.subtitle || cmsHero.body || t('contact_hero_sub')}</p>
         </div>
       </div>
 

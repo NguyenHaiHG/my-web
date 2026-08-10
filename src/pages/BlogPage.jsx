@@ -7,11 +7,12 @@ import { useUI } from '../context/UIContext'
 import { useLang } from '../context/LanguageContext'
 import AdminImgBtn from '../components/AdminImgBtn'
 
-export default function BlogPage() {
+export default function BlogPage({ siteContent = {} }) {
   const { posts, deleteItem } = useData()
   const { isMod, isAdmin } = useAuth()
   const { setAdminModal, setEditItem, showToast } = useUI()
   const { t } = useLang()
+  const cmsHero = siteContent.hero || {}
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
 
@@ -22,11 +23,11 @@ export default function BlogPage() {
 
   return (
     <div className="page-enter">
-      <div className="page-hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1400&q=80)' }}>
+      <div className="page-hero" style={{ backgroundImage: `url(${cmsHero.image || 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1400&q=80'})` }}>
         <div className="ph-overlay" />
         <div className="ph-content">
-          <h1>{t('blog_hero_title')}</h1>
-          <p>{t('blog_hero_sub')}</p>
+          <h1>{cmsHero.title || t('blog_hero_title')}</h1>
+          <p>{cmsHero.subtitle || cmsHero.body || t('blog_hero_sub')}</p>
         </div>
       </div>
 
@@ -67,7 +68,15 @@ export default function BlogPage() {
                     </button>
                   )}
                   {isAdmin && (
-                    <button className="btn-card-del" onClick={() => { deleteItem('post', post.id); showToast(t('blog_deleted')) }}>
+                    <button className="btn-card-del" onClick={async () => {
+                      if (!window.confirm('Xóa bài viết này?')) return
+                      try {
+                        await deleteItem('post', post.id)
+                        showToast(t('blog_deleted'))
+                      } catch (err) {
+                        showToast('❌ ' + err.message)
+                      }
+                    }}>
                       <Trash2 size={14} />
                     </button>
                   )}

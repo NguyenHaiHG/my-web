@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Review = require('../models/Review')
+const { adminOnly } = require('../middleware/auth')
 
 // Public: only approved reviews
 router.get('/', async (req, res) => {
@@ -11,7 +12,7 @@ router.get('/', async (req, res) => {
 })
 
 // Admin: all reviews
-router.get('/all', async (req, res) => {
+router.get('/all', adminOnly, async (req, res) => {
     try {
         const reviews = await Review.find().sort({ createdAt: -1 })
         res.json(reviews)
@@ -27,7 +28,7 @@ router.post('/', async (req, res) => {
 })
 
 // Approve / update review (admin)
-router.put('/:id', async (req, res) => {
+router.put('/:id', adminOnly, async (req, res) => {
     try {
         const review = await Review.findByIdAndUpdate(req.params.id, req.body, { new: true })
         if (!review) return res.status(404).json({ error: 'Không tìm thấy review' })
@@ -35,7 +36,7 @@ router.put('/:id', async (req, res) => {
     } catch (err) { res.status(400).json({ error: err.message }) }
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', adminOnly, async (req, res) => {
     try {
         await Review.findByIdAndDelete(req.params.id)
         res.json({ success: true })

@@ -1,5 +1,6 @@
 const express = require('express')
 const ImageAsset = require('../models/ImageAsset')
+const { adminOnly } = require('../middleware/auth')
 
 const router = express.Router()
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024
@@ -55,7 +56,7 @@ router.get('/:id', async (req, res) => {
     }
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', adminOnly, async (req, res) => {
     try {
         await ImageAsset.findByIdAndDelete(req.params.id)
         res.json({ success: true })

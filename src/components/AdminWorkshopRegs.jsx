@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { apiFetch } from '../utils/api'
 
 export default function AdminWorkshopRegs() {
     const [regs, setRegs] = useState([])
@@ -6,17 +7,16 @@ export default function AdminWorkshopRegs() {
     const [error, setError] = useState('')
 
     useEffect(() => {
-        fetch('/api/workshop-regs')
+        apiFetch('/api/workshop-regs')
             .then(res => res.json())
             .then(data => { setRegs(data); setLoading(false) })
-            .catch(e => { setError('Lỗi tải dữ liệu'); setLoading(false) })
+            .catch(() => { setError('Lỗi tải dữ liệu'); setLoading(false) })
     }, [])
 
     const handleComplete = async (reg) => {
         if (!window.confirm('Xác nhận khách đã hoàn thành trải nghiệm?')) return
-        const res = await fetch(`/api/workshop-regs/${reg._id}`, {
+        const res = await apiFetch(`/api/workshop-regs/${reg._id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...reg, status: 'completed' })
         })
         if (res.ok) {

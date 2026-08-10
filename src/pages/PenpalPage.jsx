@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { X, Mail, Camera, Plus, Globe, Heart, Send } from 'lucide-react'
+import { X, Mail, Camera, Plus, Globe, Heart, Send, Trash2 } from 'lucide-react'
+import { uploadImageDataUrl } from '../utils/uploadImage'
+import { useAuth } from '../context/AuthContext'
+import { apiFetch, responseError } from '../utils/api'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -74,10 +77,11 @@ function LetterModal({ penpal, onClose }) {
         setSending(true)
         setError('')
         try {
+            const photoUrl = await uploadImageDataUrl(photo, `penpal-letter-${Date.now()}.jpg`)
             const res = await fetch(`${API}/api/penpals/${penpal._id}/letter`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...form, photo }),
+                body: JSON.stringify({ ...form, photo: photoUrl }),
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Gửi thất bại')
@@ -222,12 +226,13 @@ function RegisterModal({ onClose, onSuccess }) {
         setSaving(true)
         setError('')
         try {
+            const photoUrl = await uploadImageDataUrl(photo, `penpal-profile-${Date.now()}.jpg`)
             const payload = {
                 ...form,
                 age: form.age ? Number(form.age) : undefined,
                 languages: form.languages.split(',').map(s => s.trim()).filter(Boolean),
                 interests: form.interests.split(',').map(s => s.trim()).filter(Boolean),
-                photo,
+                photo: photoUrl,
             }
             const res = await fetch(`${API}/api/penpals`, {
                 method: 'POST',
@@ -333,7 +338,7 @@ function RegisterModal({ onClose, onSuccess }) {
 }
 
 /* ─────────────────── PENPAL CARD ─────────────────── */
-function PenpalCard({ penpal, onWrite }) {
+function PenpalCard({ penpal, onWrite, canDelete, onDelete }) {
     return (
         <div className="pp-card">
             <div className="pp-card-photo">
@@ -367,18 +372,25 @@ function PenpalCard({ penpal, onWrite }) {
                 <button className="btn3d btn3d-orange pp-write-btn" onClick={() => onWrite(penpal)}>
                     <Mail size={14} /> Gửi thư ✉️
                 </button>
+                {canDelete && (
+                    <button className="btn-card-del" title="Xóa hồ sơ" onClick={() => onDelete(penpal)}>
+                        <Trash2 size={14} />
+                    </button>
+                )}
             </div>
         </div>
     )
 }
 
 /* ─────────────────── MAIN PAGE ─────────────────── */
-export default function PenpalPage() {
+export default function PenpalPage({ siteContent = {} }) {
+    const { isAdmin } = useAuth()
     const [penpals, setPenpals] = useState([])
     const [loading, setLoading] = useState(true)
     const [showRegister, setShowRegister] = useState(false)
     const [selectedPenpal, setSelectedPenpal] = useState(null)
     const [toast, setToast] = useState('')
+    const cmsHero = siteContent.hero || {}
 
     const fetchPenpals = async () => {
         try {
@@ -402,22 +414,34 @@ export default function PenpalPage() {
         setTimeout(() => setToast(''), 4000)
     }
 
+    const deletePenpal = async penpal => {
+        if (!window.confirm(`Xóa hồ sơ ${penpal.name}?`)) return
+        try {
+            const response = await apiFetch(`/api/penpals/${penpal._id}`, { method: 'DELETE' })
+            if (!response.ok) throw await responseError(response, 'Không thể xóa hồ sơ')
+            setPenpals(prev => prev.filter(item => item._id !== penpal._id))
+            setToast('Đã xóa hồ sơ trên server')
+        } catch (err) {
+            setToast('❌ ' + err.message)
+        }
+    }
+
     return (
         <div className="page-enter">
             {/* ── Hero ── */}
-            <section className="pp-hero">
+            <section className="pp-hero" style={cmsHero.image ? { backgroundImage: `linear-gradient(#1f365dcc,#1f365dcc),url("${cmsHero.image}")`, backgroundSize: 'cover' } : undefined}>
                 <div className="pp-hero-content container">
                     <span className="pp-hero-tag">🌏 BookHaGiang · Penpal Community</span>
-                    <h1 className="pp-hero-h1">Kết bạn Quốc Tế<br /><span className="pp-hero-hl">Penpal</span></h1>
+                    <h1 className="pp-hero-h1">{cmsHero.title || <>Kết bạn Quốc Tế<br /><span className="pp-hero-hl">Penpal</span></>}</h1>
                     <p className="pp-hero-sub">
-                        Giao lưu với bạn bè khắp nơi trên thế giới. Gửi thư kèm ảnh, chia sẻ câu chuyện, học ngôn ngữ mới.
+                        {cmsHero.subtitle || cmsHero.body || 'Giao lưu với bạn bè khắp nơi trên thế giới. Gửi thư kèm ảnh, chia sẻ câu chuyện, học ngôn ngữ mới.'}
                     </p>
                     <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic', marginTop: -4 }}>
                         Connect with friends around the world. Write letters with photos, share stories, learn new languages.
                     </p>
                     <div className="pp-hero-btns">
                         <button className="btn3d btn3d-orange" onClick={() => setShowRegister(true)}>
-                            <Plus size={16} /> Đăng ký làm Penpal
+                            <Plus size={16} /> {cmsHero.buttonLabel || 'Đăng ký làm Penpal'}
                         </button>
                     </div>
                 </div>
@@ -468,7 +492,7 @@ export default function PenpalPage() {
                 ) : (
                     <div className="pp-grid">
                         {penpals.map(p => (
-                            <PenpalCard key={p._id} penpal={p} onWrite={setSelectedPenpal} />
+                            <PenpalCard key={p._id} penpal={p} onWrite={setSelectedPenpal} canDelete={isAdmin} onDelete={deletePenpal} />
                         ))}
                     </div>
                 )}

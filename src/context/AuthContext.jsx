@@ -1,53 +1,81 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { apiFetch, getAuthToken, responseError, setAuthToken } from '../utils/api'
 
 const AuthContext = createContext(null)
 
-const AUTH_KEY = 'htx_truonghai_auth_user'
-
-// Tài khoản mẫu (trong thực tế nên dùng backend/database)
-const USERS = [
-  { id: 1, username: 'admin', password: '864189', role: 'admin', name: 'Nguyễn Xuân Hải' },
-  { id: 2, username: 'mod', password: 'mod123', role: 'mod', name: 'Lộc Như Quỳnh' },
-  { id: 3, username: 'user', password: 'user123', role: 'user', name: 'Khách Hàng' },
-]
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const raw = localStorage.getItem(AUTH_KEY)
-      return raw ? JSON.parse(raw) : null
-    } catch {
-      return null
-    }
-  })
+  const [user, setUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(() => !!getAuthToken())
   const [loginError, setLoginError] = useState('')
 
-  const login = (username, password) => {
-    const found = USERS.find(u => u.username === username && u.password === password)
-    if (found?.role === 'admin') {
-      setUser(found)
-      localStorage.setItem(AUTH_KEY, JSON.stringify(found))
+  useEffect(() => {
+    localStorage.removeItem('htx_truonghai_auth_user')
+    const token = getAuthToken()
+    if (!token) {
+      setAuthLoading(false)
+      return
+    }
+
+    apiFetch('/api/auth/me')
+      .then(async response => {
+        if (!response.ok) throw await responseError(response, 'Không thể xác minh phiên đăng nhập')
+        const data = await response.json()
+        setUser(data.user)
+        window.dispatchEvent(new CustomEvent('admin-authenticated'))
+      })
+      .catch(() => {
+        setAuthToken('')
+        setUser(null)
+      })
+      .finally(() => setAuthLoading(false))
+  }, [])
+
+  useEffect(() => {
+    const expire = () => setUser(null)
+    window.addEventListener('admin-session-expired', expire)
+    return () => window.removeEventListener('admin-session-expired', expire)
+  }, [])
+
+  const login = async (username, password) => {
+    setLoginError('')
+    try {
+      const response = await apiFetch('/api/auth/login', {
+        method: 'POST',
+        auth: false,
+        body: JSON.stringify({ username, password }),
+      })
+      if (!response.ok) throw await responseError(response, 'Không thể đăng nhập')
+      const data = await response.json()
+      setAuthToken(data.token)
+      setUser(data.user)
+      window.dispatchEvent(new CustomEvent('admin-authenticated'))
       setLoginError('')
       return true
-    }
-    if (found && found.role !== 'admin') {
-      setLoginError('Tài khoản này không có quyền đăng nhập!')
+    } catch (err) {
+      setLoginError(err?.message || 'Không thể đăng nhập')
       return false
     }
-    setLoginError('Sai tên đăng nhập hoặc mật khẩu!')
-    return false
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem(AUTH_KEY)
+    setAuthToken('')
+  }
+
+  const changePassword = async (currentPassword, newPassword) => {
+    const response = await apiFetch('/api/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    })
+    if (!response.ok) throw await responseError(response, 'Không thể đổi mật khẩu')
+    return true
   }
 
   const isAdmin = user?.role === 'admin'
-  const isMod = user?.role === 'mod' || user?.role === 'admin'
+  const isMod = isAdmin
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loginError, setLoginError, isAdmin, isMod }}>
+    <AuthContext.Provider value={{ user, login, logout, changePassword, loginError, setLoginError, authLoading, isAdmin, isMod }}>
       {children}
     </AuthContext.Provider>
   )

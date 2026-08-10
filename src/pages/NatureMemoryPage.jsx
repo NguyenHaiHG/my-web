@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { X, Plus, ChevronLeft, Trash2, Search, Leaf, Award, Upload, RefreshCw, WifiOff } from 'lucide-react'
 import './NatureMemory.css'
 import { uploadImageDataUrl } from '../utils/uploadImage'
+import { useAuth } from '../context/AuthContext'
+import { apiFetch } from '../utils/api'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -341,7 +343,7 @@ async function createRemoteMemory(entry) {
 }
 
 async function deleteRemoteMemory(id) {
-    const res = await fetch(`${API}/api/nature-memories/${id}`, { method: 'DELETE' })
+    const res = await apiFetch(`/api/nature-memories/${id}`, { method: 'DELETE' })
     if (!res.ok) throw new Error('delete nature memory failed')
 }
 
@@ -450,7 +452,7 @@ function EntryCard({ entry, onClick }) {
 /* ─────────────────────────────────────────────
    DETAIL MODAL
 ───────────────────────────────────────────── */
-function DetailModal({ entry, onClose, onDelete }) {
+function DetailModal({ entry, onClose, onDelete, canDelete }) {
     const cat = catFor(entry.category)
     const weather = weatherFor(entry.weather)
     const season = SEASONS.find(s => s.id === entry.season)
@@ -463,10 +465,12 @@ function DetailModal({ entry, onClose, onDelete }) {
                 <div className="nm-detail-header">
                     <button className="nm-icon-btn" onClick={onClose}><ChevronLeft size={20} /></button>
                     <span className="nm-detail-cat">{cat.emoji} {cat.label}</span>
-                    <button className="nm-icon-btn nm-delete-btn" onClick={() => onDelete(entry.id)}
-                        title="Xoá ghi chép này">
-                        <Trash2 size={18} />
-                    </button>
+                    {canDelete && (
+                        <button className="nm-icon-btn nm-delete-btn" onClick={() => onDelete(entry.id)}
+                            title="Xoá ghi chép này">
+                            <Trash2 size={18} />
+                        </button>
+                    )}
                 </div>
 
                 {entry.img && (
@@ -702,7 +706,8 @@ function AddModal({ onClose, onSave, initialFile }) {
 /* ─────────────────────────────────────────────
    MAIN PAGE
 ───────────────────────────────────────────── */
-export default function NatureMemoryPage() {
+export default function NatureMemoryPage({ siteContent = {} }) {
+    const { isAdmin } = useAuth()
     const [memories, setMemories] = useState(loadMemories)
     const [filterCat, setFilterCat] = useState('all')
     const [search, setSearch] = useState('')
@@ -714,6 +719,7 @@ export default function NatureMemoryPage() {
     const [serverStatus, setServerStatus] = useState('checking')
     const [saveNotice, setSaveNotice] = useState('')
     const uploadRef = useRef()
+    const cmsHero = siteContent.hero || {}
 
     const checkServer = useCallback(async () => {
         setServerStatus('checking')
@@ -847,7 +853,7 @@ export default function NatureMemoryPage() {
     return (
         <div className="nm-page page-enter">
             {/* HEADER */}
-            <div className="nm-hero">
+            <div className="nm-hero" style={cmsHero.image ? { backgroundImage: `linear-gradient(#103c2dcc,#103c2dcc),url("${cmsHero.image}")`, backgroundSize: 'cover' } : undefined}>
                 <div className="nm-hero-deco" aria-hidden="true">
                     <span>🌿</span><span>🍃</span><span>🌸</span><span>🦋</span><span>🌱</span>
                 </div>
@@ -855,9 +861,9 @@ export default function NatureMemoryPage() {
                     <div className="nm-hero-badge">
                         <Leaf size={14} /> 自然ノート
                     </div>
-                    <h1 className="nm-hero-title">Nhật Ký Thiên Nhiên</h1>
+                    <h1 className="nm-hero-title">{cmsHero.title || 'Nhật Ký Thiên Nhiên'}</h1>
                     <p className="nm-hero-sub" style={{ marginBottom: 2 }}>
-                        Quan sát cây cối và sinh vật xung quanh — để biết nhiều hơn về thiên nhiên
+                        {cmsHero.subtitle || cmsHero.body || 'Quan sát cây cối và sinh vật xung quanh — để biết nhiều hơn về thiên nhiên'}
                     </p>
                     <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', fontStyle: 'italic', marginBottom: 8 }}>
                         Observe plants &amp; creatures around you — learn more about the natural world
@@ -973,6 +979,7 @@ export default function NatureMemoryPage() {
                     entry={detail}
                     onClose={() => setDetail(null)}
                     onDelete={handleDelete}
+                    canDelete={isAdmin}
                 />
             )}
             {showCert && (

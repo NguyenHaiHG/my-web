@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const router = express.Router()
 const NatureMemoryEntry = require('../models/NatureMemoryEntry')
+const { adminOnly } = require('../middleware/auth')
 
 function pickPayload(body = {}) {
     return {
@@ -49,7 +50,7 @@ router.post('/', async (req, res) => {
 })
 
 // DELETE by Mongo _id or by clientId
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', adminOnly, async (req, res) => {
     try {
         const { id } = req.params
 

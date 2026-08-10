@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Upload, Trash2, ImagePlus } from 'lucide-react'
 import { useUI } from '../context/UIContext'
-import { uploadImageDataUrl } from '../utils/uploadImage'
+import { compressImageFile, uploadImageDataUrl } from '../utils/uploadImage'
+import { apiFetch } from '../utils/api'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -14,27 +15,6 @@ const CATEGORIES = [
     { id: 'mushroom', label: '🍄 Nấm' },
     { id: 'other', label: '🔍 Khác' },
 ]
-
-function compressImage(file, maxW = 1200, quality = 0.82) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onerror = reject
-        reader.onload = ev => {
-            const img = new Image()
-            img.onerror = reject
-            img.onload = () => {
-                const scale = Math.min(1, maxW / Math.max(img.width, img.height))
-                const canvas = document.createElement('canvas')
-                canvas.width = Math.round(img.width * scale)
-                canvas.height = Math.round(img.height * scale)
-                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-                resolve(canvas.toDataURL('image/jpeg', quality))
-            }
-            img.src = ev.target.result
-        }
-        reader.readAsDataURL(file)
-    })
-}
 
 export default function AdminNatureMemory() {
     const { showToast } = useUI()
@@ -84,11 +64,10 @@ export default function AdminNatureMemory() {
         const failed = []
         for (const item of queue) {
             try {
-                const compressed = await compressImage(item.file)
+                const compressed = await compressImageFile(item.file, 1200, 0.82)
                 const url = await uploadImageDataUrl(compressed, item.file.name)
-                const res = await fetch(`${API}/api/nature-memory-images`, {
+                const res = await apiFetch('/api/nature-memory-images', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url, caption: item.caption, category: item.category }),
                 })
                 if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -112,7 +91,8 @@ export default function AdminNatureMemory() {
     const handleDelete = async (id) => {
         if (!window.confirm('Xóa ảnh này?')) return
         try {
-            await fetch(`${API}/api/nature-memory-images/${id}`, { method: 'DELETE' })
+            const response = await apiFetch(`/api/nature-memory-images/${id}`, { method: 'DELETE' })
+            if (!response.ok) throw new Error(`HTTP ${response.status}`)
             setImages(prev => prev.filter(img => img._id !== id))
             showToast('Đã xóa ảnh')
         } catch {

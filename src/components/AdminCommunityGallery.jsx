@@ -1,28 +1,8 @@
 import React, { useState, useRef } from 'react'
-import { Upload, Trash2, ImagePlus, Check } from 'lucide-react'
+import { Upload, Trash2, ImagePlus } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useUI } from '../context/UIContext'
-
-function compressImage(file, maxW = 1200, quality = 0.82) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onerror = reject
-        reader.onload = ev => {
-            const img = new Image()
-            img.onerror = reject
-            img.onload = () => {
-                const scale = Math.min(1, maxW / Math.max(img.width, img.height))
-                const canvas = document.createElement('canvas')
-                canvas.width = Math.round(img.width * scale)
-                canvas.height = Math.round(img.height * scale)
-                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-                resolve(canvas.toDataURL('image/jpeg', quality))
-            }
-            img.src = ev.target.result
-        }
-        reader.readAsDataURL(file)
-    })
-}
+import { compressImageFile, uploadImageDataUrl } from '../utils/uploadImage'
 
 export default function AdminCommunityGallery() {
     const { communityImages, addItem, deleteItem } = useData()
@@ -56,24 +36,31 @@ export default function AdminCommunityGallery() {
         if (!queue.length) return
         setUploading(true)
         let ok = 0
+        const failed = []
         for (const item of queue) {
             try {
-                const url = await compressImage(item.file)
+                const compressed = await compressImageFile(item.file, 1200)
+                const url = await uploadImageDataUrl(compressed, item.file.name)
                 await addItem('communityImage', { url, caption: item.caption })
                 ok++
-            } catch {
-                showToast('❌ Lỗi upload 1 ảnh — bỏ qua')
+            } catch (err) {
+                failed.push(item)
+                showToast(`❌ ${item.file.name}: ${err.message || 'Không thể tải ảnh'}`)
             }
         }
-        setQueue([])
+        setQueue(failed)
         setUploading(false)
-        showToast(`✅ Đã thêm ${ok} ảnh vào film strip!`)
+        if (ok > 0) showToast(`✅ Đã thêm ${ok} ảnh vào film strip!`)
     }
 
     const handleDelete = async (id) => {
         if (!window.confirm('Xóa ảnh này khỏi film strip?')) return
-        await deleteItem('communityImage', id)
-        showToast('Đã xóa ảnh')
+        try {
+            await deleteItem('communityImage', id)
+            showToast('Đã xóa ảnh')
+        } catch (err) {
+            showToast(`❌ ${err.message || 'Không thể xóa ảnh'}`)
+        }
     }
 
     return (
