@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { X, Plus, ChevronLeft, Trash2, Search, Leaf, Award, Upload, RefreshCw, WifiOff } from 'lucide-react'
+import { X, Plus, ChevronLeft, Trash2, Search, Leaf, Award, Upload, RefreshCw, WifiOff, Edit2 } from 'lucide-react'
 import './NatureMemory.css'
 import { uploadImageDataUrl } from '../utils/uploadImage'
 import { useAuth } from '../context/AuthContext'
@@ -347,6 +347,16 @@ async function deleteRemoteMemory(id) {
     if (!res.ok) throw new Error('delete nature memory failed')
 }
 
+async function updateRemoteMemory(entry) {
+    const imageUrl = await uploadImageDataUrl(entry.img || '', `${entry.name || 'nature-memory'}.jpg`)
+    const res = await apiFetch(`/api/nature-memories/${entry.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ ...entry, img: imageUrl }),
+    })
+    if (!res.ok) throw new Error('update nature memory failed')
+    return res.json()
+}
+
 function compressImage(file, maxW = 1000, quality = 0.78) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
@@ -452,7 +462,7 @@ function EntryCard({ entry, onClick }) {
 /* ─────────────────────────────────────────────
    DETAIL MODAL
 ───────────────────────────────────────────── */
-function DetailModal({ entry, onClose, onDelete, canDelete }) {
+function DetailModal({ entry, onClose, onDelete, onEdit, canDelete }) {
     const cat = catFor(entry.category)
     const weather = weatherFor(entry.weather)
     const season = SEASONS.find(s => s.id === entry.season)
@@ -466,10 +476,13 @@ function DetailModal({ entry, onClose, onDelete, canDelete }) {
                     <button className="nm-icon-btn" onClick={onClose}><ChevronLeft size={20} /></button>
                     <span className="nm-detail-cat">{cat.emoji} {cat.label}</span>
                     {canDelete && (
-                        <button className="nm-icon-btn nm-delete-btn" onClick={() => onDelete(entry.id)}
-                            title="Xoá ghi chép này">
-                            <Trash2 size={18} />
-                        </button>
+                        <div>
+                            <button className="nm-icon-btn" onClick={() => onEdit(entry)} title="Sửa ghi chép"><Edit2 size={18} /></button>
+                            <button className="nm-icon-btn nm-delete-btn" onClick={() => onDelete(entry.id)}
+                                title="Xoá ghi chép này">
+                                <Trash2 size={18} />
+                            </button>
+                        </div>
                     )}
                 </div>
 
@@ -516,9 +529,9 @@ const BLANK = {
     img: '', time: '',
 }
 
-function AddModal({ onClose, onSave, initialFile }) {
-    const [form, setForm] = useState({ ...BLANK, season: getSeason() })
-    const [preview, setPreview] = useState('')
+function AddModal({ onClose, onSave, initialFile, initialEntry }) {
+    const [form, setForm] = useState({ ...BLANK, season: getSeason(), ...(initialEntry || {}) })
+    const [preview, setPreview] = useState(initialEntry?.img || '')
     const [saving, setSaving] = useState(false)
     const [imgErr, setImgErr] = useState('')
     const [saveErr, setSaveErr] = useState('')
@@ -562,8 +575,8 @@ function AddModal({ onClose, onSave, initialFile }) {
         const now = Date.now()
         const entry = {
             ...form,
-            id: uid(),
-            createdAt: now,
+            id: initialEntry?.id || uid(),
+            createdAt: initialEntry?.createdAt || now,
             time: form.time || new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         }
         try {
@@ -579,7 +592,7 @@ function AddModal({ onClose, onSave, initialFile }) {
             <div className="nm-add-modal" onClick={e => e.stopPropagation()}>
                 <div className="nm-add-header">
                     <button className="nm-icon-btn" onClick={onClose}><X size={20} /></button>
-                    <h2>✏️ Ghi chép mới <span style={{ fontWeight: 400, fontSize: 14, opacity: .6 }}>/ New Entry</span></h2>
+                    <h2>✏️ {initialEntry ? 'Sửa ghi chép' : 'Ghi chép mới'} <span style={{ fontWeight: 400, fontSize: 14, opacity: .6 }}>{initialEntry ? '/ Edit Entry' : '/ New Entry'}</span></h2>
                     <div style={{ width: 36 }} />
                 </div>
 
@@ -694,7 +707,7 @@ function AddModal({ onClose, onSave, initialFile }) {
                     </div>
 
                     <button type="submit" className="nm-btn-primary nm-btn-full" disabled={saving}>
-                        {saving ? '⏳ Đang đăng tải lên server…' : '📝 Đăng tải ghi chép  /  Upload entry'}
+                        {saving ? '⏳ Đang lưu lên server…' : initialEntry ? '💾 Lưu thay đổi / Save changes' : '📝 Đăng tải ghi chép  /  Upload entry'}
                     </button>
                     {saveErr && <p className="nm-err">{saveErr}. Vui lòng kiểm tra server và thử lại.</p>}
                 </form>
@@ -716,6 +729,7 @@ export default function NatureMemoryPage({ siteContent = {} }) {
     const [showSearch, setShowSearch] = useState(false)
     const [showCert, setShowCert] = useState(false)
     const [uploadFile, setUploadFile] = useState(null)
+    const [editingEntry, setEditingEntry] = useState(null)
     const [serverStatus, setServerStatus] = useState('checking')
     const [saveNotice, setSaveNotice] = useState('')
     const uploadRef = useRef()
@@ -738,48 +752,18 @@ export default function NatureMemoryPage({ siteContent = {} }) {
 
     useEffect(() => { checkServer() }, [checkServer])
 
-    // Persist on every change
-    useEffect(() => { saveMemories(memories) }, [memories])
-
-    // Load from backend first; if unavailable, keep localStorage fallback.
+    // Load from backend first; localStorage is read-only offline cache.
     useEffect(() => {
         let cancelled = false
 
         const syncMemories = async () => {
             const local = loadMemories()
             try {
-                let remote = await fetchRemoteMemories()
-                if (cancelled) return
-
-                const remoteNormalized = remote.map(normalizeMemory).filter(Boolean)
-                const remoteClientIds = new Set(remoteNormalized.map(e => e.clientId).filter(Boolean))
-                const remoteIds = new Set(remoteNormalized.map(e => e.id).filter(Boolean))
-
-                const missingLocal = local.filter(e => {
-                    const localId = e.id || e.clientId || ''
-                    if (!localId) return true
-                    return !remoteClientIds.has(localId) && !remoteIds.has(localId)
-                })
-
-                if (missingLocal.length > 0) {
-                    for (const item of missingLocal) {
-                        try {
-                            await createRemoteMemory(item)
-                        } catch {
-                            // Keep local fallback if one entry cannot sync.
-                        }
-                    }
-                    remote = await fetchRemoteMemories()
-                }
-
+                const remote = await fetchRemoteMemories()
                 if (cancelled) return
                 const synced = remote.map(normalizeMemory).filter(Boolean)
-                if (synced.length > 0) {
-                    setMemories(synced)
-                    saveMemories(synced)
-                } else {
-                    setMemories(local)
-                }
+                setMemories(synced)
+                saveMemories(synced)
             } catch {
                 if (!cancelled) setMemories(local)
             }
@@ -787,6 +771,17 @@ export default function NatureMemoryPage({ siteContent = {} }) {
 
         syncMemories()
         return () => { cancelled = true }
+    }, [])
+
+    const handleUpdate = useCallback(async (entry) => {
+        setSaveNotice('')
+        const updated = normalizeMemory(await updateRemoteMemory(entry))
+        if (!updated) throw new Error('Server không trả về ghi chép đã sửa')
+        setMemories(current => current.map(item => item.id === updated.id ? updated : item))
+        setDetail(updated)
+        setEditingEntry(null)
+        setSaveNotice('Đã sửa ghi chép trên server.')
+        setServerStatus('online')
     }, [])
 
     const handleSave = useCallback(async (entry) => {
@@ -824,12 +819,13 @@ export default function NatureMemoryPage({ siteContent = {} }) {
 
     const handleDelete = useCallback(async (id) => {
         if (!window.confirm('Xoá ghi chép này?')) return
-        setMemories(m => m.filter(e => e.id !== id && e.clientId !== id))
-        setDetail(null)
         try {
             await deleteRemoteMemory(id)
-        } catch {
-            // Ignore network errors; local removal still succeeds.
+            setMemories(m => m.filter(e => e.id !== id && e.clientId !== id))
+            setDetail(null)
+            setSaveNotice('Đã xóa ghi chép khỏi server.')
+        } catch (err) {
+            setSaveNotice(`Không thể xóa trên server: ${err.message}`)
         }
     }, [])
 
@@ -878,6 +874,22 @@ export default function NatureMemoryPage({ siteContent = {} }) {
                     )}
                 </div>
             </div>
+
+            {siteContent.guidelines?.items?.length > 0 && (
+                <section className="cms-managed-list-section">
+                    <div className="container">
+                        <h2>{siteContent.guidelines.title || 'Gợi ý ghi chép'}</h2>
+                        <div className="cms-managed-list">
+                            {siteContent.guidelines.items.map(item => (
+                                <article className="cms-managed-list-card" key={item.id}>
+                                    <h3>{item.title}</h3>
+                                    <p>{item.body}</p>
+                                </article>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* TOOLBAR */}
             <div className="nm-toolbar">
@@ -974,11 +986,19 @@ export default function NatureMemoryPage({ siteContent = {} }) {
                     onSave={handleSave}
                 />
             )}
+            {editingEntry && (
+                <AddModal
+                    initialEntry={editingEntry}
+                    onClose={() => setEditingEntry(null)}
+                    onSave={handleUpdate}
+                />
+            )}
             {detail && (
                 <DetailModal
                     entry={detail}
                     onClose={() => setDetail(null)}
                     onDelete={handleDelete}
+                    onEdit={entry => { setEditingEntry(entry); setDetail(null) }}
                     canDelete={isAdmin}
                 />
             )}

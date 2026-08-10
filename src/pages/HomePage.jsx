@@ -1,27 +1,12 @@
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect, useMemo } from 'react'
-import { ArrowRight, Heart, Leaf } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowRight, Heart, Leaf, Settings2 } from 'lucide-react'
 import { useLang } from '../context/LanguageContext'
-import { useData } from '../context/DataContext'
+import { useAuth } from '../context/AuthContext'
+import { apiFetch } from '../utils/api'
+import AdminHomeFilmStrip from '../components/AdminHomeFilmStrip'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-
-function loadNaturePhotos() {
-    try {
-        const raw = localStorage.getItem('nature_memories_v1')
-        if (!raw) return []
-        const entries = JSON.parse(raw)
-        return entries
-            .filter(e => e.img)
-            .map(e => ({
-                url: e.img,
-                caption: e.name
-                    ? `${e.name}${e.location ? ' · ' + e.location : ''}`
-                    : 'Quan sát thiên nhiên',
-                isNature: true,
-            }))
-    } catch { return [] }
-}
 
 const QUICK_CARDS = [
     {
@@ -77,12 +62,24 @@ const HERO_IMAGES_DEFAULT = [
 export default function HomePage({ siteContent = {} }) {
     const navigate = useNavigate()
     const { t } = useLang()
-    const { communityImages } = useData()
+    const { isAdmin } = useAuth()
+    const [showFilmStripAdmin, setShowFilmStripAdmin] = useState(false)
+    const [filmStripItems, setFilmStripItems] = useState(FARMER_FALLBACK_IMAGES)
 
     // ── Hero slideshow ───────────────────────────────────────────────
     const [heroImages, setHeroImages] = useState(HERO_IMAGES_DEFAULT)
     const [heroIdx, setHeroIdx] = useState(0)
     const cmsHero = siteContent.hero || {}
+    const quickCards = siteContent.highlights?.items?.length
+        ? siteContent.highlights.items.map(item => ({
+            emoji: item.emoji || '🌿',
+            title: item.title,
+            desc: item.body || item.description,
+            path: item.buttonHref || '/',
+            cta: item.buttonLabel || 'Khám phá →',
+            highlight: item.highlight !== false,
+        }))
+        : QUICK_CARDS
 
     // Fetch admin-uploaded hero images from backend
     useEffect(() => {
@@ -105,32 +102,28 @@ export default function HomePage({ siteContent = {} }) {
         return () => clearInterval(t)
     }, [heroImages.length])
 
-    // Always show default Pexels Ha Giang photos; community uploads added on top
-    const communityMapped = communityImages
-        .map((img, i) => {
-            if (typeof img === 'string') return { url: img, caption: `Ảnh cộng đồng ${i + 1}` }
-            return { url: img.url, caption: img.caption || `Ảnh cộng đồng ${i + 1}` }
-        })
-        // Filter out old broken Unsplash URLs
-        .filter(img => img.url && !img.url.includes('unsplash.com') && !img.url.endsWith('.svg'))
+    useEffect(() => {
+        let active = true
+        apiFetch('/api/home-film-strip', { auth: false })
+            .then(async response => {
+                if (!response.ok) throw new Error('Không thể tải dải ảnh')
+                const data = await response.json()
+                const items = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []
+                if (!active) return
+                setFilmStripItems(items.length ? items.filter(item => item.url && item.enabled !== false) : FARMER_FALLBACK_IMAGES)
+            })
+            .catch(() => {
+                if (active) setFilmStripItems(FARMER_FALLBACK_IMAGES)
+            })
+        return () => { active = false }
+    }, [])
 
-    const farmerImages = [...FARMER_FALLBACK_IMAGES, ...communityMapped]
+    const syncFilmStrip = (items) => {
+        setFilmStripItems(items.length ? items.filter(item => item.url && item.enabled !== false) : FARMER_FALLBACK_IMAGES)
+    }
 
-    const naturePhotos = useMemo(() => loadNaturePhotos(), [])
-
-    // Interleave: farmer photos + nature memory photos together
-    const allImages = useMemo(() => {
-        if (!naturePhotos.length) return farmerImages
-        const merged = []
-        const maxLen = Math.max(farmerImages.length, naturePhotos.length)
-        for (let i = 0; i < maxLen; i++) {
-            if (i < farmerImages.length) merged.push(farmerImages[i])
-            if (i < naturePhotos.length) merged.push(naturePhotos[i])
-        }
-        return merged
-    }, [farmerImages, naturePhotos])
-
-    const filmStripImages = [...allImages, ...allImages]
+    // Duplicate the same ordered list so the existing CSS animation loops seamlessly.
+    const filmStripImages = [...filmStripItems, ...filmStripItems]
 
     return (
         <div className="page-enter">
@@ -191,21 +184,42 @@ export default function HomePage({ siteContent = {} }) {
                 </div>
             </section>
 
-            <section className="farmer-film" aria-label="Ảnh cộng đồng & thiên nhiên">
+            <section className="farmer-film" aria-label="Ảnh cộng đồng & thiên nhiên" style={{ position: 'relative' }}>
                 <div className="container">
                     <div className="farmer-film-head">
                         <strong>BookHaGiang — văn hoá, kết nối và lưu trữ</strong>
                         <p>Ảnh workshop, đời sống cộng đồng và những ký ức địa phương được lưu giữ mỗi ngày.</p>
                     </div>
+                    {isAdmin && (
+                        <button
+                            type="button"
+                            onClick={() => setShowFilmStripAdmin(open => !open)}
+                            aria-expanded={showFilmStripAdmin}
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 6,
+                                marginBottom: 12, padding: '7px 11px',
+                                border: '1px solid #9ab9aa', borderRadius: 8,
+                                background: showFilmStripAdmin ? '#315e4d' : '#fff',
+                                color: showFilmStripAdmin ? '#fff' : '#315e4d',
+                                fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                            }}
+                        >
+                            <Settings2 size={14} /> {showFilmStripAdmin ? 'Đóng quản lý ảnh' : 'Quản lý dải ảnh'}
+                        </button>
+                    )}
                 </div>
+                {isAdmin && showFilmStripAdmin && (
+                    <AdminHomeFilmStrip
+                        compact
+                        onChange={syncFilmStrip}
+                        onClose={() => setShowFilmStripAdmin(false)}
+                    />
+                )}
                 <div className="farmer-film-window">
                     <div className="farmer-film-track">
                         {filmStripImages.map((img, i) => (
                             <figure key={`${img.url}-${i}`} className="farmer-film-frame">
                                 <img src={img.url} alt={img.caption} loading="lazy" />
-                                {img.isNature && (
-                                    <span className="farmer-film-nature-badge">🌿</span>
-                                )}
                                 <figcaption>{img.caption}</figcaption>
                             </figure>
                         ))}
@@ -220,7 +234,7 @@ export default function HomePage({ siteContent = {} }) {
                 </div>
 
                 <div className="cards-grid">
-                    {QUICK_CARDS.map((card) => (
+                    {quickCards.map((card) => (
                         <article key={card.path} className={`card3d${card.highlight ? ' card3d-highlight' : ''}`} style={{ transform: 'none' }}>
                             <div className="card3d-body">
                                 <div className="card3d-emoji">{card.emoji}</div>

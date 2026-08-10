@@ -21,13 +21,28 @@ export default function ContactPage({ siteContent = {} }) {
     setForm({ name: '', phone: '', email: '', service: '', msg: '' })
   }
 
-  const contactCards = [
+  const fallbackContactCards = [
     { icon: <Phone size={24} />, labelKey: 'contact_hotline', valueKey: 'contact_hotline_val', link: 'tel:0385737705', color: '#f97316' },
     { icon: <MessageSquare size={24} />, labelKey: 'contact_zalo', valueKey: 'contact_zalo_val', link: 'https://zalo.me/0385737705', color: '#2563eb' },
     { icon: <MessageCircle size={24} />, labelKey: 'contact_whatsapp', valueKey: 'contact_whatsapp_val', link: 'https://wa.me/84385737705', color: '#25d366' },
     { icon: <MapPin size={24} />, labelKey: 'contact_addr', valueKey: 'contact_addr_val', link: mapLink, color: '#16a34a' },
     { icon: <Clock size={24} />, labelKey: 'contact_hours', valueKey: 'contact_hours_val', link: '#', color: '#7c3aed' },
   ]
+  const contactIcons = { phone: Phone, message: MessageSquare, chat: MessageCircle, map: MapPin, clock: Clock }
+  const managedContactCards = siteContent.details?.items
+    ?.slice()
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+    .map(item => {
+      const Icon = contactIcons[item.type] || MessageCircle
+      return {
+        icon: <Icon size={24} />,
+        label: item.title,
+        value: item.body,
+        link: item.buttonHref || '#',
+        color: item.color || '#16a34a',
+      }
+    })
+  const contactCards = managedContactCards?.length ? managedContactCards : fallbackContactCards
 
   return (
     <div className="page-enter">
@@ -46,8 +61,8 @@ export default function ContactPage({ siteContent = {} }) {
             <a key={i} href={c.link} target={c.link.startsWith('http') ? '_blank' : '_self'} rel="noreferrer" className="ct-card" style={{ '--cc': c.color }}>
               <div className="ct-icon">{c.icon}</div>
               <div>
-                <div className="ct-label">{t(c.labelKey)}</div>
-                <div className="ct-value">{t(c.valueKey)}</div>
+                <div className="ct-label">{c.label || t(c.labelKey)}</div>
+                <div className="ct-value">{c.value || t(c.valueKey)}</div>
               </div>
             </a>
           ))}

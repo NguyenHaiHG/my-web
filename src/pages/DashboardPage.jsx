@@ -3,11 +3,17 @@ import { Link, Navigate } from 'react-router-dom'
 import {
     Check, ClipboardList, Heart, KeyRound, LayoutDashboard, Leaf,
     LogOut, Mail, MapPin, Menu, Package, ShieldCheck, Star, Trash2, X,
+    Image, FileText, Edit2, Plus, ExternalLink,
+    Settings, Save,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useData } from '../context/DataContext'
 import { useOrder } from '../context/OrderContext'
 import { useUI } from '../context/UIContext'
 import { apiFetch, responseError } from '../utils/api'
+import AdminSiteImages from '../components/AdminSiteImages'
+import AdminNatureMemory from '../components/AdminNatureMemory'
+import AdminHomeFilmStrip from '../components/AdminHomeFilmStrip'
 
 const NAV_ITEMS = [
     { key: 'overview', icon: LayoutDashboard, label: 'Tổng quan' },
@@ -17,6 +23,9 @@ const NAV_ITEMS = [
     { key: 'reviews', icon: Star, label: 'Duyệt review' },
     { key: 'moderation', icon: ShieldCheck, label: 'Penpal / Nhật ký' },
     { key: 'eco', icon: MapPin, label: 'Điểm eco / Passport' },
+    { key: 'content', icon: FileText, label: 'Nội dung website' },
+    { key: 'media', icon: Image, label: 'Thư viện ảnh' },
+    { key: 'settings', icon: Settings, label: 'Cấu hình chung' },
     { key: 'account', icon: KeyRound, label: 'Tài khoản admin' },
 ]
 
@@ -181,6 +190,7 @@ function ModerationPanel() {
 function EcoPanel({ showToast }) {
     const [sites, setSites] = useState([])
     const [form, setForm] = useState({ code: '', name: '', district: '', type: 'cultural-site', ecoPoints: 10 })
+    const [editingSite, setEditingSite] = useState(null)
 
     const load = () => fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/eco-system/sites`)
         .then(response => response.ok ? response.json() : [])
@@ -188,22 +198,40 @@ function EcoPanel({ showToast }) {
         .catch(() => setSites([]))
     useEffect(load, [])
 
-    const add = async event => {
+    const save = async event => {
         event.preventDefault()
         try {
-            const payload = {
+            const payload = editingSite ? {
+                ...editingSite,
+                ...form,
+                story: { ...(editingSite.story || {}), title: form.name },
+                badge: { ...(editingSite.badge || {}), id: editingSite.badge?.id || form.code.toLowerCase(), name: editingSite.badge?.name || `Dấu ${form.name}` },
+            } : {
                 ...form,
                 location: { lat: 22.8233, lng: 104.9836 },
                 story: { title: form.name, content: `Khám phá ${form.name}` },
                 badge: { id: form.code.toLowerCase(), name: `Dấu ${form.name}`, icon: '🌿' },
             }
-            const response = await apiFetch('/api/eco-system/sites', { method: 'POST', body: JSON.stringify(payload) })
-            if (!response.ok) throw await responseError(response, 'Không thể thêm điểm eco')
+            const endpoint = editingSite ? `/api/eco-system/sites/${editingSite._id}` : '/api/eco-system/sites'
+            const response = await apiFetch(endpoint, { method: editingSite ? 'PUT' : 'POST', body: JSON.stringify(payload) })
+            if (!response.ok) throw await responseError(response, editingSite ? 'Không thể sửa điểm eco' : 'Không thể thêm điểm eco')
             const saved = await response.json()
-            setSites(prev => [...prev, saved])
+            setSites(prev => editingSite ? prev.map(item => item._id === saved._id ? saved : item) : [...prev, saved])
             setForm({ code: '', name: '', district: '', type: 'cultural-site', ecoPoints: 10 })
-            showToast('Đã thêm điểm eco trên server')
+            setEditingSite(null)
+            showToast(editingSite ? 'Đã sửa điểm eco trên server' : 'Đã thêm điểm eco trên server')
         } catch (err) { showToast('❌ ' + err.message) }
+    }
+
+    const startEdit = site => {
+        setEditingSite(site)
+        setForm({
+            code: site.code || '',
+            name: site.name || '',
+            district: site.district || '',
+            type: site.type || 'cultural-site',
+            ecoPoints: Number(site.ecoPoints) || 0,
+        })
     }
 
     const remove = async site => {
@@ -218,17 +246,154 @@ function EcoPanel({ showToast }) {
     return (
         <div>
             <h2 className="db-section-title">Điểm eco / Passport</h2>
-            <form className="db-eco-form" onSubmit={add}>
+            <form className="db-eco-form" onSubmit={save}>
                 <input className="form-input" placeholder="Mã điểm" required value={form.code} onChange={e => setForm({ ...form, code: e.target.value })} />
                 <input className="form-input" placeholder="Tên điểm" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
                 <input className="form-input" placeholder="Khu vực" value={form.district} onChange={e => setForm({ ...form, district: e.target.value })} />
                 <input className="form-input" type="number" min="0" value={form.ecoPoints} onChange={e => setForm({ ...form, ecoPoints: Number(e.target.value) })} />
-                <button className="btn3d btn3d-green">Thêm điểm</button>
+                <button className="btn3d btn3d-green">{editingSite ? 'Lưu sửa' : 'Thêm điểm'}</button>
+                {editingSite && <button type="button" className="btn3d btn3d-gray" onClick={() => {
+                    setEditingSite(null)
+                    setForm({ code: '', name: '', district: '', type: 'cultural-site', ecoPoints: 10 })
+                }}>Hủy</button>}
             </form>
             <div className="db-table-wrap">
                 <table className="db-table"><thead><tr><th>Mã</th><th>Tên</th><th>Khu vực</th><th>Điểm</th><th /></tr></thead>
-                    <tbody>{sites.map(site => <tr key={site._id || site.code}><td>{site.code}</td><td>{site.name}</td><td>{site.district}</td><td>{site.ecoPoints}</td><td><button className="btn-card-del" onClick={() => remove(site)}><Trash2 size={14} /></button></td></tr>)}</tbody>
+                    <tbody>{sites.map(site => <tr key={site._id || site.code}><td>{site.code}</td><td>{site.name}</td><td>{site.district}</td><td>{site.ecoPoints}</td><td className="db-actions"><button title="Sửa" onClick={() => startEdit(site)}><Edit2 size={14} /></button><button className="btn-card-del" onClick={() => remove(site)}><Trash2 size={14} /></button></td></tr>)}</tbody>
                 </table>
+            </div>
+        </div>
+    )
+}
+
+const CONTENT_TYPES = [
+    { key: 'post', label: 'Bài viết', field: 'posts', route: '/blog' },
+    { key: 'workshop', label: 'Workshop', field: 'workshops', route: '/workshop' },
+    { key: 'library', label: 'Thư viện', field: 'libraryItems', route: '/thu-vien' },
+    { key: 'tour', label: 'Tour', field: 'tours', route: '/tours' },
+    { key: 'product', label: 'Sản phẩm', field: 'products', route: '/san-pham' },
+]
+
+function ContentInventory({ data, setAdminModal, setEditItem, showToast }) {
+    const [activeType, setActiveType] = useState('post')
+    const config = CONTENT_TYPES.find(item => item.key === activeType) || CONTENT_TYPES[0]
+    const rows = data[config.field] || []
+
+    const remove = async item => {
+        if (!window.confirm(`Xóa "${item.title || item.name || 'mục này'}" khỏi server?`)) return
+        try {
+            await data.deleteItem(config.key, item.id || item._id)
+            showToast('Đã xóa nội dung trên server')
+        } catch (err) {
+            showToast('❌ ' + err.message)
+        }
+    }
+
+    return (
+        <div>
+            <div className="db-table-header">
+                <div>
+                    <h2 className="db-section-title">Nội dung website</h2>
+                    <p className="db-section-hint">Thêm, sửa hoặc xóa cùng dữ liệu đang hiển thị trên từng trang.</p>
+                </div>
+                <Link className="btn3d btn3d-blue btn-sm" to={config.route}><ExternalLink size={14} /> Xem trang</Link>
+            </div>
+            <div className="db-guide-links" style={{ marginBottom: 18 }}>
+                {CONTENT_TYPES.map(item => (
+                    <button key={item.key} className={`btn3d btn-sm ${activeType === item.key ? 'btn3d-green' : 'btn3d-gray'}`} onClick={() => setActiveType(item.key)}>
+                        {item.label} ({(data[item.field] || []).length})
+                    </button>
+                ))}
+            </div>
+            <button className="btn3d btn3d-green btn-sm" onClick={() => setAdminModal(config.key)}><Plus size={14} /> Thêm {config.label.toLowerCase()}</button>
+            {rows.length === 0 ? <p className="empty-state">Chưa có dữ liệu server. Hãy thêm mục đầu tiên.</p> : (
+                <div className="db-table-wrap" style={{ marginTop: 14 }}>
+                    <table className="db-table">
+                        <thead><tr><th>Tiêu đề</th><th>Ảnh</th><th>Thông tin</th><th>Thao tác</th></tr></thead>
+                        <tbody>{rows.map(item => (
+                            <tr key={item.id || item._id}>
+                                <td><strong>{item.title || item.name || 'Không tiêu đề'}</strong></td>
+                                <td>{item.img ? <img src={item.img} alt="" style={{ width: 72, height: 48, borderRadius: 7, objectFit: 'cover' }} /> : '—'}</td>
+                                <td>{item.category || item.date || item.price || item.author || '—'}</td>
+                                <td className="db-actions">
+                                    <button title="Sửa" onClick={() => setEditItem({ type: config.key, item })}><Edit2 size={14} /></button>
+                                    <button className="danger" title="Xóa" onClick={() => remove(item)}><Trash2 size={14} /></button>
+                                </td>
+                            </tr>
+                        ))}</tbody>
+                    </table>
+                </div>
+            )}
+        </div>
+    )
+}
+
+function MediaCenter() {
+    const [tab, setTab] = useState('site')
+    return (
+        <div>
+            <h2 className="db-section-title">Thư viện ảnh</h2>
+            <p className="db-section-hint">Quản lý ảnh Hero, gallery, ảnh chạy ngang và ảnh thiên nhiên được lưu trên server.</p>
+            <div className="db-guide-links" style={{ marginBottom: 18 }}>
+                <button className={`btn3d btn-sm ${tab === 'site' ? 'btn3d-green' : 'btn3d-gray'}`} onClick={() => setTab('site')}>Hero & gallery</button>
+                <button className={`btn3d btn-sm ${tab === 'community' ? 'btn3d-green' : 'btn3d-gray'}`} onClick={() => setTab('community')}>Ảnh chạy ngang</button>
+                <button className={`btn3d btn-sm ${tab === 'nature' ? 'btn3d-green' : 'btn3d-gray'}`} onClick={() => setTab('nature')}>Ảnh thiên nhiên</button>
+            </div>
+            {tab === 'site' && <AdminSiteImages />}
+            {tab === 'community' && <AdminHomeFilmStrip />}
+            {tab === 'nature' && <AdminNatureMemory />}
+        </div>
+    )
+}
+
+function GlobalSettingsPanel({ showToast }) {
+    const [content, setContent] = useState({
+        header: { title: '', subtitle: '' },
+        footer: { title: '', body: '' },
+    })
+    const [saving, setSaving] = useState('')
+
+    useEffect(() => {
+        apiFetch('/api/site-content/global', { auth: false })
+            .then(response => response.ok ? response.json() : {})
+            .then(value => setContent(current => ({
+                header: { ...current.header, ...(value.header || {}) },
+                footer: { ...current.footer, ...(value.footer || {}) },
+            })))
+            .catch(() => { })
+    }, [])
+
+    const save = async section => {
+        setSaving(section)
+        try {
+            const response = await apiFetch(`/api/site-content/global/${section}`, {
+                method: 'PUT',
+                body: JSON.stringify(content[section]),
+            })
+            if (!response.ok) throw await responseError(response, 'Không thể lưu cấu hình')
+            const saved = await response.json()
+            setContent(current => ({ ...current, [section]: saved }))
+            showToast('Đã lưu cấu hình chung trên server')
+        } catch (err) {
+            showToast('❌ ' + err.message)
+        } finally {
+            setSaving('')
+        }
+    }
+
+    return (
+        <div>
+            <h2 className="db-section-title">Cấu hình chung</h2>
+            <p className="db-section-hint">Tên website, dòng giới thiệu đầu trang và nội dung chân trang.</p>
+            <div className="db-account-panel" style={{ maxWidth: 720 }}>
+                <h3>Đầu trang</h3>
+                <input className="form-input" value={content.header.title} placeholder="Tên website" onChange={event => setContent(current => ({ ...current, header: { ...current.header, title: event.target.value } }))} />
+                <input className="form-input" value={content.header.subtitle} placeholder="Dòng giới thiệu" onChange={event => setContent(current => ({ ...current, header: { ...current.header, subtitle: event.target.value } }))} />
+                <button className="btn3d btn3d-green" disabled={saving === 'header'} onClick={() => save('header')}><Save size={15} /> Lưu đầu trang</button>
+                <h3>Chân trang</h3>
+                <input className="form-input" value={content.footer.title} placeholder="Tên đơn vị" onChange={event => setContent(current => ({ ...current, footer: { ...current.footer, title: event.target.value } }))} />
+                <textarea className="form-input" rows="4" value={content.footer.body} placeholder="Thông tin chân trang" onChange={event => setContent(current => ({ ...current, footer: { ...current.footer, body: event.target.value } }))} />
+                <button className="btn3d btn3d-green" disabled={saving === 'footer'} onClick={() => save('footer')}><Save size={15} /> Lưu chân trang</button>
             </div>
         </div>
     )
@@ -271,8 +436,9 @@ function AccountPanel({ user, changePassword, logout, showToast }) {
 
 export default function DashboardPage() {
     const { user, isAdmin, authLoading, changePassword, logout } = useAuth()
+    const data = useData()
     const orders = useOrder()
-    const { showToast } = useUI()
+    const { showToast, setAdminModal, setEditItem } = useUI()
     const [section, setSection] = useState('overview')
     const [mobileNav, setMobileNav] = useState(false)
 
@@ -288,6 +454,9 @@ export default function DashboardPage() {
     if (section === 'reviews') panel = <ReviewsPanel showToast={showToast} />
     if (section === 'moderation') panel = <ModerationPanel />
     if (section === 'eco') panel = <EcoPanel showToast={showToast} />
+    if (section === 'content') panel = <ContentInventory data={data} setAdminModal={setAdminModal} setEditItem={setEditItem} showToast={showToast} />
+    if (section === 'media') panel = <MediaCenter />
+    if (section === 'settings') panel = <GlobalSettingsPanel showToast={showToast} />
     if (section === 'account') panel = <AccountPanel user={user} changePassword={changePassword} logout={logout} showToast={showToast} />
 
     return (

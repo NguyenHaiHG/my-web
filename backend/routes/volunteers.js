@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const VolunteerApp = require('../models/VolunteerApp')
 const { adminOnly } = require('../middleware/auth')
+const { submissionLimiter } = require('../middleware/publicSubmission')
+const applyLimiter = submissionLimiter(10, 'Gửi đơn tình nguyện quá nhiều. Vui lòng thử lại sau 15 phút.')
 
 router.get('/', adminOnly, async (req, res) => {
     try {
@@ -10,7 +12,7 @@ router.get('/', adminOnly, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }) }
 })
 
-router.post('/', async (req, res) => {
+router.post('/', applyLimiter, async (req, res) => {
     try {
         const app = await VolunteerApp.create(req.body)
         res.status(201).json(app)

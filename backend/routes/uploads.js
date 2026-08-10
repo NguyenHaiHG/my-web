@@ -1,14 +1,20 @@
 const express = require('express')
 const ImageAsset = require('../models/ImageAsset')
 const { adminOnly } = require('../middleware/auth')
+const { submissionLimiter, text } = require('../middleware/publicSubmission')
 
 const router = express.Router()
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024
 const DATA_URL_PATTERN = /^data:(image\/(?:jpeg|png|webp|gif));base64,([A-Za-z0-9+/=\s]+)$/
+const uploadLimiter = submissionLimiter(30, 'Tải ảnh quá nhiều. Vui lòng thử lại sau 15 phút.')
 
-router.post('/', async (req, res) => {
+router.post('/', uploadLimiter, async (req, res) => {
     try {
-        const { dataUrl, filename = 'image' } = req.body
+        const { dataUrl, filename = 'image' } = req.body || {}
+        const safeFilename = text(filename, 180)
+        if (safeFilename === null || /[\u0000-\u001f\u007f]/.test(safeFilename)) {
+            return res.status(400).json({ error: 'Tên tệp không hợp lệ' })
+        }
         const match = typeof dataUrl === 'string' ? dataUrl.match(DATA_URL_PATTERN) : null
         if (!match) return res.status(400).json({ error: 'Ảnh không hợp lệ' })
 
@@ -21,7 +27,7 @@ router.post('/', async (req, res) => {
         const image = await ImageAsset.create({
             data,
             contentType: match[1],
-            filename: String(filename).slice(0, 180),
+            filename: safeFilename || 'image',
             size: data.length,
         })
 

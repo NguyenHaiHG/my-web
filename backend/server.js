@@ -26,7 +26,9 @@ const uploadsRouter = require('./routes/uploads')
 const authRouter = require('./routes/auth')
 const passportsRouter = require('./routes/passports')
 const siteContentRouter = require('./routes/siteContent')
+const homeFilmStripRouter = require('./routes/homeFilmStrip')
 const ensureAdminUser = require('./utils/ensureAdmin')
+const { seedSiteContent } = require('./utils/seedSiteContent')
 const { protectAdminMutations } = require('./middleware/auth')
 
 const app = express()
@@ -65,6 +67,7 @@ app.use(express.json({ limit: '10mb' }))
 app.use('/api/auth', authRouter)
 app.use('/api/passports', passportsRouter)
 app.use('/api/site-content', siteContentRouter)
+app.use('/api/home-film-strip', homeFilmStripRouter)
 app.use('/api/tours', protectAdminMutations, toursRouter)
 app.use('/api/products', protectAdminMutations, productsRouter)
 app.use('/api/posts', protectAdminMutations, postsRouter)
@@ -106,6 +109,7 @@ async function connectDatabase() {
         dbConnected = true
         console.log('MongoDB connected')
         await ensureAdminUser()
+        await seedSiteContent()
         return
     } catch (err) {
         console.warn('MongoDB local chưa sẵn sàng:', err.message)
@@ -126,6 +130,7 @@ async function connectDatabase() {
         dbConnected = true
         console.log('Mongo Memory Server connected for local development')
         await ensureAdminUser()
+        await seedSiteContent()
     } catch (err) {
         dbConnected = false
         console.error('Không thể khởi động Mongo Memory Server:', err.message)

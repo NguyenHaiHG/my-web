@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
 import {
   User, LogOut, Menu, X, MessageCircle, House, BookOpen, Phone, Mail,
@@ -22,6 +22,8 @@ import LibraryPage from './pages/LibraryPage'
 import PenpalPage from './pages/PenpalPage'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
+import ToursPage from './pages/ToursPage'
+import ProductsPage from './pages/ProductsPage'
 import PageContentShell from './components/PageContentShell'
 import { uploadImageDataUrl } from './utils/uploadImage'
 import './App.css'
@@ -377,14 +379,17 @@ function EditModal() {
 /* ──────────────────────────────────────────────────────
    HEADER
 ────────────────────────────────────────────────────── */
-function Header() {
+function Header({ globalContent = {} }) {
   const { user, logout, isMod } = useAuth()
   const { setShowLogin } = useUI()
   const { lang, t, toggleLang } = useLang()
   const { offline } = useData()
   const [open, setOpen] = useState(false)
+  const headerContent = globalContent.header || {}
 
   const links = [
+    { to: '/tours', label: 'Tours' },
+    { to: '/san-pham', label: 'Sản phẩm' },
     { to: '/workshop', label: 'Workshop' },
     { to: '/lien-he', label: t('nav_contact') },
   ]
@@ -394,10 +399,10 @@ function Header() {
       <div className="header-inner">
         <Link to="/" className="logo" onClick={() => setOpen(false)}>
           <div className="logo-top">
-            <span className="logo-htm">Book</span>
-            <span className="logo-name"> Hà Giang</span>
+            <span className="logo-htm">{headerContent.title || 'Book'}</span>
+            {!headerContent.title && <span className="logo-name"> Hà Giang</span>}
           </div>
-          <div className="logo-sub">Khám phá · Học hỏi · Lưu trú</div>
+          <div className="logo-sub">{headerContent.subtitle || 'Khám phá · Học hỏi · Lưu trú'}</div>
         </Link>
 
         <nav className={`nav ${open ? 'nav-open' : ''}`}>
@@ -425,8 +430,8 @@ function Header() {
 
         <div className="header-actions">
           {offline && (
-            <span className="offline-badge" title="Backend không kết nối — đang lưu dữ liệu local">
-              <WifiOff size={13} /> Local
+            <span className="offline-badge" title="Backend không kết nối — thay đổi sẽ không được lưu">
+              <WifiOff size={13} /> Server ngoại tuyến
             </span>
           )}
           <a href="https://zalo.me/0385737705" target="_blank" rel="noreferrer"
@@ -598,6 +603,8 @@ function MobileAppDock() {
   ]
 
   const moreItems = [
+    { to: '/tours', label: 'Tours', icon: <Map size={18} /> },
+    { to: '/san-pham', label: 'Sản phẩm', icon: <BookOpen size={18} /> },
     { to: '/thu-vien', label: 'Thư viện', icon: <BookOpen size={18} /> },
     { to: '/nhat-ky-thien-nhien', label: 'Nhật Ký TN', icon: <Leaf size={18} /> },
     { to: '/penpal', label: 'Penpal', icon: <Mail size={18} /> },
@@ -645,9 +652,88 @@ function MobileAppDock() {
 /* ──────────────────────────────────────────────────────
    APP INNER
 ────────────────────────────────────────────────────── */
+const CMS_SECTIONS = {
+  home: {
+    highlights: {
+      label: 'Thẻ trang chủ', type: 'list', itemLabel: 'Thẻ',
+      fields: [
+        { key: 'emoji', label: 'Biểu tượng' }, { key: 'title', label: 'Tiêu đề' },
+        { key: 'body', label: 'Mô tả', type: 'textarea' }, { key: 'buttonLabel', label: 'Nhãn nút' },
+        { key: 'buttonHref', label: 'Liên kết' }, { key: 'highlight', label: 'Nổi bật', type: 'checkbox' },
+      ],
+    },
+  },
+  'ha-giang-loop': {
+    'itinerary-3d': {
+      label: 'Lịch trình 3N2Đ', type: 'list', itemLabel: 'Ngày',
+      fields: [
+        { key: 'day', label: 'Ngày' }, { key: 'title', label: 'Tuyến đường' },
+        { key: 'desc', label: 'Nội dung', type: 'textarea' }, { key: 'img', label: 'Ảnh', type: 'image' },
+        { key: 'highlights', label: 'Điểm nổi bật', type: 'tags' }, { key: 'meal', label: 'Bữa ăn' },
+        { key: 'hotel', label: 'Nơi nghỉ' }, { key: 'icon', label: 'Biểu tượng' }, { key: 'color', label: 'Màu' },
+      ],
+    },
+    'itinerary-4d': {
+      label: 'Lịch trình 4N3Đ', type: 'list', itemLabel: 'Ngày',
+      fields: [
+        { key: 'day', label: 'Ngày' }, { key: 'title', label: 'Tuyến đường' },
+        { key: 'desc', label: 'Nội dung', type: 'textarea' }, { key: 'img', label: 'Ảnh', type: 'image' },
+        { key: 'highlights', label: 'Điểm nổi bật', type: 'tags' }, { key: 'meal', label: 'Bữa ăn' },
+        { key: 'hotel', label: 'Nơi nghỉ' }, { key: 'icon', label: 'Biểu tượng' }, { key: 'color', label: 'Màu' },
+      ],
+    },
+    faq: {
+      label: 'FAQ', type: 'list', itemLabel: 'Câu hỏi',
+      fields: [{ key: 'q', label: 'Câu hỏi' }, { key: 'a', label: 'Trả lời', type: 'textarea' }],
+    },
+  },
+  contact: {
+    details: {
+      label: 'Thông tin liên hệ', type: 'list', itemLabel: 'Kênh liên hệ',
+      fields: [
+        { key: 'title', label: 'Tên' }, { key: 'body', label: 'Thông tin' },
+        { key: 'buttonHref', label: 'Liên kết' },
+        { key: 'type', label: 'Loại', type: 'select', options: [
+          { value: 'phone', label: 'Điện thoại' }, { value: 'message', label: 'Tin nhắn' },
+          { value: 'chat', label: 'Chat' }, { value: 'map', label: 'Bản đồ' }, { value: 'clock', label: 'Giờ làm việc' },
+        ] },
+        { key: 'color', label: 'Màu' },
+      ],
+    },
+  },
+  passport: {
+    steps: {
+      label: 'Hướng dẫn Passport', type: 'list', itemLabel: 'Bước',
+      fields: [{ key: 'icon', label: 'Biểu tượng' }, { key: 'title', label: 'Tiêu đề' }, { key: 'body', label: 'Mô tả', type: 'textarea' }],
+    },
+  },
+  penpal: {
+    guide: {
+      label: 'Hướng dẫn Penpal', type: 'list', itemLabel: 'Bước',
+      fields: [{ key: 'title', label: 'Tiêu đề' }, { key: 'body', label: 'Nội dung', type: 'textarea' }, { key: 'image', label: 'Ảnh', type: 'image' }],
+    },
+  },
+  nature: {
+    guidelines: {
+      label: 'Hướng dẫn nhật ký', type: 'list', itemLabel: 'Hướng dẫn',
+      fields: [{ key: 'title', label: 'Tiêu đề' }, { key: 'body', label: 'Nội dung', type: 'textarea' }, { key: 'image', label: 'Ảnh', type: 'image' }],
+    },
+  },
+}
+
 function AppInner() {
   const { toast, showLogin, adminModal, editItem } = useUI()
   const { t } = useLang()
+  const [globalContent, setGlobalContent] = useState({})
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/site-content/global`)
+      .then(response => response.ok ? response.json() : {})
+      .then(setGlobalContent)
+      .catch(() => setGlobalContent({}))
+  }, [])
+
+  const footerContent = globalContent.footer || {}
   return (
     <div className="app app-shell">
       {toast && <div className="toast">{toast}</div>}
@@ -656,19 +742,21 @@ function AppInner() {
       {editItem && <EditModal />}
       <FloatingContact />
       <SOSButton />
-      <Header />
+      <Header globalContent={globalContent} />
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<PageContentShell page="home"><HomePage /></PageContentShell>} />
-          <Route path="/ho-chieu" element={<PageContentShell page="passport"><PassportPage /></PageContentShell>} />
+          <Route path="/" element={<PageContentShell page="home" sections={CMS_SECTIONS.home}><HomePage /></PageContentShell>} />
+          <Route path="/tours" element={<PageContentShell page="tours"><ToursPage /></PageContentShell>} />
+          <Route path="/san-pham" element={<PageContentShell page="products"><ProductsPage /></PageContentShell>} />
+          <Route path="/ho-chieu" element={<PageContentShell page="passport" sections={CMS_SECTIONS.passport}><PassportPage /></PageContentShell>} />
           <Route path="/workshop" element={<PageContentShell page="workshop"><WorkshopPage /></PageContentShell>} />
-          <Route path="/ha-giang-loop" element={<PageContentShell page="ha-giang-loop"><HaGiangLoopPage /></PageContentShell>} />
-          <Route path="/lien-he" element={<PageContentShell page="contact"><ContactPage /></PageContentShell>} />
+          <Route path="/ha-giang-loop" element={<PageContentShell page="ha-giang-loop" sections={CMS_SECTIONS['ha-giang-loop']}><HaGiangLoopPage /></PageContentShell>} />
+          <Route path="/lien-he" element={<PageContentShell page="contact" sections={CMS_SECTIONS.contact}><ContactPage /></PageContentShell>} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/verify/:certCode" element={<VerifyCertificatePage />} />
-          <Route path="/nhat-ky-thien-nhien" element={<PageContentShell page="nature"><NatureMemoryPage /></PageContentShell>} />
+          <Route path="/nhat-ky-thien-nhien" element={<PageContentShell page="nature" sections={CMS_SECTIONS.nature}><NatureMemoryPage /></PageContentShell>} />
           <Route path="/thu-vien" element={<PageContentShell page="library"><LibraryPage /></PageContentShell>} />
-          <Route path="/penpal" element={<PageContentShell page="penpal"><PenpalPage /></PageContentShell>} />
+          <Route path="/penpal" element={<PageContentShell page="penpal" sections={CMS_SECTIONS.penpal}><PenpalPage /></PageContentShell>} />
           <Route path="/blog" element={<PageContentShell page="blog"><BlogPage /></PageContentShell>} />
           <Route path="/blog/:id" element={<PageContentShell page="blog-post"><BlogPostPage /></PageContentShell>} />
         </Routes>
@@ -676,14 +764,16 @@ function AppInner() {
       <MobileAppDock />
       <footer className="footer app-footer">
         <div className="footer-inner">
-          <p>� <strong>BookHaGiang</strong> – HTX Thương mại Sáng tạo Trường Hải, Hà Giang 2, Tuyên Quang, Việt Nam</p>
+          <p>🌿 <strong>{footerContent.title || 'BookHaGiang'}</strong> – {footerContent.body || 'HTX Thương mại Sáng tạo Trường Hải, Hà Giang 2, Tuyên Quang, Việt Nam'}</p>
           <div className="footer-links">
-            <a href="/workshop">Workshop</a>
-            <a href="/ha-giang-loop">Loop Tour</a>
-            <a href="/ho-chieu">Hộ chiếu</a>
-            <a href="/thu-vien">Thư viện</a>
-            <a href="/nhat-ky-thien-nhien">Nhật Ký TN</a>
-            <a href="/lien-he">Liên hệ</a>
+            <Link to="/tours">Tours</Link>
+            <Link to="/san-pham">Sản phẩm</Link>
+            <Link to="/workshop">Workshop</Link>
+            <Link to="/ha-giang-loop">Loop Tour</Link>
+            <Link to="/ho-chieu">Hộ chiếu</Link>
+            <Link to="/thu-vien">Thư viện</Link>
+            <Link to="/nhat-ky-thien-nhien">Nhật Ký TN</Link>
+            <Link to="/lien-he">Liên hệ</Link>
           </div>
           <p>📞 <a href="tel:0385737705">0385.737.705</a> &nbsp;·&nbsp; <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer">💬 WhatsApp</a> &nbsp;·&nbsp; {t('footer_copy')}</p>
         </div>

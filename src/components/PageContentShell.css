@@ -1,0 +1,140 @@
+.cms-list-editor-head,
+.cms-list-editor-item,
+.cms-item-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.cms-list-editor-head h2 {
+    margin-right: 36px;
+}
+
+.cms-add-item,
+.cms-list-editor-item button,
+.cms-item-form-actions > button:first-child {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 7px 10px;
+    border: 1px solid #26765644;
+    border-radius: 8px;
+    color: #185b41;
+    background: #f5fbf7;
+    cursor: pointer;
+}
+
+.cms-list-editor-items {
+    display: grid;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.cms-list-editor-item {
+    padding: 10px 12px;
+    border: 1px solid #d9e8df;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.cms-list-editor-item > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.cms-list-editor-item button:disabled {
+    cursor: not-allowed;
+    opacity: .4;
+}
+
+.cms-list-editor-item .cms-delete-item {
+    border-color: #d84b4b44;
+    color: #a42c2c;
+    background: #fff5f5;
+}
+
+.cms-empty-list {
+    padding: 20px;
+    border: 1px dashed #b9cfc2;
+    border-radius: 10px;
+    color: #64776c;
+    text-align: center;
+}
+
+.cms-item-form {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #d9e8df;
+}
+
+.cms-item-form h3 {
+    margin: 0 0 14px;
+}
+
+.cms-editor-modal .cms-field {
+    display: grid;
+    gap: 5px;
+    margin-bottom: 11px;
+    font-weight: 700;
+}
+
+.cms-checkbox-field {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.cms-item-form-actions {
+    justify-content: flex-end;
+    margin-top: 14px;
+}
+
+.cms-managed-list-section {
+    padding: 48px 0;
+}
+
+.cms-managed-list-section > .container > h2 {
+    margin-bottom: 22px;
+    text-align: center;
+}
+
+.cms-managed-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+    gap: 18px;
+}
+
+.cms-managed-list-card {
+    overflow: hidden;
+    padding: 20px;
+    border: 1px solid #dce9e1;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 8px 24px #163e2c12;
+}
+
+.cms-managed-list-card img {
+    width: calc(100% + 40px);
+    height: 190px;
+    margin: -20px -20px 18px;
+    object-fit: cover;
+}
+
+.cms-managed-list-card p {
+    white-space: pre-line;
+}
+
+@media (max-width: 640px) {
+    .cms-list-editor-head,
+    .cms-list-editor-item {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .cms-list-editor-head h2 {
+        margin-right: 28px;
+    }
+}

@@ -322,7 +322,12 @@ export default function HaGiangLoopPage({ siteContent = {} }) {
             .catch(() => { })
     }, [])
 
-    const itinerary = tourType === '4d3n' ? ITINERARY_4D : ITINERARY_3D
+    const managed3d = siteContent['itinerary-3d']?.items
+    const managed4d = siteContent['itinerary-4d']?.items
+    const itinerary = tourType === '4d3n'
+        ? (managed4d?.length ? managed4d : ITINERARY_4D)
+        : (managed3d?.length ? managed3d : ITINERARY_3D)
+    const faqItems = siteContent.faq?.items?.length ? siteContent.faq.items : FAQ
     const activePackage = TOUR_PACKAGES[tourType] || TOUR_PACKAGES['3d2n']
     const price = activePackage.price
     const oldPrice = activePackage.oldPrice
@@ -808,7 +813,7 @@ export default function HaGiangLoopPage({ siteContent = {} }) {
                             <p style={{ color: '#64748b', fontSize: 13, margin: '0 0 16px', fontStyle: 'italic' }}>
                                 Frequently Asked Questions
                             </p>
-                            {FAQ.map((item, i) => (
+                            {faqItems.map((item, i) => (
                                 <FaqItem key={i} item={item} />
                             ))}
 

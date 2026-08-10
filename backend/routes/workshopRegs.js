@@ -3,6 +3,9 @@ const router = express.Router()
 const WorkshopReg = require('../models/WorkshopReg')
 const { sendThankYouAndCertificate } = require('../utils/email')
 const { adminOnly } = require('../middleware/auth')
+const { submissionLimiter } = require('../middleware/publicSubmission')
+const registerLimiter = submissionLimiter(15, 'Đăng ký workshop quá nhiều. Vui lòng thử lại sau 15 phút.')
+const reviewLimiter = submissionLimiter(20, 'Gửi đánh giá quá nhiều. Vui lòng thử lại sau 15 phút.')
 
 router.get('/', adminOnly, async (req, res) => {
     try {
@@ -11,7 +14,7 @@ router.get('/', adminOnly, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }) }
 })
 
-router.post('/', async (req, res) => {
+router.post('/', registerLimiter, async (req, res) => {
     try {
         const reg = await WorkshopReg.create(req.body)
         res.status(201).json(reg)
@@ -43,7 +46,7 @@ router.delete('/:id', adminOnly, async (req, res) => {
 })
 
 // Gửi review cho workshop
-router.post('/:id/review', async (req, res) => {
+router.post('/:id/review', reviewLimiter, async (req, res) => {
     try {
         const { rating, comment } = req.body
         const reg = await WorkshopReg.findById(req.params.id)

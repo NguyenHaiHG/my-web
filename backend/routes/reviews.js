@@ -2,6 +2,14 @@ const express = require('express')
 const router = express.Router()
 const Review = require('../models/Review')
 const { adminOnly } = require('../middleware/auth')
+const {
+    submissionLimiter,
+    text,
+    isEmail,
+    isImageReference,
+} = require('../middleware/publicSubmission')
+
+const reviewLimiter = submissionLimiter(10, 'Gửi đánh giá quá nhiều. Vui lòng thử lại sau 15 phút.')
 
 // Public: only approved reviews
 router.get('/', async (req, res) => {
@@ -20,9 +28,28 @@ router.get('/all', adminOnly, async (req, res) => {
 })
 
 // Submit a review (public)
-router.post('/', async (req, res) => {
+router.post('/', reviewLimiter, async (req, res) => {
     try {
-        const review = await Review.create({ ...req.body, approved: false })
+        const name = text(req.body?.name, 120)
+        const country = text(req.body?.country, 120, '')
+        const content = text(req.body?.content, 5000)
+        const img = text(req.body?.img, 2048, '')
+        const email = text(req.body?.email, 254, '').toLowerCase()
+        const program = text(req.body?.program, 200, '')
+        const rating = Number(req.body?.rating ?? 5)
+        if ([name, country, content, img, email, program].includes(null)
+            || !name
+            || !content
+            || !Number.isInteger(rating)
+            || rating < 1
+            || rating > 5
+            || (email && !isEmail(email))
+            || !isImageReference(img)) {
+            return res.status(400).json({ error: 'Dữ liệu đánh giá không hợp lệ' })
+        }
+        const review = await Review.create({
+            name, country, content, img, email, program, rating, approved: false,
+        })
         res.status(201).json(review)
     } catch (err) { res.status(400).json({ error: err.message }) }
 })

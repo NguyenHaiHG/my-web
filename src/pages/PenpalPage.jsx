@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { X, Mail, Camera, Plus, Globe, Heart, Send, Trash2 } from 'lucide-react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { X, Mail, Camera, Plus, Globe, Heart, Send, Trash2, Edit2 } from 'lucide-react'
 import { uploadImageDataUrl } from '../utils/uploadImage'
 import { useAuth } from '../context/AuthContext'
 import { apiFetch, responseError } from '../utils/api'
@@ -196,13 +196,14 @@ function LetterModal({ penpal, onClose }) {
 }
 
 /* ─────────────────── REGISTER MODAL ─────────────────── */
-function RegisterModal({ onClose, onSuccess }) {
+function RegisterModal({ onClose, onSuccess, initial }) {
     const [form, setForm] = useState({
-        name: '', age: '', country: '', city: '',
-        languages: '', interests: '', bio: '', contactEmail: '',
+        name: initial?.name || '', age: initial?.age || '', country: initial?.country || '', city: initial?.city || '',
+        languages: initial?.languages?.join(', ') || '', interests: initial?.interests?.join(', ') || '',
+        bio: initial?.bio || '', contactEmail: initial?.contactEmail || '',
     })
-    const [photo, setPhoto] = useState(null)
-    const [photoPreview, setPhotoPreview] = useState(null)
+    const [photo, setPhoto] = useState(initial?.photo || null)
+    const [photoPreview, setPhotoPreview] = useState(initial?.photo || null)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
     const fileRef = useRef()
@@ -234,14 +235,17 @@ function RegisterModal({ onClose, onSuccess }) {
                 interests: form.interests.split(',').map(s => s.trim()).filter(Boolean),
                 photo: photoUrl,
             }
-            const res = await fetch(`${API}/api/penpals`, {
+            const res = initial ? await apiFetch(`/api/penpals/${initial._id}`, {
+                method: 'PUT',
+                body: JSON.stringify(payload),
+            }) : await fetch(`${API}/api/penpals`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Lỗi')
-            onSuccess()
+            onSuccess(data)
             onClose()
         } catch (err) {
             setError(err.message)
@@ -254,8 +258,8 @@ function RegisterModal({ onClose, onSuccess }) {
         <div className="pp-modal-backdrop" onClick={onClose}>
             <div className="pp-modal pp-modal-lg" onClick={e => e.stopPropagation()}>
                 <button className="pp-modal-close" onClick={onClose}><X size={18} /></button>
-                <h3 className="pp-modal-title">🌏 Đăng ký làm Penpal</h3>
-                <p className="pp-modal-sub">Giới thiệu bản thân để kết bạn với người dùng toàn thế giới.</p>
+                <h3 className="pp-modal-title">{initial ? '✏️ Sửa hồ sơ Penpal' : '🌏 Đăng ký làm Penpal'}</h3>
+                <p className="pp-modal-sub">{initial ? 'Cập nhật hồ sơ và lưu thay đổi trên server.' : 'Giới thiệu bản thân để kết bạn với người dùng toàn thế giới.'}</p>
 
                 <form className="pp-letter-form" onSubmit={handleSubmit}>
                     {/* Upload ảnh đại diện */}
@@ -329,7 +333,7 @@ function RegisterModal({ onClose, onSuccess }) {
                     {error && <p className="pp-error">{error}</p>}
 
                     <button type="submit" className="btn3d btn3d-orange pp-send-btn" disabled={saving}>
-                        {saving ? 'Đang lưu...' : '🌏 Đăng ký ngay'}
+                        {saving ? 'Đang lưu...' : initial ? '💾 Lưu thay đổi' : '🌏 Đăng ký ngay'}
                     </button>
                 </form>
             </div>
@@ -338,7 +342,7 @@ function RegisterModal({ onClose, onSuccess }) {
 }
 
 /* ─────────────────── PENPAL CARD ─────────────────── */
-function PenpalCard({ penpal, onWrite, canDelete, onDelete }) {
+function PenpalCard({ penpal, onWrite, canDelete, onDelete, onEdit }) {
     return (
         <div className="pp-card">
             <div className="pp-card-photo">
@@ -373,9 +377,12 @@ function PenpalCard({ penpal, onWrite, canDelete, onDelete }) {
                     <Mail size={14} /> Gửi thư ✉️
                 </button>
                 {canDelete && (
-                    <button className="btn-card-del" title="Xóa hồ sơ" onClick={() => onDelete(penpal)}>
-                        <Trash2 size={14} />
-                    </button>
+                    <>
+                        <button className="btn-card-edit" title="Sửa hồ sơ" onClick={() => onEdit(penpal)}><Edit2 size={14} /></button>
+                        <button className="btn-card-del" title="Xóa hồ sơ" onClick={() => onDelete(penpal)}>
+                            <Trash2 size={14} />
+                        </button>
+                    </>
                 )}
             </div>
         </div>
@@ -388,13 +395,16 @@ export default function PenpalPage({ siteContent = {} }) {
     const [penpals, setPenpals] = useState([])
     const [loading, setLoading] = useState(true)
     const [showRegister, setShowRegister] = useState(false)
+    const [editingPenpal, setEditingPenpal] = useState(null)
     const [selectedPenpal, setSelectedPenpal] = useState(null)
     const [toast, setToast] = useState('')
     const cmsHero = siteContent.hero || {}
 
-    const fetchPenpals = async () => {
+    const fetchPenpals = useCallback(async () => {
         try {
-            const res = await fetch(`${API}/api/penpals`)
+            const res = isAdmin
+                ? await apiFetch('/api/penpals/admin/all')
+                : await fetch(`${API}/api/penpals`)
             if (res.ok) {
                 const data = await res.json()
                 setPenpals(data)
@@ -404,13 +414,21 @@ export default function PenpalPage({ siteContent = {} }) {
         } finally {
             setLoading(false)
         }
-    }
+    }, [isAdmin])
 
-    useEffect(() => { fetchPenpals() }, [])
+    useEffect(() => { fetchPenpals() }, [fetchPenpals])
 
     const showSuccess = () => {
         setToast('🎉 Hồ sơ penpal của bạn đã được đăng!')
         fetchPenpals()
+        setTimeout(() => setToast(''), 4000)
+    }
+
+    const showUpdated = updated => {
+        if (updated?._id) setPenpals(current => current.map(item => item._id === updated._id ? { ...item, ...updated } : item))
+        else fetchPenpals()
+        setEditingPenpal(null)
+        setToast('Đã sửa hồ sơ Penpal trên server')
         setTimeout(() => setToast(''), 4000)
     }
 
@@ -450,15 +468,15 @@ export default function PenpalPage({ siteContent = {} }) {
             {/* ── How it works ── */}
             <section className="container">
                 <div className="pp-steps">
-                    {[
+                    {(siteContent.guide?.items?.length ? siteContent.guide.items : [
                         { icon: '📸', title: 'Đăng ký & Upload ảnh', desc: 'Tạo hồ sơ với ảnh đại diện và giới thiệu bản thân' },
                         { icon: '🔍', title: 'Tìm penpal', desc: 'Duyệt qua danh sách và tìm người phù hợp sở thích' },
                         { icon: '✉️', title: 'Gửi thư kèm ảnh', desc: 'Viết thư tay kỹ thuật số, đính kèm ảnh và gửi đi' },
-                    ].map(step => (
+                    ]).map(step => (
                         <div key={step.title} className="pp-step">
-                            <span className="pp-step-icon">{step.icon}</span>
+                            <span className="pp-step-icon">{step.icon || '🌏'}</span>
                             <h4>{step.title}</h4>
-                            <p>{step.desc}</p>
+                            <p>{step.desc || step.body}</p>
                         </div>
                     ))}
                 </div>
@@ -492,7 +510,7 @@ export default function PenpalPage({ siteContent = {} }) {
                 ) : (
                     <div className="pp-grid">
                         {penpals.map(p => (
-                            <PenpalCard key={p._id} penpal={p} onWrite={setSelectedPenpal} canDelete={isAdmin} onDelete={deletePenpal} />
+                            <PenpalCard key={p._id} penpal={p} onWrite={setSelectedPenpal} canDelete={isAdmin} onDelete={deletePenpal} onEdit={setEditingPenpal} />
                         ))}
                     </div>
                 )}
@@ -515,6 +533,9 @@ export default function PenpalPage({ siteContent = {} }) {
             {/* ── Modals ── */}
             {showRegister && (
                 <RegisterModal onClose={() => setShowRegister(false)} onSuccess={showSuccess} />
+            )}
+            {editingPenpal && (
+                <RegisterModal initial={editingPenpal} onClose={() => setEditingPenpal(null)} onSuccess={showUpdated} />
             )}
             {selectedPenpal && (
                 <LetterModal penpal={selectedPenpal} onClose={() => setSelectedPenpal(null)} />

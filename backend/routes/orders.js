@@ -3,6 +3,8 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const Order = require('../models/Order')
 const { adminOnly } = require('../middleware/auth')
+const { submissionLimiter } = require('../middleware/publicSubmission')
+const createLimiter = submissionLimiter(20, 'Gửi đơn quá nhiều. Vui lòng thử lại sau 15 phút.')
 
 function isDbReady() {
     return mongoose.connection.readyState === 1
@@ -18,7 +20,7 @@ function isLegacyTestOrderFilter() {
 }
 
 // Tạo đơn hàng mới
-router.post('/', async (req, res) => {
+router.post('/', createLimiter, async (req, res) => {
     if (!isDbReady()) {
         return res.status(503).json({ error: 'Database is offline' })
     }

@@ -1,0 +1,227 @@
+.admin-film-strip {
+    width: min(760px, calc(100vw - 32px));
+    max-height: min(72vh, 680px);
+    overflow: auto;
+    padding: 16px;
+    border: 1px solid #d7e2dc;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 16px 50px rgba(15, 23, 42, 0.18);
+    color: #1f2937;
+}
+
+.admin-film-strip--compact {
+    position: absolute;
+    top: 56px;
+    right: 16px;
+    z-index: 30;
+}
+
+.admin-film-strip__header,
+.admin-film-strip__header-actions,
+.admin-film-strip__controls {
+    display: flex;
+    align-items: center;
+}
+
+.admin-film-strip__header {
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.admin-film-strip__header strong,
+.admin-film-strip__header span {
+    display: block;
+}
+
+.admin-film-strip__header strong {
+    color: #173f32;
+    font-size: 16px;
+}
+
+.admin-film-strip__header span {
+    margin-top: 2px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.admin-film-strip__header-actions,
+.admin-film-strip__controls {
+    gap: 5px;
+}
+
+.admin-film-strip button,
+.admin-film-strip input {
+    font: inherit;
+}
+
+.admin-film-strip button {
+    cursor: pointer;
+}
+
+.admin-film-strip button:disabled {
+    cursor: wait;
+    opacity: 0.45;
+}
+
+.admin-film-strip__icon-btn,
+.admin-film-strip__controls button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid #dbe4df;
+    border-radius: 7px;
+    background: #f8faf9;
+    color: #315e4d;
+}
+
+.admin-film-strip__add {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.8fr) minmax(180px, 1fr) auto;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #f0f7f3;
+}
+
+.admin-film-strip__add > input,
+.admin-film-strip__fields > input {
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid #cfdcd5;
+    border-radius: 7px;
+    background: #fff;
+}
+
+.admin-film-strip__file,
+.admin-film-strip__primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 8px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-film-strip__file {
+    overflow: hidden;
+    border: 1px dashed #7fa892;
+    background: #fff;
+    color: #315e4d;
+    cursor: pointer;
+}
+
+.admin-film-strip__file span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-film-strip__file input {
+    display: none;
+}
+
+.admin-film-strip__primary {
+    border: 0;
+    background: #2f7658;
+    color: #fff;
+}
+
+.admin-film-strip__list {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.admin-film-strip__item {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 10px;
+    padding: 8px;
+    border: 1px solid #e2e8e5;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.admin-film-strip__item > img {
+    width: 90px;
+    height: 64px;
+    border-radius: 7px;
+    object-fit: cover;
+}
+
+.admin-film-strip__fields {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+}
+
+.admin-film-strip__controls {
+    flex-wrap: wrap;
+}
+
+.admin-film-strip__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 30px;
+    padding: 0 7px;
+    border: 1px solid #dbe4df;
+    border-radius: 7px;
+    background: #f8faf9;
+    color: #315e4d;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.admin-film-strip__delete {
+    color: #b42318 !important;
+}
+
+.admin-film-strip__error,
+.admin-film-strip__status {
+    margin: 8px 0;
+    font-size: 12px;
+}
+
+.admin-film-strip__error {
+    padding: 7px 9px;
+    border-radius: 7px;
+    background: #fff1f0;
+    color: #b42318;
+}
+
+.admin-film-strip__status {
+    color: #64748b;
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    .admin-film-strip--compact {
+        position: fixed;
+        top: 72px;
+        right: 8px;
+        left: 8px;
+        width: auto;
+    }
+
+    .admin-film-strip__add {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-film-strip__item {
+        grid-template-columns: 70px 1fr;
+    }
+
+    .admin-film-strip__item > img {
+        width: 70px;
+        height: 58px;
+    }
+}

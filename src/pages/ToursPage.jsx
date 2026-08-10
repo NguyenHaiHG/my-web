@@ -247,6 +247,20 @@ export default function ToursPage() {
     const [filterCat, setFilterCat] = useState('all')
     const [sortBy, setSortBy] = useState('default')
     const [booking, setBooking] = useState(null)
+    const [deletingId, setDeletingId] = useState(null)
+
+    const handleDelete = async (type, id) => {
+        if (deletingId) return
+        setDeletingId(id)
+        try {
+            await deleteItem(type, id)
+            showToast(t('book_deleted'))
+        } catch (err) {
+            showToast('❌ ' + (err?.message || 'Không thể xóa tour'))
+        } finally {
+            setDeletingId(null)
+        }
+    }
 
     const toursSourceRaw = tours.length > 0 ? tours : DEFAULT_TOURS
 
@@ -388,7 +402,7 @@ export default function ToursPage() {
                             onBook={setBooking}
                             onView={setDetailItem}
                             onEdit={item => setEditItem({ type: 'tour', item })}
-                            onDelete={(type, id) => { deleteItem(type, id); showToast(t('book_deleted')) }}
+                            onDelete={handleDelete}
                         />
                     ))}
                     {filtered.length === 0 && <p className="empty-state">{t('tours_no_result')}</p>}

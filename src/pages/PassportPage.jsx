@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { usePassport, STAMP_DEFS, CERT_TYPES, GPS_LANDMARKS } from '../context/PassportContext'
 import { useLang } from '../context/LanguageContext'
@@ -12,7 +12,6 @@ const MAP_LINK = 'https://maps.app.goo.gl/Fm26ka14eoToFq68A'
    ══════════════════════════════════════════════════════ */
 function drawCircularText(ctx, text, x, y, radius, startAngle, letterSpace = 0.06, reverse = false) {
     const chars = [...text]
-    const totalAngle = chars.length * letterSpace
     ctx.save()
     ctx.translate(x, y)
     ctx.rotate(startAngle)
@@ -147,7 +146,6 @@ async function buildCertificateCanvas({ certDef, holder, earnedStamps, isBasic =
         })
 
     // Top header band (use cert color or default deep green)
-    const headerColor = certDef?.color ? certDef.color : '#1a3a4a'
     ctx.fillStyle = '#1a3a4a'
     ctx.fillRect(0, 40, W, 140)
 
@@ -652,7 +650,7 @@ function haversineMeters(lat1, lng1, lat2, lng2) {
 }
 
 function GpsCheckInTab({ passport, addGpsStamp, hasGpsStamp }) {
-    const { t, lang } = useLang()
+    const { lang } = useLang()
     const [gps, setGps] = useState(null) // null | 'loading' | { lat, lng } | 'error'
     const [justDone, setJustDone] = useState(null) // landmark id just stamped
 
@@ -872,7 +870,6 @@ function BasicTab({ passport, hasStamp, addStamp, removeStamp, handleDownloadBas
             setPreviewing(false)
         }
     }
-    const progress = (passport.stamps.length / Object.keys(STAMP_DEFS).length) * 100
     return (
         <div>
             <h2 className="pp-section-title">{t('pp_basic_title')}</h2>
@@ -1166,7 +1163,7 @@ export default function PassportPage({ siteContent = {} }) {
     const {
         passport, setHolderName,
         addStamp, hasStamp, removeStamp,
-        addCertStamp, hasCertStamp, removeCertStamp, getCertStamps, getCertStampCount,
+        addCertStamp, hasCertStamp, removeCertStamp, getCertStampCount,
         markCertIssued,
         addReview, getReviews,
         addGpsStamp, hasGpsStamp,
@@ -1194,7 +1191,7 @@ export default function PassportPage({ siteContent = {} }) {
         () => Object.values(passport.certs || {}).reduce((sum, cert) => sum + Object.keys(cert.stamps || {}).length, 0),
         [passport.certs]
     )
-    const ecoPoints = useMemo(() => getEcoPoints(), [passport.eco, getEcoPoints])
+    const ecoPoints = useMemo(() => getEcoPoints(), [getEcoPoints])
     const totalReviews = useMemo(
         () => Object.values(passport.certs || {}).reduce((sum, cert) => sum + (cert.reviews?.length || 0), 0),
         [passport.certs]
@@ -1310,22 +1307,12 @@ export default function PassportPage({ siteContent = {} }) {
         ...Object.values(CERT_TYPES).map(c => ({ id: c.id, icon: c.icon, label: lang === 'en' ? (c.shortTitle_en || c.shortTitle) : c.shortTitle, color: c.color })),
         { id: 'checkin', icon: '📍', label: lang === 'en' ? 'Check-in' : 'Thực địa', color: '#0ea5e9' },
     ]
-
-    // Chia sẻ link passport
-    const handleShare = () => {
-        const url = window.location.href
-        if (navigator.share) {
-            navigator.share({ title: 'Hà Giang Passport', url })
-        } else {
-            navigator.clipboard.writeText(url)
-            alert('Đã sao chép link, hãy gửi cho bạn bè!')
-        }
-    }
-
-    // Đặt in hộ chiếu (mở link hoặc popup, có thể thay đổi sau)
-    const handleOrderPrint = () => {
-        window.open('/lien-he', '_blank')
-    }
+    const passportSteps = siteContent.steps?.items?.length ? siteContent.steps.items : [
+        { id: 'name', icon: '✍️', body: lang === 'en' ? 'Enter your name to create your passport' : 'Nhập tên để tạo hộ chiếu' },
+        { id: 'scan', icon: '📸', body: lang === 'en' ? 'Scan QR at eco-sites or join activities' : 'Quét QR tại điểm sinh thái hoặc tham gia hoạt động' },
+        { id: 'points', icon: '🏅', body: lang === 'en' ? 'Collect stamps & earn points' : 'Thu thập tem & tích điểm hành trình' },
+        { id: 'certificate', icon: '🎓', body: lang === 'en' ? 'Download your certificate' : 'Tải chứng nhận làm kỷ niệm' },
+    ]
 
     return (
         <div className="page-enter pp-page">
@@ -1354,29 +1341,16 @@ export default function PassportPage({ siteContent = {} }) {
                         : 'Hộ chiếu Hà Giang là nhật ký hành trình số của bạn. Hoàn thành trải nghiệm, thu thập tem và nhận chứng nhận hành trình thực tế.'}
                 </p>
                 <div className="pp-intro-steps">
-                    <div className="pp-intro-step">
-                        <div className="pp-is-num">1</div>
-                        <span className="pp-is-icon">✍️</span>
-                        <p>{lang === 'en' ? 'Enter your name to create your passport' : 'Nhập tên để tạo hộ chiếu'}</p>
-                    </div>
-                    <div className="pp-intro-arrow">›</div>
-                    <div className="pp-intro-step">
-                        <div className="pp-is-num">2</div>
-                        <span className="pp-is-icon">📸</span>
-                        <p>{lang === 'en' ? 'Scan QR at eco-sites or join activities' : 'Quét QR tại điểm sinh thái hoặc tham gia hoạt động'}</p>
-                    </div>
-                    <div className="pp-intro-arrow">›</div>
-                    <div className="pp-intro-step">
-                        <div className="pp-is-num">3</div>
-                        <span className="pp-is-icon">🏅</span>
-                        <p>{lang === 'en' ? 'Collect stamps & earn points' : 'Thu thập tem & tích điểm hành trình'}</p>
-                    </div>
-                    <div className="pp-intro-arrow">›</div>
-                    <div className="pp-intro-step">
-                        <div className="pp-is-num">4</div>
-                        <span className="pp-is-icon">🎓</span>
-                        <p>{lang === 'en' ? 'Download your certificate' : 'Tải chứng nhận làm kỷ niệm'}</p>
-                    </div>
+                    {passportSteps.map((step, index) => (
+                        <div key={step.id || index} style={{ display: 'contents' }}>
+                            <div className="pp-intro-step">
+                                <div className="pp-is-num">{index + 1}</div>
+                                <span className="pp-is-icon">{step.icon || '🌿'}</span>
+                                <p>{step.body || step.description || step.title}</p>
+                            </div>
+                            {index < passportSteps.length - 1 && <div className="pp-intro-arrow">›</div>}
+                        </div>
+                    ))}
                 </div>
             </section>
 

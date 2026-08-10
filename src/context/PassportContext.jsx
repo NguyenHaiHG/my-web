@@ -246,12 +246,16 @@ const load = (key) => {
     } catch { return null }
 }
 const save = (p) => {
-    try { localStorage.setItem(getCurrentPassportKey(), JSON.stringify(p)) } catch { /* noop */ }
     fetch(`${API}/api/passports/${encodeURIComponent(getServerPassportKey())}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(p),
-    }).catch(() => { /* local cache remains available until the next sync */ })
+    }).then(response => {
+        if (!response.ok) throw new Error(`Passport sync failed (${response.status})`)
+        try { localStorage.setItem(getCurrentPassportKey(), JSON.stringify(p)) } catch { /* cache unavailable */ }
+    }).catch(() => {
+        window.dispatchEvent(new CustomEvent('passport-sync-error'))
+    })
 }
 
 export function PassportProvider({ children }) {
@@ -297,7 +301,6 @@ export function PassportProvider({ children }) {
         const key = `${LS_KEY}_${user.sub}`
         const existing = load(key)
         const next = existing || { ...fresh(), holderName: user.name || '' }
-        if (!existing) localStorage.setItem(key, JSON.stringify(next))
         setPassport(next)
     }, [])
 
