@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
 import {
   User, LogOut, Menu, X, MessageCircle, House, BookOpen, Phone, Mail,
-  Upload, Plus, LayoutDashboard, WifiOff, Save, GraduationCap, Map, Leaf, MoreHorizontal
+  Upload, Plus, LayoutDashboard, WifiOff, Save, GraduationCap, Map, Leaf, MoreHorizontal, Eye, EyeOff
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider, useData } from './context/DataContext'
@@ -35,6 +35,7 @@ function LoginModal() {
   const { t } = useLang()
   const [u, setU] = useState('')
   const [p, setP] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const close = () => { setLoginError(''); setShowLogin(false) }
   const submit = async (e) => {
@@ -54,8 +55,19 @@ function LoginModal() {
         <form onSubmit={submit} className="login-form">
           <input className="form-input" placeholder={t('login_username_ph')} value={u}
             onChange={e => setU(e.target.value)} required autoFocus />
-          <input className="form-input" type="password" placeholder={t('login_password_ph')} value={p}
-            onChange={e => setP(e.target.value)} required />
+          <div className="password-input-wrap">
+            <input className="form-input" type={showPassword ? 'text' : 'password'} placeholder={t('login_password_ph')} value={p}
+              onChange={e => setP(e.target.value)} required />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(value => !value)}
+              aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
+              title={showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           {loginError && <p className="login-error">{loginError}</p>}
           <button type="submit" className="btn3d btn3d-orange btn-full" disabled={submitting}>
             {submitting ? 'Đang đăng nhập…' : t('login_btn')}
