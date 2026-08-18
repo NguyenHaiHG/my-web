@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { ArrowRight, Heart, Leaf, Settings2 } from 'lucide-react'
+import { ArrowRight, Edit2, Heart, Leaf, Plus, Settings2, Trash2 } from 'lucide-react'
 import { useLang } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
-import { apiFetch } from '../utils/api'
+import { apiFetch, responseError } from '../utils/api'
 import AdminHomeFilmStrip from '../components/AdminHomeFilmStrip'
+import { ListSectionEditor } from '../components/PageContentShell'
+import { CMS_SECTIONS } from '../config/cmsSections'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -65,13 +67,17 @@ export default function HomePage({ siteContent = {} }) {
     const { isAdmin } = useAuth()
     const [showFilmStripAdmin, setShowFilmStripAdmin] = useState(false)
     const [filmStripItems, setFilmStripItems] = useState(FARMER_FALLBACK_IMAGES)
+    const [highlights, setHighlights] = useState(siteContent.highlights || null)
+    const [cardEditor, setCardEditor] = useState(null)
+    const [cardError, setCardError] = useState('')
 
     // ── Hero slideshow ───────────────────────────────────────────────
     const [heroImages, setHeroImages] = useState(HERO_IMAGES_DEFAULT)
     const [heroIdx, setHeroIdx] = useState(0)
     const cmsHero = siteContent.hero || {}
-    const quickCards = siteContent.highlights?.items?.length
-        ? siteContent.highlights.items.map(item => ({
+    const quickCards = highlights?.items?.length
+        ? highlights.items.map(item => ({
+            id: item.id || item._id,
             emoji: item.emoji || '🌿',
             title: item.title,
             desc: item.body || item.description,
@@ -80,6 +86,23 @@ export default function HomePage({ siteContent = {} }) {
             highlight: item.highlight !== false,
         }))
         : QUICK_CARDS
+
+    useEffect(() => {
+        setHighlights(siteContent.highlights || null)
+    }, [siteContent.highlights])
+
+    const deleteQuickCard = async card => {
+        if (!card.id || !window.confirm(`Xóa thẻ "${card.title}" khỏi trang chủ?`)) return
+        setCardError('')
+        try {
+            const response = await apiFetch(`/api/site-content/home/highlights/items/${card.id}`, { method: 'DELETE' })
+            if (!response.ok) throw await responseError(response, 'Không thể xóa thẻ')
+            const result = await response.json()
+            setHighlights(current => ({ ...(current || {}), items: result.items || current?.items?.filter(item => (item.id || item._id) !== card.id) || [] }))
+        } catch (err) {
+            setCardError(err.message)
+        }
+    }
 
     // Fetch admin-uploaded hero images from backend
     useEffect(() => {
@@ -231,11 +254,23 @@ export default function HomePage({ siteContent = {} }) {
                 <div className="section-header-center" style={{ marginBottom: 16 }}>
                     <h2 style={{ marginBottom: 6 }}>Bạn muốn trải nghiệm gì?</h2>
                     <p style={{ color: '#64748b', margin: 0 }}>Workshop · Thiên nhiên · Lưu trú · Hành trình — chọn điều phù hợp với bạn.</p>
+                    {isAdmin && (
+                        <button className="btn3d btn3d-green btn-sm" style={{ marginTop: 12 }} onClick={() => setCardEditor({ mode: 'new' })}>
+                            <Plus size={14} /> Thêm thẻ trải nghiệm
+                        </button>
+                    )}
+                    {cardError && <p className="form-error">{cardError}</p>}
                 </div>
 
                 <div className="cards-grid">
                     {quickCards.map((card) => (
-                        <article key={card.path} className={`card3d${card.highlight ? ' card3d-highlight' : ''}`} style={{ transform: 'none' }}>
+                        <article key={card.id || card.path} className={`card3d${card.highlight ? ' card3d-highlight' : ''}`} style={{ transform: 'none', position: 'relative' }}>
+                            {isAdmin && card.id && (
+                                <div className="blog-actions" style={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }}>
+                                    <button className="btn3d btn3d-orange btn-sm" onClick={() => setCardEditor({ mode: 'edit', id: card.id })}><Edit2 size={13} /> Sửa</button>
+                                    <button className="btn-card-del" title="Xóa thẻ" onClick={() => deleteQuickCard(card)}><Trash2 size={14} /></button>
+                                </div>
+                            )}
                             <div className="card3d-body">
                                 <div className="card3d-emoji">{card.emoji}</div>
                                 <strong className="card3d-title">{card.title}</strong>
@@ -247,6 +282,17 @@ export default function HomePage({ siteContent = {} }) {
                         </article>
                     ))}
                 </div>
+                {isAdmin && cardEditor && (
+                    <ListSectionEditor
+                        page="home"
+                        config={{ key: 'highlights', ...CMS_SECTIONS.home.highlights }}
+                        initial={highlights}
+                        initialEditId={cardEditor.mode === 'edit' ? cardEditor.id : ''}
+                        openNewInitially={cardEditor.mode === 'new'}
+                        onSaved={(_section, saved) => setHighlights(saved)}
+                        onClose={() => setCardEditor(null)}
+                    />
+                )}
             </section>
 
             <section className="ng-cta">

@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react'
-import { MapPin, Clock, Users, Star, Check, X, Phone, ChevronDown, ChevronUp, Calendar, Shield, Camera, Mountain } from 'lucide-react'
+import { MapPin, Clock, Users, Star, Check, X, Phone, ChevronDown, ChevronUp, Calendar, Shield, Camera, Mountain, Edit2, Plus, Trash2 } from 'lucide-react'
 import { useUI } from '../context/UIContext'
+import { useAuth } from '../context/AuthContext'
 import { usePassport } from '../context/PassportContext'
 import { useOrder } from '../context/OrderContext'
 import InlineSiteImage from '../components/InlineSiteImage'
+import { ListSectionEditor } from '../components/PageContentShell'
+import { CMS_SECTIONS } from '../config/cmsSections'
+import { apiFetch, responseError } from '../utils/api'
 
 /* ── 3D2N Itinerary ─────────────────────────────────── */
 const ITINERARY_3D = [
@@ -300,12 +304,28 @@ function FaqItem({ item }) {
 /* ── Main Page ───────────────────────────────────────── */
 export default function HaGiangLoopPage({ siteContent = {} }) {
     const { showToast } = useUI()
+    const { isAdmin } = useAuth()
     const { addStamp } = usePassport()
     const [bookingDone, setBookingDone] = useState(false)
     const [galleryIdx, setGalleryIdx] = useState(null)
     const [tourType, setTourType] = useState('3d2n') // '3d2n' | '4d3n'
     const [gallery, setGallery] = useState(GALLERY_FALLBACK)
+    const [managedContent, setManagedContent] = useState({
+        'itinerary-3d': siteContent['itinerary-3d'] || null,
+        'itinerary-4d': siteContent['itinerary-4d'] || null,
+        faq: siteContent.faq || null,
+    })
+    const [contentEditor, setContentEditor] = useState(null)
+    const [publishingDefaults, setPublishingDefaults] = useState(false)
     const cmsHero = siteContent.hero || {}
+
+    useEffect(() => {
+        setManagedContent({
+            'itinerary-3d': siteContent['itinerary-3d'] || null,
+            'itinerary-4d': siteContent['itinerary-4d'] || null,
+            faq: siteContent.faq || null,
+        })
+    }, [siteContent])
 
     useEffect(() => {
         fetch(`${API}/api/site-images`)
@@ -322,12 +342,13 @@ export default function HaGiangLoopPage({ siteContent = {} }) {
             .catch(() => { })
     }, [])
 
-    const managed3d = siteContent['itinerary-3d']?.items
-    const managed4d = siteContent['itinerary-4d']?.items
+    const managed3d = managedContent['itinerary-3d']?.items
+    const managed4d = managedContent['itinerary-4d']?.items
     const itinerary = tourType === '4d3n'
         ? (managed4d?.length ? managed4d : ITINERARY_4D)
         : (managed3d?.length ? managed3d : ITINERARY_3D)
-    const faqItems = siteContent.faq?.items?.length ? siteContent.faq.items : FAQ
+    const activeItinerarySection = tourType === '4d3n' ? 'itinerary-4d' : 'itinerary-3d'
+    const faqItems = managedContent.faq?.items?.length ? managedContent.faq.items : FAQ
     const activePackage = TOUR_PACKAGES[tourType] || TOUR_PACKAGES['3d2n']
     const price = activePackage.price
     const oldPrice = activePackage.oldPrice
@@ -338,6 +359,49 @@ export default function HaGiangLoopPage({ siteContent = {} }) {
         addStamp('tour')
         setBookingDone(true)
         showToast(`✅ Đã nhận yêu cầu đặt tour! Admin sẽ liên hệ ${form.phone} sớm.`)
+    }
+
+    const publishDefaultItineraries = async () => {
+        setPublishingDefaults(true)
+        try {
+            for (const [section, fallback] of [['itinerary-3d', ITINERARY_3D], ['itinerary-4d', ITINERARY_4D]]) {
+                if (managedContent[section]?.items?.length) continue
+                const savedItems = []
+                for (const item of fallback) {
+                    const response = await apiFetch(`/api/site-content/ha-giang-loop/${section}/items`, {
+                        method: 'POST',
+                        body: JSON.stringify(item),
+                    })
+                    if (!response.ok) throw await responseError(response, 'Không thể lưu lịch trình')
+                    savedItems.push(await response.json())
+                }
+                setManagedContent(current => ({ ...current, [section]: { title: section === 'itinerary-3d' ? 'Lịch trình 3N2Đ' : 'Lịch trình 4N3Đ', items: savedItems } }))
+            }
+            showToast('Đã lưu lịch trình Hà Giang Loop lên server.')
+        } catch (err) {
+            showToast('❌ ' + err.message)
+        } finally {
+            setPublishingDefaults(false)
+        }
+    }
+
+    const deleteManagedItem = async (section, item) => {
+        const id = item.id || item._id
+        if (!id || !window.confirm('Xóa mục này khỏi server?')) return
+        try {
+            const response = await apiFetch(`/api/site-content/ha-giang-loop/${section}/items/${id}`, { method: 'DELETE' })
+            if (!response.ok) throw await responseError(response, 'Không thể xóa mục')
+            setManagedContent(current => ({
+                ...current,
+                [section]: {
+                    ...(current[section] || {}),
+                    items: (current[section]?.items || []).filter(entry => (entry.id || entry._id) !== id),
+                },
+            }))
+            showToast('Đã xóa mục khỏi server.')
+        } catch (err) {
+            showToast('❌ ' + err.message)
+        }
     }
 
     return (
@@ -543,6 +607,19 @@ export default function HaGiangLoopPage({ siteContent = {} }) {
                         <p style={{ color: '#64748b', fontSize: 14, margin: 0, fontStyle: 'italic' }}>
                             {nightsEn} Ha Giang Loop — Easy Rider Adventure
                         </p>
+                        {isAdmin && (
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
+                                {!managedContent[activeItinerarySection]?.items?.length ? (
+                                    <button className="btn3d btn3d-blue btn-sm" disabled={publishingDefaults} onClick={publishDefaultItineraries}>
+                                        {publishingDefaults ? 'Đang lưu lên server…' : 'Lưu toàn bộ lịch trình lên server'}
+                                    </button>
+                                ) : (
+                                    <button className="btn3d btn3d-green btn-sm" onClick={() => setContentEditor({ section: activeItinerarySection, mode: 'new' })}>
+                                        <Plus size={14} /> Thêm ngày
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -550,8 +627,18 @@ export default function HaGiangLoopPage({ siteContent = {} }) {
                             <div key={i} style={{
                                 background: '#fff', borderRadius: 18, overflow: 'hidden',
                                 boxShadow: '0 2px 14px rgba(0,0,0,0.07)',
-                                border: `2px solid ${day.color}20`,
+                                border: `2px solid ${day.color}20`, position: 'relative',
                             }}>
+                                {isAdmin && (day.id || day._id) && (
+                                    <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 3, display: 'flex', gap: 6 }}>
+                                        <button className="btn3d btn3d-orange btn-sm" onClick={() => setContentEditor({ section: activeItinerarySection, mode: 'edit', id: day.id || day._id })}>
+                                            <Edit2 size={13} /> Sửa
+                                        </button>
+                                        <button className="btn-card-del" title="Xóa ngày" onClick={() => deleteManagedItem(activeItinerarySection, day)}>
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                )}
                                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                                     {/* Day strip */}
                                     <div style={{
@@ -578,7 +665,7 @@ export default function HaGiangLoopPage({ siteContent = {} }) {
                                             {day.descEn}
                                         </p>
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
-                                            {day.highlights.map((h, j) => (
+                                            {(day.highlights || []).map((h, j) => (
                                                 <span key={j} style={{
                                                     background: `${day.color}15`, color: day.color,
                                                     border: `1px solid ${day.color}30`, borderRadius: 999,
@@ -813,8 +900,25 @@ export default function HaGiangLoopPage({ siteContent = {} }) {
                             <p style={{ color: '#64748b', fontSize: 13, margin: '0 0 16px', fontStyle: 'italic' }}>
                                 Frequently Asked Questions
                             </p>
+                            {isAdmin && (
+                                <button className="btn3d btn3d-green btn-sm" style={{ marginBottom: 12 }} onClick={() => setContentEditor({ section: 'faq', mode: 'new' })}>
+                                    <Plus size={14} /> Thêm FAQ
+                                </button>
+                            )}
                             {faqItems.map((item, i) => (
-                                <FaqItem key={i} item={item} />
+                                <div key={item.id || item._id || i}>
+                                    {isAdmin && (item.id || item._id) && (
+                                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6, marginBottom: 5 }}>
+                                            <button className="btn3d btn3d-orange btn-sm" onClick={() => setContentEditor({ section: 'faq', mode: 'edit', id: item.id || item._id })}>
+                                                <Edit2 size={13} /> Sửa
+                                            </button>
+                                            <button className="btn-card-del" title="Xóa FAQ" onClick={() => deleteManagedItem('faq', item)}>
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                    )}
+                                    <FaqItem item={item} />
+                                </div>
                             ))}
 
                             {/* Contact strip */}
@@ -838,6 +942,18 @@ export default function HaGiangLoopPage({ siteContent = {} }) {
                     </div>
                 </div>
             </section>
+
+            {isAdmin && contentEditor && (
+                <ListSectionEditor
+                    page="ha-giang-loop"
+                    config={{ key: contentEditor.section, ...CMS_SECTIONS['ha-giang-loop'][contentEditor.section] }}
+                    initial={managedContent[contentEditor.section]}
+                    initialEditId={contentEditor.mode === 'edit' ? contentEditor.id : ''}
+                    openNewInitially={contentEditor.mode === 'new'}
+                    onSaved={(section, saved) => setManagedContent(current => ({ ...current, [section]: saved }))}
+                    onClose={() => setContentEditor(null)}
+                />
+            )}
 
             {/* ── BOTTOM CTA ── */}
             <section style={{

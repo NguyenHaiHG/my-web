@@ -14,6 +14,8 @@ import { apiFetch, responseError } from '../utils/api'
 import AdminSiteImages from '../components/AdminSiteImages'
 import AdminNatureMemory from '../components/AdminNatureMemory'
 import AdminHomeFilmStrip from '../components/AdminHomeFilmStrip'
+import { PageContentAdminPanel } from '../components/PageContentShell'
+import { CMS_SECTIONS } from '../config/cmsSections'
 
 const NAV_ITEMS = [
     { key: 'overview', icon: LayoutDashboard, label: 'Tổng quan' },
@@ -23,7 +25,8 @@ const NAV_ITEMS = [
     { key: 'reviews', icon: Star, label: 'Duyệt review' },
     { key: 'moderation', icon: ShieldCheck, label: 'Penpal / Nhật ký' },
     { key: 'eco', icon: MapPin, label: 'Điểm eco / Passport' },
-    { key: 'content', icon: FileText, label: 'Nội dung website' },
+    { key: 'page-content', icon: FileText, label: 'Nội dung từng trang' },
+    { key: 'content', icon: ClipboardList, label: 'Bài / Workshop / Danh mục' },
     { key: 'media', icon: Image, label: 'Thư viện ảnh' },
     { key: 'settings', icon: Settings, label: 'Cấu hình chung' },
     { key: 'account', icon: KeyRound, label: 'Tài khoản admin' },
@@ -53,7 +56,7 @@ function Overview({ orders, setSection }) {
     return (
         <div>
             <h2 className="db-section-title">Trung tâm nghiệp vụ</h2>
-            <p className="db-section-hint">Nội dung trang được chỉnh trực tiếp tại trang hiển thị. Dashboard chỉ giữ các hàng đợi và cấu hình riêng tư.</p>
+            <p className="db-section-hint">Dashboard quản lý cả nội dung từng trang, danh mục bài và các hàng đợi vận hành.</p>
             <div className="db-stats-grid">
                 {cards.map(({ key, label, count, icon }) => (
                     <button key={key} className="db-stat-card" onClick={() => setSection(key)}>
@@ -64,7 +67,7 @@ function Overview({ orders, setSection }) {
             </div>
             <div className="db-inline-edit-guide">
                 <h3>Chỉnh nội dung công khai</h3>
-                <p>Mở đúng trang và dùng thanh “Chỉnh trực tiếp” để sửa Hero, giới thiệu, CTA và ảnh. Bài viết, thư viện và workshop có nút thêm/sửa ngay trên danh sách.</p>
+                <p>Chọn “Nội dung từng trang” trong menu để thêm, sửa, xóa Workshop, Liên hệ và Hà Giang Loop ngay tại Dashboard.</p>
                 <div className="db-guide-links">
                     <Link to="/">Trang chủ</Link><Link to="/workshop">Workshop</Link><Link to="/ha-giang-loop">Hà Giang Loop</Link>
                     <Link to="/blog">Blog</Link><Link to="/thu-vien">Thư viện</Link><Link to="/lien-he">Liên hệ</Link>
@@ -266,6 +269,37 @@ function EcoPanel({ showToast }) {
     )
 }
 
+const PAGE_CONTENT_TABS = [
+    { key: 'workshop', label: 'Workshop', page: 'workshop', path: '/workshop', sections: {} },
+    { key: 'contact', label: 'Liên hệ', page: 'contact', path: '/lien-he', sections: CMS_SECTIONS.contact },
+    { key: 'ha-giang-loop', label: 'Hà Giang Loop', page: 'ha-giang-loop', path: '/ha-giang-loop', sections: CMS_SECTIONS['ha-giang-loop'] },
+]
+
+function PageContentHub({ data, setAdminModal, setEditItem, showToast }) {
+    const [activePage, setActivePage] = useState('workshop')
+    const config = PAGE_CONTENT_TABS.find(item => item.key === activePage) || PAGE_CONTENT_TABS[0]
+
+    return (
+        <div>
+            <h2 className="db-section-title">Nội dung từng trang</h2>
+            <p className="db-section-hint">Thêm, sửa và xóa section hoặc từng mục; thay đổi được lưu cùng API với trình chỉnh sửa trực tiếp.</p>
+            <div className="db-guide-links" style={{ marginBottom: 18 }}>
+                {PAGE_CONTENT_TABS.map(item => (
+                    <button key={item.key} className={`btn3d btn-sm ${activePage === item.key ? 'btn3d-green' : 'btn3d-gray'}`} onClick={() => setActivePage(item.key)}>
+                        {item.label}
+                    </button>
+                ))}
+            </div>
+            <PageContentAdminPanel key={config.page} page={config.page} sections={config.sections} title={config.label} publicPath={config.path} />
+            {activePage === 'workshop' && (
+                <div style={{ marginTop: 20 }}>
+                    <ContentInventory data={data} setAdminModal={setAdminModal} setEditItem={setEditItem} showToast={showToast} initialType="workshop" />
+                </div>
+            )}
+        </div>
+    )
+}
+
 const CONTENT_TYPES = [
     { key: 'post', label: 'Bài viết', field: 'posts', route: '/blog' },
     { key: 'workshop', label: 'Workshop', field: 'workshops', route: '/workshop' },
@@ -274,8 +308,8 @@ const CONTENT_TYPES = [
     { key: 'product', label: 'Sản phẩm', field: 'products', route: '/san-pham' },
 ]
 
-function ContentInventory({ data, setAdminModal, setEditItem, showToast }) {
-    const [activeType, setActiveType] = useState('post')
+function ContentInventory({ data, setAdminModal, setEditItem, showToast, initialType = 'post' }) {
+    const [activeType, setActiveType] = useState(initialType)
     const config = CONTENT_TYPES.find(item => item.key === activeType) || CONTENT_TYPES[0]
     const rows = data[config.field] || []
 
@@ -454,6 +488,7 @@ export default function DashboardPage() {
     if (section === 'reviews') panel = <ReviewsPanel showToast={showToast} />
     if (section === 'moderation') panel = <ModerationPanel />
     if (section === 'eco') panel = <EcoPanel showToast={showToast} />
+    if (section === 'page-content') panel = <PageContentHub data={data} setAdminModal={setAdminModal} setEditItem={setEditItem} showToast={showToast} />
     if (section === 'content') panel = <ContentInventory data={data} setAdminModal={setAdminModal} setEditItem={setEditItem} showToast={showToast} />
     if (section === 'media') panel = <MediaCenter />
     if (section === 'settings') panel = <GlobalSettingsPanel showToast={showToast} />

@@ -1,4 +1,4 @@
-import { cloneElement, useEffect, useState } from 'react'
+import { cloneElement, useCallback, useEffect, useState } from 'react'
 import { ArrowDown, ArrowUp, Edit3, ImagePlus, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { apiFetch, responseError } from '../utils/api'
@@ -135,7 +135,7 @@ function FieldsForm({ fields, value, onChange, onError }) {
     ))
 }
 
-function ContentEditor({ page, section, initial, onSaved, onClose }) {
+export function ContentEditor({ page, section, initial, onSaved, onClose }) {
     const [form, setForm] = useState({ ...EMPTY, ...initial })
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
@@ -197,7 +197,7 @@ function ContentEditor({ page, section, initial, onSaved, onClose }) {
     )
 }
 
-function ObjectSectionEditor({ page, config, initial, onSaved, onClose }) {
+export function ObjectSectionEditor({ page, config, initial, onSaved, onClose }) {
     const [form, setForm] = useState({ ...(initial || {}) })
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
@@ -242,10 +242,13 @@ function ObjectSectionEditor({ page, config, initial, onSaved, onClose }) {
     )
 }
 
-function ListSectionEditor({ page, config, initial, onSaved, onClose }) {
-    const [items, setItems] = useState(() => contentItems(initial))
-    const [draft, setDraft] = useState(null)
-    const [draftIndex, setDraftIndex] = useState(-1)
+export function ListSectionEditor({ page, config, initial, onSaved, onClose, initialEditId = '', openNewInitially = false }) {
+    const initialItems = contentItems(initial)
+    const initialIndex = initialEditId ? initialItems.findIndex(item => itemId(item) === initialEditId) : -1
+    const emptyItem = typeof config.emptyItem === 'function' ? config.emptyItem() : config.emptyItem
+    const [items, setItems] = useState(initialItems)
+    const [draft, setDraft] = useState(() => initialIndex >= 0 ? { ...initialItems[initialIndex] } : openNewInitially ? { ...emptyItem } : null)
+    const [draftIndex, setDraftIndex] = useState(initialIndex)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
     const endpoint = `/api/site-content/${page}/${config.key}`
@@ -414,6 +417,95 @@ export function ManagedListSection({ content, items: inputItems, className = '',
                     ))}
                 </div>
             </div>
+        </section>
+    )
+}
+
+export function PageContentAdminPanel({ page, sections, title, publicPath }) {
+    const [content, setContent] = useState({})
+    const [editing, setEditing] = useState('')
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
+    const customSections = normalizeSections(sections)
+    const availableSections = [
+        ...Object.keys(SECTION_LABELS).map(key => ({ key, label: SECTION_LABELS[key], legacy: true, type: 'object' })),
+        ...customSections.filter(section => !SECTION_LABELS[section.key]),
+    ]
+    const editingConfig = customSections.find(section => section.key === editing)
+
+    const load = useCallback(() => {
+        setLoading(true)
+        setError('')
+        apiFetch(`/api/site-content/${page}`, { auth: false })
+            .then(async response => {
+                if (!response.ok) throw await responseError(response, 'Không thể tải nội dung trang')
+                setContent(await response.json())
+            })
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false))
+    }, [page])
+
+    useEffect(load, [load])
+
+    const removeSection = async section => {
+        const label = availableSections.find(item => item.key === section)?.label || section
+        if (!window.confirm(`Xóa nội dung ${label} khỏi server và dùng lại nội dung mặc định?`)) return
+        try {
+            const response = await apiFetch(`/api/site-content/${page}/${section}`, { method: 'DELETE' })
+            if (!response.ok) throw await responseError(response, 'Không thể xóa section')
+            setContent(current => {
+                const next = { ...current }
+                delete next[section]
+                return next
+            })
+        } catch (err) {
+            setError(err.message)
+        }
+    }
+
+    const onSaved = (section, value) => setContent(current => ({ ...current, [section]: value }))
+
+    return (
+        <section className="cms-dashboard-panel">
+            <div className="cms-dashboard-panel-head">
+                <div>
+                    <h3>{title || page}</h3>
+                    <p>Chỉnh trực tiếp các section đang hiển thị và lưu vào MongoDB.</p>
+                </div>
+                {publicPath && <a className="btn3d btn3d-blue btn-sm" href={publicPath}>Xem trang</a>}
+            </div>
+            {error && <p className="form-error">{error}</p>}
+            {loading ? <p>Đang tải nội dung…</p> : (
+                <div className="cms-dashboard-section-grid">
+                    {availableSections.map(section => {
+                        const value = content[section.key]
+                        const count = section.type === 'list' ? contentItems(value).length : null
+                        return (
+                            <article key={section.key} className="cms-dashboard-section-card">
+                                <div>
+                                    <strong>{section.label}</strong>
+                                    <small>{section.type === 'list' ? `${count} mục` : value ? 'Đã cấu hình' : 'Đang dùng mặc định'}</small>
+                                </div>
+                                <div>
+                                    <button type="button" onClick={() => setEditing(section.key)}>
+                                        {section.type === 'list' ? <><Plus size={14} /> Quản lý</> : <><Edit3 size={14} /> Sửa</>}
+                                    </button>
+                                    {value && <button type="button" className="cms-delete-item" onClick={() => removeSection(section.key)}><Trash2 size={14} /> Xóa</button>}
+                                </div>
+                            </article>
+                        )
+                    })}
+                </div>
+            )}
+            {editing && editingConfig?.type === 'list' && (
+                <ListSectionEditor page={page} config={editingConfig} initial={content[editing]} onSaved={onSaved} onClose={() => setEditing('')} />
+            )}
+            {editing && editingConfig?.type === 'object' && (
+                <ObjectSectionEditor page={page} config={editingConfig} initial={content[editing]} onSaved={onSaved} onClose={() => setEditing('')} />
+            )}
+            {editing && !editingConfig && (
+                <ContentEditor page={page} section={editing} initial={content[editing]} onSaved={onSaved} onClose={() => setEditing('')} />
+            )}
         </section>
     )
 }

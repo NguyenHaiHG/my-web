@@ -410,7 +410,7 @@ function EmptyState({ onAdd }) {
 /* ─────────────────────────────────────────────
    ENTRY CARD
 ───────────────────────────────────────────── */
-function EntryCard({ entry, onClick }) {
+function EntryCard({ entry, onClick, canEdit, onEdit, onDelete }) {
     const cat = catFor(entry.category)
     const weather = weatherFor(entry.weather)
     const d = new Date(entry.createdAt)
@@ -421,6 +421,28 @@ function EntryCard({ entry, onClick }) {
     return (
         <article className="nm-card" onClick={onClick} tabIndex={0}
             onKeyDown={e => e.key === 'Enter' && onClick()}>
+            {canEdit && (
+                <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 3, display: 'flex', gap: 6 }}>
+                    <button
+                        type="button"
+                        className="nm-icon-btn"
+                        style={{ background: '#fff', boxShadow: '0 3px 10px #0002' }}
+                        title="Sửa bài"
+                        onClick={event => { event.stopPropagation(); onEdit(entry) }}
+                    >
+                        <Edit2 size={16} />
+                    </button>
+                    <button
+                        type="button"
+                        className="nm-icon-btn nm-delete-btn"
+                        style={{ background: '#fff', boxShadow: '0 3px 10px #0002' }}
+                        title="Xóa bài"
+                        onClick={event => { event.stopPropagation(); onDelete(entry.id) }}
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                </div>
+            )}
             {entry.img && (
                 <div className="nm-card-photo">
                     <img src={entry.img} alt={entry.name} loading="lazy" />
@@ -967,7 +989,14 @@ export default function NatureMemoryPage({ siteContent = {} }) {
                 ) : (
                     <div className="nm-grid">
                         {filtered.map(e => (
-                            <EntryCard key={e.id} entry={e} onClick={() => setDetail(e)} />
+                            <EntryCard
+                                key={e.id}
+                                entry={e}
+                                onClick={() => setDetail(e)}
+                                canEdit={isAdmin}
+                                onEdit={entry => setEditingEntry(entry)}
+                                onDelete={handleDelete}
+                            />
                         ))}
                     </div>
                 )}

@@ -127,9 +127,85 @@
     white-space: pre-line;
 }
 
+.cms-dashboard-panel {
+    padding: 20px;
+    border: 1px solid #dce9e1;
+    border-radius: 16px;
+    background: #fff;
+}
+
+.cms-dashboard-panel + .cms-dashboard-panel {
+    margin-top: 18px;
+}
+
+.cms-dashboard-panel-head,
+.cms-dashboard-section-card,
+.cms-dashboard-section-card > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.cms-dashboard-panel-head {
+    margin-bottom: 16px;
+}
+
+.cms-dashboard-panel-head h3,
+.cms-dashboard-panel-head p {
+    margin: 0;
+}
+
+.cms-dashboard-panel-head p {
+    margin-top: 4px;
+    color: #66766d;
+}
+
+.cms-dashboard-section-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 10px;
+}
+
+.cms-dashboard-section-card {
+    padding: 12px;
+    border: 1px solid #d9e8df;
+    border-radius: 10px;
+    background: #f9fcfa;
+}
+
+.cms-dashboard-section-card > div:first-child {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cms-dashboard-section-card small {
+    color: #728078;
+}
+
+.cms-dashboard-section-card button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 9px;
+    border: 1px solid #26765644;
+    border-radius: 8px;
+    color: #185b41;
+    background: #fff;
+    cursor: pointer;
+}
+
+.cms-dashboard-section-card button.cms-delete-item {
+    color: #a42c2c;
+    border-color: #d84b4b44;
+}
+
 @media (max-width: 640px) {
     .cms-list-editor-head,
-    .cms-list-editor-item {
+    .cms-list-editor-item,
+    .cms-dashboard-panel-head,
+    .cms-dashboard-section-card {
         align-items: stretch;
         flex-direction: column;
     }

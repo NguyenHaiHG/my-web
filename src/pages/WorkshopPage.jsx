@@ -76,16 +76,33 @@ const DEFAULT_WORKSHOPS = [
 ]
 
 export default function WorkshopPage({ siteContent = {} }) {
-    const { workshops, deleteItem } = useData()
+    const { workshops, addItem, deleteItem } = useData()
     const { isAdmin } = useAuth()
     const { setAdminModal, setEditItem, showToast } = useUI()
     const [filter, setFilter] = useState('all')
+    const [publishingDefaults, setPublishingDefaults] = useState(false)
 
     const sourceItems = workshops.length > 0 ? workshops : DEFAULT_WORKSHOPS
     const items = sourceItems.filter(w => !HIDDEN_CATEGORIES.has(w.category))
     const filtered = filter === 'all' ? items : items.filter(w => w.category === filter)
     const categories = ['all', ...new Set(items.map(w => w.category).filter(Boolean))]
     const cmsHero = siteContent.hero || {}
+
+    const publishDefaults = async () => {
+        setPublishingDefaults(true)
+        try {
+            for (const workshop of DEFAULT_WORKSHOPS) {
+                const { id: _fallbackId, ...payload } = workshop
+                await addItem('workshop', payload)
+            }
+            showToast('Đã đưa các workshop mặc định lên server. Bây giờ có thể sửa hoặc xóa từng bài.')
+        } catch (err) {
+            showToast('❌ ' + err.message)
+        } finally {
+            setPublishingDefaults(false)
+        }
+    }
+
     return (
         <div className="page-enter">
             {/* ── Hero ── */}
@@ -141,6 +158,11 @@ export default function WorkshopPage({ siteContent = {} }) {
                         <button className="btn3d btn3d-green btn-sm" onClick={() => setAdminModal('workshop')}>
                             <Plus size={15} /> Thêm workshop
                         </button>
+                        {workshops.length === 0 && (
+                            <button className="btn3d btn3d-blue btn-sm" disabled={publishingDefaults} onClick={publishDefaults}>
+                                {publishingDefaults ? 'Đang lưu lên server…' : 'Lưu các workshop đang hiển thị lên server'}
+                            </button>
+                        )}
                     </div>
                 )}
                 {filtered.length === 0 ? (
@@ -151,7 +173,7 @@ export default function WorkshopPage({ siteContent = {} }) {
                             <WorkshopCard
                                 key={ws.id || ws._id}
                                 ws={ws}
-                                canEdit={isAdmin && workshops.length > 0}
+                                canEdit={isAdmin && Boolean(ws._id)}
                                 onEdit={() => setEditItem({ type: 'workshop', item: ws })}
                                 onDelete={async () => {
                                     if (!window.confirm('Xóa workshop này?')) return
