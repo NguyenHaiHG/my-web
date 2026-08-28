@@ -271,6 +271,7 @@ function EcoPanel({ showToast }) {
 
 const PAGE_CONTENT_TABS = [
     { key: 'workshop', label: 'Workshop', page: 'workshop', path: '/workshop', sections: {} },
+    { key: 'heritage', label: 'Số hoá di sản', page: 'heritage', path: '/so-hoa-di-san', sections: CMS_SECTIONS.heritage },
     { key: 'contact', label: 'Liên hệ', page: 'contact', path: '/lien-he', sections: CMS_SECTIONS.contact },
     { key: 'ha-giang-loop', label: 'Hà Giang Loop', page: 'ha-giang-loop', path: '/ha-giang-loop', sections: CMS_SECTIONS['ha-giang-loop'] },
 ]

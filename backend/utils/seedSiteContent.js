@@ -7,15 +7,15 @@ const defaults = [
         title: 'Hợp tác xã Trường Hải',
         subtitle: 'Chạm vào thiên nhiên, sống cùng bản sắc Hà Giang',
         buttonLabel: 'Khám phá ngay',
-        buttonHref: '/ha-giang-loop',
+        buttonHref: '/so-hoa-di-san',
     }],
     ['home', 'highlights', {
         title: 'Trải nghiệm nổi bật',
         items: [
-            { id: 'home-workshop', emoji: '🧵', title: 'Workshop Văn Hoá', body: 'Thêu thổ cẩm, nấu ăn bản địa, nhạc cụ dân tộc — trải nghiệm văn hoá do cộng đồng tổ chức.', buttonLabel: 'Đặt workshop →', buttonHref: '/workshop', highlight: true, sortOrder: 0 },
-            { id: 'home-nature', emoji: '🌿', title: 'Học Bảo Tồn Thiên Nhiên', body: 'Quan sát hệ sinh thái, ghi nhật ký và lưu giữ những khoảnh khắc xanh của Hà Giang.', buttonLabel: 'Mở nhật ký →', buttonHref: '/nhat-ky-thien-nhien', highlight: true, sortOrder: 1 },
-            { id: 'home-stay', emoji: '🛏️', title: 'Dorm Lưu Trú', body: 'Phòng dorm sạch sẽ, giá tốt tại Hà Giang, gần thiên nhiên và cộng đồng.', buttonLabel: 'Đặt phòng →', buttonHref: '/lien-he', highlight: true, sortOrder: 2 },
-            { id: 'home-passport', emoji: '🎖️', title: 'Hộ Chiếu Hà Giang', body: 'Tạo hộ chiếu số, quét QR tại các điểm sinh thái, nhận tem và tải chứng nhận hành trình.', buttonLabel: 'Tạo hộ chiếu →', buttonHref: '/ho-chieu', highlight: false, sortOrder: 3 },
+            { id: 'home-heritage', emoji: '🏛️', title: 'Số hoá di sản', body: 'Ghi lại ngôn ngữ, thổ cẩm, lễ hội và cảnh quan — thư viện số, nhật ký thiên nhiên và hộ chiếu QR.', buttonLabel: 'Xem chương trình →', buttonHref: '/so-hoa-di-san', highlight: true, sortOrder: 0 },
+            { id: 'home-workshop', emoji: '🧵', title: 'Workshop Văn Hoá', body: 'Thêu thổ cẩm, nấu ăn bản địa, nhạc cụ dân tộc — trải nghiệm văn hoá do cộng đồng tổ chức.', buttonLabel: 'Đặt workshop →', buttonHref: '/workshop', highlight: true, sortOrder: 1 },
+            { id: 'home-tours', emoji: '🗺️', title: 'Khám phá Hà Giang', body: 'Hà Giang Loop, tour cộng đồng và hộ chiếu số — đi cùng người địa phương.', buttonLabel: 'Xem hành trình →', buttonHref: '/tours', highlight: true, sortOrder: 2 },
+            { id: 'home-shop', emoji: '🛍️', title: 'Cửa hàng & lưu trú', body: 'Thổ cẩm, đặc sản địa phương và dorm tại Hà Giang 2, gần thiên nhiên và cộng đồng.', buttonLabel: 'Xem cửa hàng →', buttonHref: '/san-pham', highlight: false, sortOrder: 3 },
         ],
     }],
     ['workshop', 'hero', { title: 'Workshop bản địa', subtitle: 'Học từ người dân, làm bằng đôi tay và mang về một câu chuyện' }],
@@ -29,6 +29,7 @@ const defaults = [
     }],
     ['blog', 'hero', { title: 'Câu chuyện từ Hà Giang', subtitle: 'Con người, văn hóa và những hành trình bền vững' }],
     ['library', 'hero', { title: 'Thư viện xanh', subtitle: 'Tài liệu và câu chuyện dành cho cộng đồng' }],
+    ['heritage', 'hero', { title: 'Số hoá di sản Hà Giang', subtitle: 'Ghi lại ngôn ngữ, nghề thủ công, lễ hội và cảnh quan trước khi chúng chỉ còn trong ký ức' }],
     ['nature', 'hero', { title: 'Nhật ký thiên nhiên', subtitle: 'Chia sẻ khoảnh khắc và ghi chép xanh của bạn' }],
     ['nature', 'guidelines', {
         title: 'Gợi ý ghi chép',

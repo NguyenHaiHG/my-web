@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
 import {
   User, LogOut, Menu, X, MessageCircle, House, BookOpen, Phone, Mail,
-  Upload, Plus, LayoutDashboard, WifiOff, Save, GraduationCap, Map, Leaf, MoreHorizontal, Eye, EyeOff
+  Upload, Plus, LayoutDashboard, WifiOff, Save, GraduationCap, Map, Leaf, Landmark, MoreHorizontal, Eye, EyeOff
 } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider, useData } from './context/DataContext'
@@ -24,6 +24,7 @@ import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import ToursPage from './pages/ToursPage'
 import ProductsPage from './pages/ProductsPage'
+import HeritagePage from './pages/HeritagePage'
 import PageContentShell from './components/PageContentShell'
 import { CMS_SECTIONS } from './config/cmsSections'
 import { uploadImageDataUrl } from './utils/uploadImage'
@@ -389,9 +390,10 @@ function Header({ globalContent = {} }) {
   const headerContent = globalContent.header || {}
 
   const links = [
-    { to: '/tours', label: 'Tours' },
-    { to: '/san-pham', label: 'Sản phẩm' },
+    { to: '/tours', label: t('nav_kham_pha_short') },
     { to: '/workshop', label: 'Workshop' },
+    { to: '/so-hoa-di-san', label: t('nav_so_hoa') },
+    { to: '/san-pham', label: t('nav_shop_short') },
     { to: '/lien-he', label: t('nav_contact') },
   ]
 
@@ -598,16 +600,18 @@ function MobileAppDock() {
 
   const mainItems = [
     { to: '/', label: 'Home', icon: <House size={18} />, match: p => p === '/' },
+    { to: '/tours', label: 'Khám phá', icon: <Map size={18} />, match: p => p === '/tours' || p === '/ha-giang-loop' },
+    { to: '/so-hoa-di-san', label: 'Số hoá', icon: <Landmark size={18} />, match: p => p === '/so-hoa-di-san' || p === '/thu-vien' },
     { to: '/workshop', label: 'Workshop', icon: <GraduationCap size={18} />, match: p => p === '/workshop' },
-    { to: '/ha-giang-loop', label: 'Loop Tour', icon: <Map size={18} />, match: p => p === '/ha-giang-loop' },
-    { to: '/ho-chieu', label: 'Passport', icon: <BookOpen size={18} />, match: p => p === '/ho-chieu' },
   ]
 
   const moreItems = [
-    { to: '/tours', label: 'Tours', icon: <Map size={18} /> },
-    { to: '/san-pham', label: 'Sản phẩm', icon: <BookOpen size={18} /> },
+    { to: '/ha-giang-loop', label: 'Loop Tour', icon: <Map size={18} /> },
+    { to: '/ho-chieu', label: 'Hộ chiếu', icon: <BookOpen size={18} /> },
     { to: '/thu-vien', label: 'Thư viện', icon: <BookOpen size={18} /> },
-    { to: '/nhat-ky-thien-nhien', label: 'Nhật Ký TN', icon: <Leaf size={18} /> },
+    { to: '/nhat-ky-thien-nhien', label: 'Nhật ký TN', icon: <Leaf size={18} /> },
+    { to: '/san-pham', label: 'Cửa hàng', icon: <BookOpen size={18} /> },
+    { to: '/blog', label: 'Blog', icon: <BookOpen size={18} /> },
     { to: '/penpal', label: 'Penpal', icon: <Mail size={18} /> },
     { to: '/lien-he', label: 'Liên hệ', icon: <Phone size={18} /> },
   ]
@@ -688,6 +692,7 @@ function AppInner() {
           <Route path="/verify/:certCode" element={<VerifyCertificatePage />} />
           <Route path="/nhat-ky-thien-nhien" element={<PageContentShell page="nature" sections={CMS_SECTIONS.nature}><NatureMemoryPage /></PageContentShell>} />
           <Route path="/thu-vien" element={<PageContentShell page="library"><LibraryPage /></PageContentShell>} />
+          <Route path="/so-hoa-di-san" element={<PageContentShell page="heritage" sections={CMS_SECTIONS.heritage}><HeritagePage /></PageContentShell>} />
           <Route path="/penpal" element={<PageContentShell page="penpal" sections={CMS_SECTIONS.penpal}><PenpalPage /></PageContentShell>} />
           <Route path="/blog" element={<PageContentShell page="blog"><BlogPage /></PageContentShell>} />
           <Route path="/blog/:id" element={<PageContentShell page="blog-post"><BlogPostPage /></PageContentShell>} />
@@ -698,14 +703,12 @@ function AppInner() {
         <div className="footer-inner">
           <p>🌿 <strong>{footerContent.title || 'BookHaGiang'}</strong> – {footerContent.body || 'HTX Thương mại Sáng tạo Trường Hải, Hà Giang 2, Tuyên Quang, Việt Nam'}</p>
           <div className="footer-links">
-            <Link to="/tours">Tours</Link>
-            <Link to="/san-pham">Sản phẩm</Link>
+            <Link to="/tours">{t('nav_kham_pha_short')}</Link>
             <Link to="/workshop">Workshop</Link>
-            <Link to="/ha-giang-loop">Loop Tour</Link>
-            <Link to="/ho-chieu">Hộ chiếu</Link>
-            <Link to="/thu-vien">Thư viện</Link>
-            <Link to="/nhat-ky-thien-nhien">Nhật Ký TN</Link>
-            <Link to="/lien-he">Liên hệ</Link>
+            <Link to="/so-hoa-di-san">{t('nav_so_hoa')}</Link>
+            <Link to="/thu-vien">{t('home_nav_library')}</Link>
+            <Link to="/san-pham">{t('nav_shop_short')}</Link>
+            <Link to="/lien-he">{t('nav_contact')}</Link>
           </div>
           <p>📞 <a href="tel:0385737705">0385.737.705</a> &nbsp;·&nbsp; <a href="https://wa.me/84385737705" target="_blank" rel="noreferrer">💬 WhatsApp</a> &nbsp;·&nbsp; {t('footer_copy')}</p>
         </div>

@@ -36,12 +36,12 @@ const PRODUCTS_SAMPLE = [
 ]
 
 const TABS = [
-    { id: 'discover', label: 'Discover', icon: '🗺️' },
-    { id: 'create', label: 'Create', icon: '🎨' },
-    { id: 'shop', label: 'Shop', icon: '🛍️' },
-    { id: 'sales', label: 'Bán hàng', icon: '💵' },
-    { id: 'service', label: 'Service', icon: '🛎️' },
-    { id: 'blog', label: 'Blog', icon: '📝' },
+    { id: 'discover', label: 'Khám phá', icon: '🗺️' },
+    { id: 'workshop', label: 'Workshop', icon: '🎓' },
+    { id: 'heritage', label: 'Số hoá', icon: '🏛️' },
+    { id: 'shop', label: 'Cửa hàng', icon: '🛍️' },
+    { id: 'service', label: 'Dịch vụ', icon: '🛎️' },
+    { id: 'community', label: 'Cộng đồng', icon: '💬' },
 ]
 
 const INC_LABELS = {
@@ -369,11 +369,11 @@ export default function QuickMenu() {
                         </div>
                     )}
 
-                    {/* ─── CREATE ─── */}
-                    {tab === 'create' && (
+                    {/* ─── WORKSHOP ─── */}
+                    {tab === 'workshop' && (
                         <div className="qm-panel">
                             <p className="qm-panel-desc">
-                                �️ Workshop văn hoá bản địa — trải nghiệm thực tế do cộng đồng tổ chức
+                                🎓 Workshop văn hoá bản địa — trải nghiệm thực tế do cộng đồng tổ chức
                             </p>
                             <div className="qm-create-grid">
                                 {WORKSHOPS_SAMPLE.map((w, i) => (
@@ -386,6 +386,30 @@ export default function QuickMenu() {
                             </div>
                             <button className="btn3d btn3d-green btn-full" onClick={() => go('/workshop')}>
                                 Xem tất cả workshop <ArrowRight size={15} />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* ─── HERITAGE ─── */}
+                    {tab === 'heritage' && (
+                        <div className="qm-panel">
+                            <p className="qm-panel-desc">🏛️ Số hoá di sản — ghi lại ngôn ngữ, nghề, lễ hội và cảnh quan trước khi chúng chỉ còn trong ký ức.</p>
+                            <div className="qm-create-grid">
+                                {[
+                                    { icon: '📚', name: 'Thư viện số', sub: 'Kho tri thức bản địa', path: '/thu-vien' },
+                                    { icon: '🌿', name: 'Nhật ký thiên nhiên', sub: 'Ghi chép bảo tồn cộng đồng', path: '/nhat-ky-thien-nhien' },
+                                    { icon: '🎖️', name: 'Hộ chiếu QR', sub: 'Kể chuyện tại điểm di sản', path: '/ho-chieu' },
+                                    { icon: '🎓', name: 'Workshop sống', sub: 'Học trực tiếp từ nghệ nhân', path: '/workshop' },
+                                ].map((item, i) => (
+                                    <div key={i} className="qm-create-card" onClick={() => go(item.path)}>
+                                        <span className="qm-create-icon">{item.icon}</span>
+                                        <div><strong>{item.name}</strong><p>{item.sub}</p></div>
+                                        <ChevronRight size={14} color="#c2410c" />
+                                    </div>
+                                ))}
+                            </div>
+                            <button className="btn3d btn3d-orange btn-full" onClick={() => go('/so-hoa-di-san')}>
+                                Xem chương trình số hoá <ArrowRight size={15} />
                             </button>
                         </div>
                     )}
@@ -411,26 +435,13 @@ export default function QuickMenu() {
                             <button className="btn3d btn3d-orange btn-full" onClick={() => go('/san-pham')}>
                                 Xem tất cả sản phẩm <ArrowRight size={15} />
                             </button>
+                            <a href="tel:0385737705" className="btn3d btn3d-green btn-full"
+                                style={{ marginTop: 10, textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
+                                <Phone size={15} /> Đặt hàng: 0385.737.705
+                            </a>
                         </div>
                     )}
 
-                    {/* ─── SALES ─── */}
-                    {tab === 'sales' && (
-                        <div className="qm-panel">
-                            <p className="qm-panel-desc">💵 Bán hàng: Đặt mua sản phẩm, thanh toán và quản lý đơn hàng trực tuyến.</p>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                <button className="btn3d btn3d-orange btn-full" onClick={() => go('/san-pham')}>
-                                    Xem sản phẩm <ArrowRight size={15} />
-                                </button>
-                                <button className="btn3d btn3d-green btn-full" onClick={() => go('/order')}>
-                                    Đơn hàng của tôi <ArrowRight size={15} />
-                                </button>
-                                <button className="btn3d btn3d-blue btn-full" onClick={() => go('/manage-cart')}>
-                                    Quản lý giỏ hàng <ArrowRight size={15} />
-                                </button>
-                            </div>
-                        </div>
-                    )}
                     {/* ─── SERVICE ─── */}
                     {tab === 'service' && (
                         <div className="qm-panel">
@@ -456,10 +467,22 @@ export default function QuickMenu() {
                         </div>
                     )}
 
-                    {/* ─── BLOG ─── */}
-                    {tab === 'blog' && (
+                    {/* ─── COMMUNITY ─── */}
+                    {tab === 'community' && (
                         <div className="qm-panel">
-                            <p className="qm-panel-desc">📝 Câu chuyện &amp; hành trình từ cộng đồng</p>
+                            <p className="qm-panel-desc">💬 Câu chuyện, penpal và kết nối cộng đồng</p>
+                            <div className="qm-create-grid" style={{ marginBottom: 14 }}>
+                                <div className="qm-create-card" onClick={() => go('/penpal')}>
+                                    <span className="qm-create-icon">✉️</span>
+                                    <div><strong>Penpal</strong><p>Kết nối bạn văn hoá</p></div>
+                                    <ChevronRight size={14} color="#f97316" />
+                                </div>
+                                <div className="qm-create-card" onClick={() => go('/lien-he')}>
+                                    <span className="qm-create-icon">📞</span>
+                                    <div><strong>Liên hệ</strong><p>Zalo · WhatsApp · Dorm</p></div>
+                                    <ChevronRight size={14} color="#f97316" />
+                                </div>
+                            </div>
                             {posts.length > 0 ? posts.slice(0, 5).map(post => (
                                 <div key={post.id} className="qm-blog-card"
                                     onClick={() => go('/blog/' + post.id)}>

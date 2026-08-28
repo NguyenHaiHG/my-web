@@ -12,6 +12,14 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const QUICK_CARDS = [
     {
+        emoji: '🏛️',
+        title: 'Số hoá di sản',
+        desc: 'Ghi lại ngôn ngữ, thổ cẩm, lễ hội và cảnh quan Hà Giang — thư viện số, nhật ký thiên nhiên và hộ chiếu QR.',
+        path: '/so-hoa-di-san',
+        cta: 'Xem chương trình →',
+        highlight: true,
+    },
+    {
         emoji: '🧵',
         title: 'Workshop Văn Hoá',
         desc: 'Thêu thổ cẩm, nấu ăn bản địa, nhạc cụ dân tộc — trải nghiệm văn hoá Tày, H\u2019Mông do cộng đồng tổ chức.',
@@ -20,27 +28,19 @@ const QUICK_CARDS = [
         highlight: true,
     },
     {
-        emoji: '🌿',
-        title: 'Học Bảo Tồn Thiên Nhiên',
-        desc: 'Quan sát cây cối, côn trùng, chim chóc trong khu di sản nguyên sinh. Ghi nhật ký, tìm hiểu hệ sinh thái.',
-        path: '/nhat-ky-thien-nhien',
-        cta: 'Mở nhật ký →',
+        emoji: '🗺️',
+        title: 'Khám phá Hà Giang',
+        desc: 'Hà Giang Loop, tour cộng đồng và hộ chiếu số — đi cùng người địa phương, không biến di sản thành sân khấu.',
+        path: '/tours',
+        cta: 'Xem hành trình →',
         highlight: true,
     },
     {
-        emoji: '🛏️',
-        title: 'Dorm Lưu Trú',
-        desc: 'Phòng dorm sạch sẽ, giá tốt ngay tại Phường Hà Giang 2 — cách Ha Giang Loop 500m, gần thiên nhiên, gần cộng đồng.',
-        path: '/lien-he',
-        cta: 'Đặt phòng →',
-        highlight: true,
-    },
-    {
-        emoji: '🎖️',
-        title: 'Hộ Chiếu Hà Giang',
-        desc: 'Tạo hộ chiếu số, quét QR tại các điểm sinh thái, nhận tem & tải chứng nhận hành trình thực tế.',
-        path: '/ho-chieu',
-        cta: 'Tạo hộ chiếu →',
+        emoji: '🛍️',
+        title: 'Cửa hàng & lưu trú',
+        desc: 'Thổ cẩm, đặc sản địa phương và dorm tại Phường Hà Giang 2 — gần Loop, gần cộng đồng.',
+        path: '/san-pham',
+        cta: 'Xem cửa hàng →',
         highlight: false,
     },
 ]
@@ -75,7 +75,7 @@ export default function HomePage({ siteContent = {} }) {
     const [heroImages, setHeroImages] = useState(HERO_IMAGES_DEFAULT)
     const [heroIdx, setHeroIdx] = useState(0)
     const cmsHero = siteContent.hero || {}
-    const quickCards = highlights?.items?.length
+    const mappedCards = highlights?.items?.length
         ? highlights.items.map(item => ({
             id: item.id || item._id,
             emoji: item.emoji || '🌿',
@@ -86,6 +86,10 @@ export default function HomePage({ siteContent = {} }) {
             highlight: item.highlight !== false,
         }))
         : QUICK_CARDS
+    const heritageCard = QUICK_CARDS[0]
+    const quickCards = mappedCards.some(card => card.path === '/so-hoa-di-san')
+        ? mappedCards
+        : [heritageCard, ...mappedCards].slice(0, 4)
 
     useEffect(() => {
         setHighlights(siteContent.highlights || null)
@@ -197,7 +201,7 @@ export default function HomePage({ siteContent = {} }) {
                     <h1><span className="ng-hl">{cmsHero.title || t('hp_h1_hl')}</span></h1>
                     <p>{cmsHero.subtitle || cmsHero.body || t('hp_hero_sub')}</p>
                     <div className="ng-hero-btns">
-                        <button className="btn3d btn3d-orange" onClick={() => navigate(cmsHero.buttonHref || '/thu-vien')}>
+                        <button className="btn3d btn3d-orange" onClick={() => navigate(cmsHero.buttonHref || '/so-hoa-di-san')}>
                             {cmsHero.buttonLabel || t('hp_hero_btn1')} <ArrowRight size={16} />
                         </button>
                         <button className="btn3d btn3d-outline-white" onClick={() => navigate('/lien-he')}>
@@ -253,7 +257,7 @@ export default function HomePage({ siteContent = {} }) {
             <section className="container py-section" style={{ marginTop: 8 }}>
                 <div className="section-header-center" style={{ marginBottom: 16 }}>
                     <h2 style={{ marginBottom: 6 }}>Bạn muốn trải nghiệm gì?</h2>
-                    <p style={{ color: '#64748b', margin: 0 }}>Workshop · Thiên nhiên · Lưu trú · Hành trình — chọn điều phù hợp với bạn.</p>
+                    <p style={{ color: '#64748b', margin: 0 }}>Số hoá di sản · Workshop · Khám phá · Cửa hàng — chọn điều phù hợp với bạn.</p>
                     {isAdmin && (
                         <button className="btn3d btn3d-green btn-sm" style={{ marginTop: 12 }} onClick={() => setCardEditor({ mode: 'new' })}>
                             <Plus size={14} /> Thêm thẻ trải nghiệm
@@ -301,14 +305,14 @@ export default function HomePage({ siteContent = {} }) {
                     <h2>{t('hp_cta_h2')}</h2>
                     <p>{t('hp_cta_sub')}</p>
                     <div className="ng-cta-btns">
-                        <button className="btn3d btn3d-orange" onClick={() => navigate('/workshop')}>
-                            <Leaf size={16} /> Đặt Workshop
+                        <button className="btn3d btn3d-orange" onClick={() => navigate('/so-hoa-di-san')}>
+                            <Leaf size={16} /> Số hoá di sản
                         </button>
-                        <button className="btn3d btn3d-blue" onClick={() => navigate('/lien-he')}>
-                            <Heart size={16} /> Đặt phòng dorm
+                        <button className="btn3d btn3d-blue" onClick={() => navigate('/workshop')}>
+                            <Heart size={16} /> Đặt workshop
                         </button>
-                        <button className="btn3d btn3d-outline-white" onClick={() => navigate('/nhat-ky-thien-nhien')}>
-                            🌿 Nhật ký thiên nhiên
+                        <button className="btn3d btn3d-outline-white" onClick={() => navigate('/tours')}>
+                            🗺️ Khám phá Hà Giang
                         </button>
                     </div>
                 </div>

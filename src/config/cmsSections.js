@@ -72,4 +72,21 @@ export const CMS_SECTIONS = {
       fields: [{ key: 'title', label: 'Tiêu đề' }, { key: 'body', label: 'Nội dung', type: 'textarea' }, { key: 'image', label: 'Ảnh', type: 'image' }],
     },
   },
+  heritage: {
+    pillars: {
+      label: 'Chúng tôi số hoá', type: 'list', itemLabel: 'Nhóm di sản',
+      fields: [
+        { key: 'emoji', label: 'Biểu tượng' }, { key: 'title', label: 'Tiêu đề' },
+        { key: 'body', label: 'Mô tả', type: 'textarea' },
+      ],
+    },
+    tools: {
+      label: 'Công cụ số hoá', type: 'list', itemLabel: 'Công cụ',
+      fields: [
+        { key: 'emoji', label: 'Biểu tượng' }, { key: 'title', label: 'Tiêu đề' },
+        { key: 'body', label: 'Mô tả', type: 'textarea' },
+        { key: 'buttonLabel', label: 'Nhãn nút' }, { key: 'buttonHref', label: 'Liên kết' },
+      ],
+    },
+  },
 }
