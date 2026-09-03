@@ -1,10 +1,11 @@
 services:
   - type: web
     name: hagiang-backend
-    env: node
+    runtime: node
     region: singapore
     plan: free
-    buildCommand: npm install && npm install --prefix backend && npm run build
+    rootDir: backend
+    buildCommand: npm install && npm run build:frontend
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -20,7 +21,7 @@ services:
       - key: PUBLIC_API_URL
         value: https://bookhagiang.com
       - key: JWT_SECRET
-        generateValue: true
+        sync: false
       - key: JWT_EXPIRES_IN
         value: 8h
       - key: ADMIN_USERNAME

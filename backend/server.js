@@ -105,6 +105,10 @@ app.use((req, res, next) => {
         return res.status(404).json({ error: 'Not found' })
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+    // Do not serve index.html for missing CSS/JS — that breaks the SPA with a MIME error.
+    if (path.extname(req.path)) {
+        return res.status(404).type('text').send('Not found')
+    }
     res.sendFile(path.join(DIST, 'index.html'), (err) => {
         if (err) {
             res.status(503).type('text').send('Website chưa được build. Chạy npm run build ở thư mục gốc.')
