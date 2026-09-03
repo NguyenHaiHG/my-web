@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <title>HTX Trường Hải</title>
+    <script>
+        // Fix cho GitHub Pages + React Router (SPA redirect trick)
+        // Khi reload /blog, /tours... GitHub Pages trả 404
+        // Script này lưu path vào sessionStorage rồi redirect về /
+        var l = window.location;
+        sessionStorage.setItem('redirect', l.pathname + l.search + l.hash);
+        l.replace(l.protocol + '//' + l.host + l.pathname.split('/')[0]);
+    </script>
+</head>
+
+<body></body>
+
+</html>

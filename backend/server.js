@@ -1,9 +1,13 @@
 const path = require('path')
+const fs = require('fs')
 require('dotenv').config({ path: path.join(__dirname, '.env') })
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
-const DIST = path.resolve(__dirname, '..', 'dist')
+const DIST = [
+    path.resolve(__dirname, 'client'),
+    path.resolve(__dirname, '..', 'dist'),
+].find((dir) => fs.existsSync(path.join(dir, 'index.html'))) || path.resolve(__dirname, 'client')
 const { MongoMemoryServer } = require('mongodb-memory-server')
 
 const toursRouter = require('./routes/tours')
