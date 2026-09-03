@@ -9,14 +9,16 @@ const clientIndex = path.join(clientDir, 'index.html')
 const distDir = path.join(repoRoot, 'dist')
 
 try {
-    execSync('npm install --include=dev', { cwd: repoRoot, stdio: 'inherit', env: { ...process.env, NODE_ENV: 'development' } })
-    execSync('npm run build', { cwd: repoRoot, stdio: 'inherit' })
+    execSync('npx vite build', { cwd: repoRoot, stdio: 'inherit' })
+    if (!fs.existsSync(path.join(distDir, 'index.html'))) {
+        throw new Error('vite build did not produce dist/index.html')
+    }
     fs.rmSync(clientDir, { recursive: true, force: true })
     fs.cpSync(distDir, clientDir, { recursive: true })
     console.log('Frontend built into backend/client')
 } catch (err) {
     if (fs.existsSync(clientIndex)) {
-        console.warn('Frontend build failed; using committed backend/client instead.')
+        console.warn('Frontend build skipped; using committed backend/client.')
         console.warn(String(err && err.message ? err.message : err))
         process.exit(0)
     }
