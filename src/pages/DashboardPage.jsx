@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
 import { useOrder } from '../context/OrderContext'
 import { useUI } from '../context/UIContext'
-import { apiFetch, responseError } from '../utils/api'
+import { API, apiFetch, responseError } from '../utils/api'
 import AdminSiteImages from '../components/AdminSiteImages'
 import AdminNatureMemory from '../components/AdminNatureMemory'
 import AdminHomeFilmStrip from '../components/AdminHomeFilmStrip'
@@ -67,10 +67,10 @@ function Overview({ orders, setSection }) {
             </div>
             <div className="db-inline-edit-guide">
                 <h3>Chỉnh nội dung công khai</h3>
-                <p>Chọn “Nội dung từng trang” trong menu để thêm, sửa, xóa Workshop, Liên hệ và Hà Giang Loop ngay tại Dashboard.</p>
+                <p>Trang Số hoá di sản là nội dung thi: sửa đầy đủ mục (vấn đề, nguyên tắc, cộng đồng, quy trình, tác động) trong “Nội dung từng trang”, hoặc đăng nhập admin rồi sửa trực tiếp trên từng trang.</p>
                 <div className="db-guide-links">
-                    <Link to="/">Trang chủ</Link><Link to="/workshop">Workshop</Link><Link to="/ha-giang-loop">Hà Giang Loop</Link>
-                    <Link to="/blog">Blog</Link><Link to="/thu-vien">Thư viện</Link><Link to="/lien-he">Liên hệ</Link>
+                    <Link to="/so-hoa-di-san">Số hoá di sản</Link><Link to="/">Trang chủ</Link><Link to="/workshop">Workshop</Link>
+                    <Link to="/thu-vien">Thư viện</Link><Link to="/ha-giang-loop">Hà Giang Loop</Link><Link to="/lien-he">Liên hệ</Link>
                 </div>
             </div>
         </div>
@@ -195,7 +195,7 @@ function EcoPanel({ showToast }) {
     const [form, setForm] = useState({ code: '', name: '', district: '', type: 'cultural-site', ecoPoints: 10 })
     const [editingSite, setEditingSite] = useState(null)
 
-    const load = () => fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/eco-system/sites`)
+    const load = () => fetch(`${API}/api/eco-system/sites`)
         .then(response => response.ok ? response.json() : [])
         .then(setSites)
         .catch(() => setSites([]))
@@ -270,20 +270,21 @@ function EcoPanel({ showToast }) {
 }
 
 const PAGE_CONTENT_TABS = [
+    { key: 'heritage', label: 'Số hoá di sản', page: 'heritage', path: '/so-hoa-di-san', sections: CMS_SECTIONS.heritage, legacyKeys: ['hero'] },
+    { key: 'home', label: 'Trang chủ', page: 'home', path: '/', sections: CMS_SECTIONS.home },
     { key: 'workshop', label: 'Workshop', page: 'workshop', path: '/workshop', sections: {} },
-    { key: 'heritage', label: 'Số hoá di sản', page: 'heritage', path: '/so-hoa-di-san', sections: CMS_SECTIONS.heritage },
     { key: 'contact', label: 'Liên hệ', page: 'contact', path: '/lien-he', sections: CMS_SECTIONS.contact },
     { key: 'ha-giang-loop', label: 'Hà Giang Loop', page: 'ha-giang-loop', path: '/ha-giang-loop', sections: CMS_SECTIONS['ha-giang-loop'] },
 ]
 
 function PageContentHub({ data, setAdminModal, setEditItem, showToast }) {
-    const [activePage, setActivePage] = useState('workshop')
+    const [activePage, setActivePage] = useState('heritage')
     const config = PAGE_CONTENT_TABS.find(item => item.key === activePage) || PAGE_CONTENT_TABS[0]
 
     return (
         <div>
             <h2 className="db-section-title">Nội dung từng trang</h2>
-            <p className="db-section-hint">Thêm, sửa và xóa section hoặc từng mục; thay đổi được lưu cùng API với trình chỉnh sửa trực tiếp.</p>
+            <p className="db-section-hint">Số hoá di sản: thêm, sửa, xoá, đổi thứ tự từng mục (vấn đề, nguyên tắc, cộng đồng, nhóm di sản, công cụ, quy trình, tác động, kêu gọi) — lưu thẳng lên server. Trang chủ: sửa nút hero và thẻ trải nghiệm.</p>
             <div className="db-guide-links" style={{ marginBottom: 18 }}>
                 {PAGE_CONTENT_TABS.map(item => (
                     <button key={item.key} className={`btn3d btn-sm ${activePage === item.key ? 'btn3d-green' : 'btn3d-gray'}`} onClick={() => setActivePage(item.key)}>
@@ -291,7 +292,7 @@ function PageContentHub({ data, setAdminModal, setEditItem, showToast }) {
                     </button>
                 ))}
             </div>
-            <PageContentAdminPanel key={config.page} page={config.page} sections={config.sections} title={config.label} publicPath={config.path} />
+            <PageContentAdminPanel key={config.page} page={config.page} sections={config.sections} title={config.label} publicPath={config.path} legacyKeys={config.legacyKeys} />
             {activePage === 'workshop' && (
                 <div style={{ marginTop: 20 }}>
                     <ContentInventory data={data} setAdminModal={setAdminModal} setEditItem={setEditItem} showToast={showToast} initialType="workshop" />

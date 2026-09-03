@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Upload, Trash2, ImagePlus } from 'lucide-react'
 import { useUI } from '../context/UIContext'
 import { compressImageFile, uploadImageDataUrl } from '../utils/uploadImage'
-import { apiFetch } from '../utils/api'
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { API, apiFetch } from '../utils/api'
 
 const CATEGORIES = [
     { id: 'plant', label: '🌱 Thực vật' },

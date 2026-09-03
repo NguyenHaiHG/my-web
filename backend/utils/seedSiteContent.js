@@ -5,8 +5,8 @@ const CONTENT_SEED_VERSION = 1
 const defaults = [
     ['home', 'hero', {
         title: 'Hợp tác xã Trường Hải',
-        subtitle: 'Chạm vào thiên nhiên, sống cùng bản sắc Hà Giang',
-        buttonLabel: 'Khám phá ngay',
+        subtitle: 'Bảo tồn văn hoá sống — số hoá di sản cùng cộng đồng Hà Giang',
+        buttonLabel: 'Số hoá di sản',
         buttonHref: '/so-hoa-di-san',
     }],
     ['home', 'highlights', {
@@ -29,7 +29,80 @@ const defaults = [
     }],
     ['blog', 'hero', { title: 'Câu chuyện từ Hà Giang', subtitle: 'Con người, văn hóa và những hành trình bền vững' }],
     ['library', 'hero', { title: 'Thư viện xanh', subtitle: 'Tài liệu và câu chuyện dành cho cộng đồng' }],
-    ['heritage', 'hero', { title: 'Số hoá di sản Hà Giang', subtitle: 'Ghi lại ngôn ngữ, nghề thủ công, lễ hội và cảnh quan trước khi chúng chỉ còn trong ký ức' }],
+    ['heritage', 'hero', {
+        title: 'Số hoá di sản Hà Giang',
+        subtitle: 'Ghi lại ngôn ngữ, nghề thủ công, lễ hội và cảnh quan — để cộng đồng vẫn kể được câu chuyện của mình, không biến di sản thành sân khấu.',
+        buttonLabel: 'Mở thư viện số',
+        buttonHref: '/thu-vien',
+    }],
+    ['heritage', 'why', {
+        kicker: 'Vấn đề',
+        title: 'Di sản đang biến mất nhanh hơn ta kể lại',
+        body: 'Tại Hà Giang 1, Hà Giang 2 và Tổ 5 phường Quang Trung, tri thức Tày, H’Mông, Dao, Lô Lô vẫn sống trong lời kể, hoa văn thổ cẩm, bài then và mâm cơm — nhưng phần lớn chưa được ghi lại có hệ thống. Đô thị hoá, thế hệ nghệ nhân già đi, và nhiều tri thức chỉ tồn tại miệng.',
+        body2: 'HTX Trường Hải số hoá để cộng đồng làm chủ kho tư liệu của mình: lưu trữ, gắn câu chuyện vào đúng nơi nó thuộc về, rồi đưa tri thức trở lại đời sống qua workshop, nhật ký thiên nhiên và hộ chiếu QR — không đóng khung di sản trong bảo tàng.',
+    }],
+    ['heritage', 'principles', {
+        title: 'Nguyên tắc',
+        items: [
+            { id: 'hd-pr-consent', emoji: '🤝', title: 'Đồng thuận trước khi ghi', body: 'Thu âm, chụp, quay chỉ khi nghệ nhân và gia đình đồng ý. Người kể được ghi tên, ngữ cảnh và quyền rút tư liệu.', sortOrder: 0 },
+            { id: 'hd-pr-own', emoji: '🏠', title: 'Cộng đồng làm chủ dữ liệu', body: 'Kho số không phải của khách du lịch. HTX giữ hộ; cộng đồng quyết định mục nào công khai, mục nào chỉ dùng nội bộ.', sortOrder: 1 },
+            { id: 'hd-pr-live', emoji: '🔥', title: 'Di sản sống, không sân khấu', body: 'Số hoá đi cùng thực hành: thêu, nấu, then, xòe. Không tách hoa văn khỏi người làm nghề, không biến lễ hội thành show.', sortOrder: 2 },
+            { id: 'hd-pr-open', emoji: '🌐', title: 'Mở, song ngữ, gắn với nơi chốn', body: 'Tư liệu gắn QR tại làng nghề, chợ phiên, chùa và điểm sinh thái. Việt — Anh để thế hệ trẻ và khách hiểu đúng ngữ cảnh.', sortOrder: 3 },
+        ],
+    }],
+    ['heritage', 'communities', {
+        title: 'Cộng đồng',
+        items: [
+            { id: 'hd-c-tay', emoji: '🏡', title: 'Tày', body: 'Then, xòe, nhà sàn, ẩm thực bản địa và câu chuyện gia đình quanh Tổ 5 Quang Trung — Hà Giang 2.', tags: ['Then', 'Xòe', 'Nhà sàn', 'Ẩm thực'], sortOrder: 0 },
+            { id: 'hd-c-hmong', emoji: '🧵', title: 'H’Mông', body: 'Thổ cẩm, thêu, khèn và Gầu Tào. Hoa văn, quy trình nhuộm/thêu và người làm nghề được lưu cùng nhau.', tags: ['Thổ cẩm', 'Khèn', 'Gầu Tào'], sortOrder: 1 },
+            { id: 'hd-c-dao', emoji: '👘', title: 'Dao', body: 'Lễ cấp sắc, trang phục, bài cúng và tri thức rừng — ghi với sự đồng thuận của già làng và gia đình.', tags: ['Cấp sắc', 'Trang phục', 'Tri thức rừng'], sortOrder: 2 },
+            { id: 'hd-c-lolo', emoji: '🥁', title: 'Lô Lô', body: 'Cộng đồng ít người; trang phục, lễ hội và lời kể cần được lưu trước khi khoảng trống thế hệ rộng thêm.', tags: ['Trang phục', 'Lễ hội', 'Lời kể'], sortOrder: 3 },
+        ],
+    }],
+    ['heritage', 'pillars', {
+        title: 'Chúng tôi số hoá',
+        items: [
+            { id: 'home-heritage-lang', emoji: '🗣️', title: 'Ngôn ngữ & lời kể', body: 'Từ ngữ Tày, H’Mông, Dao, Lô Lô; cách phát âm, truyện cổ, câu chuyện gia đình. Mỗi bản ghi kèm người kể, nơi chốn và ngữ cảnh — không tách lời khỏi người.', sortOrder: 0 },
+            { id: 'home-heritage-craft', emoji: '🧵', title: 'Nghề & hoa văn', body: 'Thổ cẩm, thêu, khèn, then: hoa văn, quy trình, dụng cụ và nghệ nhân. Thư viện số lưu cả “làm thế nào” chứ không chỉ ảnh đẹp.', sortOrder: 1 },
+            { id: 'home-heritage-fest', emoji: '🍜', title: 'Lễ hội & ẩm thực', body: 'Gầu Tào, then, xòe, mâm cơm bản địa: ảnh, video, công thức và thứ tự nghi lễ để thế hệ sau vẫn nấu và tổ chức được.', sortOrder: 2 },
+            { id: 'home-heritage-land', emoji: '🌿', title: 'Cảnh quan sống', body: 'Nhật ký thiên nhiên, điểm di sản QR và hộ chiếu số — gắn câu chuyện với làng nghề, chợ phiên, chùa, nương và khu sinh thái Tổ 5.', sortOrder: 3 },
+        ],
+    }],
+    ['heritage', 'tools', {
+        title: 'Công cụ',
+        items: [
+            { id: 'hd-tool-lib', emoji: '📚', title: 'Thư viện số', body: 'Kho tri thức bản địa: ngôn ngữ, văn hoá, thủ công, ẩm thực và truyện cổ — phân loại theo dân tộc, chủ đề và ngữ cảnh.', buttonLabel: 'Vào thư viện', buttonHref: '/thu-vien', sortOrder: 0 },
+            { id: 'hd-tool-nature', emoji: '🌿', title: 'Nhật ký thiên nhiên', body: 'Cộng đồng ghi loài cây, chim, côn trùng tại khu di sản. Dữ liệu bảo tồn cảnh quan, không chỉ ảnh du lịch.', buttonLabel: 'Mở nhật ký', buttonHref: '/nhat-ky-thien-nhien', sortOrder: 1 },
+            { id: 'hd-tool-pass', emoji: '🎖️', title: 'Hộ chiếu QR', body: 'Quét tem tại làng văn hoá, chợ phiên, chùa, nông trại chè và điểm sinh thái — mở câu chuyện đúng nơi di sản đang sống.', buttonLabel: 'Tạo hộ chiếu', buttonHref: '/ho-chieu', sortOrder: 2 },
+            { id: 'hd-tool-ws', emoji: '🎓', title: 'Workshop sống', body: 'Học thêu, nấu, nhạc cụ với nghệ nhân. Số hoá không thay thực hành — khách học, cộng đồng giữ nghề, kho số được bổ sung.', buttonLabel: 'Xem workshop', buttonHref: '/workshop', sortOrder: 3 },
+        ],
+    }],
+    ['heritage', 'steps', {
+        title: 'Quy trình',
+        items: [
+            { id: 'hd-s1', n: '01', icon: '🎙️', title: 'Ghi cùng cộng đồng', body: 'Thu âm, chụp, quay tại chỗ với sự đồng ý. Ghi rõ người kể, dân tộc, địa điểm và mục đích sử dụng.', sortOrder: 0 },
+            { id: 'hd-s2', n: '02', icon: '📚', title: 'Lưu vào thư viện', body: 'Phân loại theo dân tộc, chủ đề, phát âm và ngữ cảnh. Mục nhạy cảm có thể chỉ dùng nội bộ.', sortOrder: 1 },
+            { id: 'hd-s3', n: '03', icon: '🔳', title: 'Gắn QR tại điểm', body: 'Du khách và người dân mở tư liệu tại làng nghề, chợ, chùa, điểm sinh thái — không tách di sản khỏi nơi chốn.', sortOrder: 2 },
+            { id: 'hd-s4', n: '04', icon: '🤝', title: 'Mời đóng góp tiếp', body: 'Nhật ký, penpal, tình nguyện viên và gia đình tiếp tục bổ sung. Kho số là việc làm dài hạn, không phải dự án một lần.', sortOrder: 3 },
+        ],
+    }],
+    ['heritage', 'impact', {
+        title: 'Tác động',
+        items: [
+            { id: 'hd-i1', value: '4', title: 'Dân tộc cùng lưu giữ', body: 'Tày, H’Mông, Dao, Lô Lô — mỗi cộng đồng được ghi với ngữ cảnh riêng, không gộp thành “văn hoá vùng cao”.', sortOrder: 0 },
+            { id: 'hd-i2', value: '7+', title: 'Điểm di sản gắn QR', body: 'Làng văn hoá Lũng Cẩm, chè Shan Tuyết Hoàng Su Phì, chùa Triện, chợ lớn, chợ phiên, không gian Hà Giang 2 và Tổ 5 Quang Trung.', sortOrder: 1 },
+            { id: 'hd-i3', value: '4', title: 'Lớp công cụ trên web', body: 'Thư viện số, nhật ký thiên nhiên, hộ chiếu QR và workshop — một hệ sinh thái, không phải trang giới thiệu.', sortOrder: 2 },
+            { id: 'hd-i4', value: 'Cộng đồng', title: 'Làm chủ kho tư liệu', body: 'HTX giữ hộ; nghệ nhân và gia đình quyết định công khai. Minh chứng cho mô hình bảo tồn do người địa phương dẫn dắt.', sortOrder: 3 },
+        ],
+    }],
+    ['heritage', 'closing', {
+        title: 'Bạn có tư liệu cần giữ lại?',
+        body: 'Ảnh gia đình, bài then, hoa văn thổ cẩm, câu chuyện ông bà — gửi cho HTX Trường Hải để cùng số hoá tử tế, có đồng thuận và gắn đúng nơi chốn.',
+        buttonLabel: 'Liên hệ gửi tư liệu',
+        buttonHref: '/lien-he',
+        button2Label: 'Kết nối penpal',
+        button2Href: '/penpal',
+    }],
     ['nature', 'hero', { title: 'Nhật ký thiên nhiên', subtitle: 'Chia sẻ khoảnh khắc và ghi chép xanh của bạn' }],
     ['nature', 'guidelines', {
         title: 'Gợi ý ghi chép',
@@ -82,6 +155,11 @@ async function seedSiteContent() {
         },
     }))
     if (operations.length) await SiteContent.bulkWrite(operations, { ordered: false })
+
+    await SiteContent.updateOne(
+        { page: 'home', section: 'hero', 'content.buttonLabel': { $in: ['Khám phá ngay', 'Kham pha ngay'] } },
+        { $set: { 'content.buttonLabel': 'Số hoá di sản', 'content.buttonHref': '/so-hoa-di-san' } },
+    )
 }
 
 module.exports = { seedSiteContent, CONTENT_SEED_VERSION }

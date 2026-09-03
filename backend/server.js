@@ -1,7 +1,9 @@
-require('dotenv').config()
+const path = require('path')
+require('dotenv').config({ path: path.join(__dirname, '.env') })
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const DIST = path.resolve(__dirname, '..', 'dist')
 const { MongoMemoryServer } = require('mongodb-memory-server')
 
 const toursRouter = require('./routes/tours')
@@ -48,8 +50,11 @@ app.use(cors({
             'http://localhost:4173',
             'http://127.0.0.1:5173',
             'http://127.0.0.1:4173',
+            'https://bookhagiang.com',
+            'https://www.bookhagiang.com',
             'https://htxtruonghai.com',
             'https://www.htxtruonghai.com',
+            'https://hagiang-backend.onrender.com',
             'https://nguyenhaiHG.github.io',
             process.env.FRONTEND_URL,
         ].filter(Boolean)
@@ -92,6 +97,19 @@ app.use('/api/uploads', uploadsRouter)
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', dbConnected })
+})
+
+app.use(express.static(DIST))
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: 'Not found' })
+    }
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+    res.sendFile(path.join(DIST, 'index.html'), (err) => {
+        if (err) {
+            res.status(503).type('text').send('Website chưa được build. Chạy npm run build ở thư mục gốc.')
+        }
+    })
 })
 
 // Lắng nghe request trước để frontend không bị CORS/network block khi DB đang khởi động.

@@ -84,6 +84,8 @@
 .hd-section-alt > .hd-h2,
 .hd-section-alt > .hd-lead,
 .hd-section-alt > .hd-tool-grid,
+.hd-section-alt > .hd-pillar-grid,
+.hd-section-alt > .hd-steps,
 .hd-section-alt > .hd-preview-grid {
     max-width: 980px;
     margin-left: auto;
@@ -119,6 +121,116 @@
     line-height: 1.65;
     max-width: 680px;
     margin: 0 0 22px;
+}
+
+.hd-lead-2 {
+    margin-top: -8px;
+}
+
+.hd-why-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.hd-why-note,
+.hd-why-photo {
+    margin: 0;
+    background: #fff7ed;
+    border: 1px solid #f0d3b8;
+    border-radius: 18px;
+    padding: 20px 18px;
+}
+
+.hd-why-photo {
+    padding: 0;
+    overflow: hidden;
+    min-height: 220px;
+}
+
+.hd-why-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hd-why-note strong {
+    display: block;
+    color: #9a3412;
+    margin-bottom: 8px;
+}
+
+.hd-why-note p {
+    margin: 0;
+    color: #57534e;
+    line-height: 1.6;
+    font-size: 0.94rem;
+}
+
+.hd-community-grid,
+.hd-impact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.hd-community,
+.hd-impact {
+    background: #fff;
+    border: 1px solid #edd8c4;
+    border-radius: 16px;
+    padding: 18px 16px;
+    box-shadow: 0 6px 18px rgba(120, 53, 15, 0.05);
+}
+
+.hd-community-img {
+    height: 120px;
+    margin: -18px -16px 12px;
+    background: #e7d5c5 center/cover no-repeat;
+    border-radius: 16px 16px 0 0;
+}
+
+.hd-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.hd-tags span {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9a3412;
+    background: #fff7ed;
+    border: 1px solid #f0d3b8;
+    border-radius: 999px;
+    padding: 3px 9px;
+}
+
+.hd-impact-value {
+    display: block;
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #c2410c;
+    line-height: 1.1;
+    margin-bottom: 6px;
+}
+
+.hd-community strong,
+.hd-impact strong {
+    display: block;
+    color: #3f1d0f;
+    margin-bottom: 6px;
+}
+
+.hd-community p,
+.hd-impact p {
+    margin: 0;
+    color: #57534e;
+    font-size: 0.92rem;
+    line-height: 1.55;
 }
 
 .hd-pillar-grid,
@@ -258,11 +370,18 @@
         font-size: 1.55rem;
     }
 
+    .hd-why-grid,
     .hd-pillar-grid,
     .hd-tool-grid,
+    .hd-community-grid,
+    .hd-impact-grid,
     .hd-steps,
     .hd-preview-grid {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .hd-why-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -270,7 +389,9 @@
     .hd-steps,
     .hd-preview-grid,
     .hd-pillar-grid,
-    .hd-tool-grid {
+    .hd-tool-grid,
+    .hd-community-grid,
+    .hd-impact-grid {
         grid-template-columns: 1fr;
     }
 }

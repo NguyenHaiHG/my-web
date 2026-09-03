@@ -7,7 +7,7 @@ import { useOrder } from '../context/OrderContext'
 import InlineSiteImage from '../components/InlineSiteImage'
 import { ListSectionEditor } from '../components/PageContentShell'
 import { CMS_SECTIONS } from '../config/cmsSections'
-import { apiFetch, responseError } from '../utils/api'
+import { API, apiFetch, responseError } from '../utils/api'
 
 /* ── 3D2N Itinerary ─────────────────────────────────── */
 const ITINERARY_3D = [
@@ -136,8 +136,6 @@ const GALLERY_FALLBACK = [
     { src: 'https://images.pexels.com/photos/27568660/pexels-photo-27568660.jpeg?auto=compress&cs=tinysrgb&w=900', caption: 'Thung lũng Hà Giang / Ha Giang Valley' },
     { src: 'https://images.pexels.com/photos/15997684/pexels-photo-15997684.jpeg?auto=compress&cs=tinysrgb&w=900', caption: 'Cột cờ Lũng Cú / Lung Cu Flag Tower' },
 ]
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const TOUR_PACKAGES = {
     '3d2n': {

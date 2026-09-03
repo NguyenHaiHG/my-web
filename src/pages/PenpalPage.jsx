@@ -2,9 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { X, Mail, Camera, Plus, Globe, Heart, Send, Trash2, Edit2 } from 'lucide-react'
 import { uploadImageDataUrl } from '../utils/uploadImage'
 import { useAuth } from '../context/AuthContext'
-import { apiFetch, responseError } from '../utils/api'
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { API, apiFetch, responseError } from '../utils/api'
 
 const FLAG_MAP = {
     'Việt Nam': '🇻🇳', 'Vietnam': '🇻🇳',

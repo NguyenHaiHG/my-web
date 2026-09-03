@@ -5,19 +5,21 @@ services:
     region: singapore
     plan: free
     rootDir: .
-    buildCommand: npm install
+    buildCommand: npm install && npm run build:frontend
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: 22
       - key: PORT
         value: 10000
       - key: MONGODB_URI
-        sync: false        # bạn điền thủ công trên Render dashboard
+        sync: false
       - key: FRONTEND_URL
-        value: https://htxtruonghai.com
+        value: https://bookhagiang.com
       - key: PUBLIC_API_URL
-        value: https://hagiang-backend.onrender.com
+        value: https://bookhagiang.com
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN

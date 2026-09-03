@@ -1,9 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { apiFetch, responseError } from '../utils/api'
+import { API, apiFetch, responseError } from '../utils/api'
 
 const DataContext = createContext(null)
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const mapId = item => ({ ...item, id: item._id || item.id })
 

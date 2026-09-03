@@ -3,9 +3,7 @@ import { X, Plus, ChevronLeft, Trash2, Search, Leaf, Award, Upload, RefreshCw, W
 import './NatureMemory.css'
 import { uploadImageDataUrl } from '../utils/uploadImage'
 import { useAuth } from '../context/AuthContext'
-import { apiFetch } from '../utils/api'
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { API, apiFetch } from '../utils/api'
 
 /* ─────────────────────────────────────────────
    CONSTANTS

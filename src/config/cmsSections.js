@@ -73,19 +73,68 @@ export const CMS_SECTIONS = {
     },
   },
   heritage: {
+    why: {
+      label: 'Vì sao số hoá',
+      fields: [
+        { key: 'kicker', label: 'Nhãn nhỏ' }, { key: 'title', label: 'Tiêu đề' },
+        { key: 'body', label: 'Đoạn 1', type: 'textarea', rows: 6 },
+        { key: 'body2', label: 'Đoạn 2', type: 'textarea', rows: 5 },
+        { key: 'image', label: 'Ảnh', type: 'image' },
+      ],
+    },
+    principles: {
+      label: 'Nguyên tắc', type: 'list', itemLabel: 'Nguyên tắc',
+      fields: [
+        { key: 'emoji', label: 'Biểu tượng' }, { key: 'title', label: 'Tiêu đề' },
+        { key: 'body', label: 'Mô tả', type: 'textarea', rows: 5 },
+      ],
+    },
+    communities: {
+      label: 'Cộng đồng dân tộc', type: 'list', itemLabel: 'Cộng đồng',
+      fields: [
+        { key: 'emoji', label: 'Biểu tượng' }, { key: 'title', label: 'Tên dân tộc' },
+        { key: 'body', label: 'Mô tả', type: 'textarea', rows: 5 },
+        { key: 'tags', label: 'Chủ đề lưu giữ', type: 'tags' },
+        { key: 'image', label: 'Ảnh', type: 'image' },
+      ],
+    },
     pillars: {
       label: 'Chúng tôi số hoá', type: 'list', itemLabel: 'Nhóm di sản',
       fields: [
         { key: 'emoji', label: 'Biểu tượng' }, { key: 'title', label: 'Tiêu đề' },
-        { key: 'body', label: 'Mô tả', type: 'textarea' },
+        { key: 'body', label: 'Mô tả', type: 'textarea', rows: 6 },
+        { key: 'image', label: 'Ảnh', type: 'image' },
       ],
     },
     tools: {
       label: 'Công cụ số hoá', type: 'list', itemLabel: 'Công cụ',
       fields: [
         { key: 'emoji', label: 'Biểu tượng' }, { key: 'title', label: 'Tiêu đề' },
-        { key: 'body', label: 'Mô tả', type: 'textarea' },
+        { key: 'body', label: 'Mô tả', type: 'textarea', rows: 5 },
         { key: 'buttonLabel', label: 'Nhãn nút' }, { key: 'buttonHref', label: 'Liên kết' },
+        { key: 'image', label: 'Ảnh', type: 'image' },
+      ],
+    },
+    steps: {
+      label: 'Quy trình', type: 'list', itemLabel: 'Bước',
+      fields: [
+        { key: 'n', label: 'Số thứ tự' }, { key: 'icon', label: 'Biểu tượng' },
+        { key: 'title', label: 'Tiêu đề' }, { key: 'body', label: 'Mô tả', type: 'textarea', rows: 5 },
+      ],
+    },
+    impact: {
+      label: 'Tác động', type: 'list', itemLabel: 'Chỉ số',
+      fields: [
+        { key: 'value', label: 'Con số / nhãn lớn' }, { key: 'title', label: 'Tiêu đề' },
+        { key: 'body', label: 'Mô tả', type: 'textarea' },
+      ],
+    },
+    closing: {
+      label: 'Kêu gọi gửi tư liệu',
+      fields: [
+        { key: 'title', label: 'Tiêu đề' }, { key: 'body', label: 'Nội dung', type: 'textarea', rows: 5 },
+        { key: 'buttonLabel', label: 'Nút 1' }, { key: 'buttonHref', label: 'Liên kết nút 1' },
+        { key: 'button2Label', label: 'Nút 2' }, { key: 'button2Href', label: 'Liên kết nút 2' },
       ],
     },
   },

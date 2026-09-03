@@ -1,7 +1,7 @@
 import { cloneElement, useCallback, useEffect, useState } from 'react'
 import { ArrowDown, ArrowUp, Edit3, ImagePlus, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { apiFetch, responseError } from '../utils/api'
+import { API, apiFetch, responseError } from '../utils/api'
 import { compressImageFile, uploadImageDataUrl } from '../utils/uploadImage'
 import './PageContentShell.css'
 
@@ -421,14 +421,14 @@ export function ManagedListSection({ content, items: inputItems, className = '',
     )
 }
 
-export function PageContentAdminPanel({ page, sections, title, publicPath }) {
+export function PageContentAdminPanel({ page, sections, title, publicPath, legacyKeys }) {
     const [content, setContent] = useState({})
     const [editing, setEditing] = useState('')
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
     const customSections = normalizeSections(sections)
     const availableSections = [
-        ...Object.keys(SECTION_LABELS).map(key => ({ key, label: SECTION_LABELS[key], legacy: true, type: 'object' })),
+        ...(legacyKeys || Object.keys(SECTION_LABELS)).map(key => ({ key, label: SECTION_LABELS[key], legacy: true, type: 'object' })),
         ...customSections.filter(section => !SECTION_LABELS[section.key]),
     ]
     const editingConfig = customSections.find(section => section.key === editing)
@@ -470,7 +470,9 @@ export function PageContentAdminPanel({ page, sections, title, publicPath }) {
             <div className="cms-dashboard-panel-head">
                 <div>
                     <h3>{title || page}</h3>
-                    <p>Chỉnh trực tiếp các section đang hiển thị và lưu vào MongoDB.</p>
+                    <p>{page === 'heritage'
+                        ? 'Sửa từng khối của trang thi: hero, vấn đề, nguyên tắc, cộng đồng, nhóm di sản, công cụ, quy trình, tác động, kêu gọi. Thêm/xoá/đổi thứ tự mục và upload ảnh.'
+                        : 'Chỉnh trực tiếp các section đang hiển thị và lưu vào MongoDB.'}</p>
                 </div>
                 {publicPath && <a className="btn3d btn3d-blue btn-sm" href={publicPath}>Xem trang</a>}
             </div>
@@ -510,19 +512,19 @@ export function PageContentAdminPanel({ page, sections, title, publicPath }) {
     )
 }
 
-export default function PageContentShell({ page, children, sections }) {
+export default function PageContentShell({ page, children, sections, showManagedShell = true, legacyKeys }) {
     const { isAdmin } = useAuth()
     const [content, setContent] = useState({})
     const [editing, setEditing] = useState('')
     const customSections = normalizeSections(sections)
     const toolbarSections = [
-        ...Object.keys(SECTION_LABELS).map(key => ({ key, label: SECTION_LABELS[key], legacy: true, type: 'object' })),
+        ...(legacyKeys || Object.keys(SECTION_LABELS)).map(key => ({ key, label: SECTION_LABELS[key], legacy: true, type: 'object' })),
         ...customSections.filter(section => !SECTION_LABELS[section.key]),
     ]
     const editingConfig = customSections.find(section => section.key === editing)
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/site-content/${page}`)
+        fetch(`${API}/api/site-content/${page}`)
             .then(response => response.ok ? response.json() : {})
             .then(setContent)
             .catch(() => setContent({}))
@@ -552,9 +554,9 @@ export default function PageContentShell({ page, children, sections }) {
                     ))}
                 </div>
             )}
-            <ManagedSection content={content.intro} className="cms-intro-section" />
+            {showManagedShell && <ManagedSection content={content.intro} className="cms-intro-section" />}
             {cloneElement(children, { siteContent: content })}
-            <ManagedSection content={content.cta} className="cms-cta-section" />
+            {showManagedShell && <ManagedSection content={content.cta} className="cms-cta-section" />}
             {editing && editingConfig?.type === 'list' && (
                 <ListSectionEditor
                     page={page}

@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { API } from '../utils/api'
 
 const LS_KEY = 'hagiang_passport'
 const GOOGLE_LS_KEY = 'hagiang_google_user'
 const SERVER_KEY = 'hagiang_passport_server_key'
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 function parseGoogleJwt(credential) {
     try {

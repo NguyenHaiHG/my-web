@@ -1,9 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { apiFetch, responseError } from '../utils/api'
+import { API, apiFetch, responseError } from '../utils/api'
 
 const OrderContext = createContext(null)
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 export function OrderProvider({ children }) {
     /* ── CART ─────────────────────────────────────────────── */

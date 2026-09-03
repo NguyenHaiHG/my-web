@@ -2,8 +2,7 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import { ShieldCheck, ShieldAlert, ArrowLeft, Award, CalendarDays, ScanLine } from 'lucide-react'
 import { usePassport } from '../context/PassportContext'
 import { useEffect, useState } from 'react'
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { API } from '../utils/api'
 
 function normalizeCode(code) {
     return String(code || '').trim()

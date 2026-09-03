@@ -28,6 +28,7 @@ import HeritagePage from './pages/HeritagePage'
 import PageContentShell from './components/PageContentShell'
 import { CMS_SECTIONS } from './config/cmsSections'
 import { uploadImageDataUrl } from './utils/uploadImage'
+import { API } from './utils/api'
 import './App.css'
 
 /* ──────────────────────────────────────────────────────
@@ -663,7 +664,7 @@ function AppInner() {
   const [globalContent, setGlobalContent] = useState({})
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/site-content/global`)
+    fetch(`${API}/api/site-content/global`)
       .then(response => response.ok ? response.json() : {})
       .then(setGlobalContent)
       .catch(() => setGlobalContent({}))
@@ -692,7 +693,7 @@ function AppInner() {
           <Route path="/verify/:certCode" element={<VerifyCertificatePage />} />
           <Route path="/nhat-ky-thien-nhien" element={<PageContentShell page="nature" sections={CMS_SECTIONS.nature}><NatureMemoryPage /></PageContentShell>} />
           <Route path="/thu-vien" element={<PageContentShell page="library"><LibraryPage /></PageContentShell>} />
-          <Route path="/so-hoa-di-san" element={<PageContentShell page="heritage" sections={CMS_SECTIONS.heritage}><HeritagePage /></PageContentShell>} />
+          <Route path="/so-hoa-di-san" element={<PageContentShell page="heritage" sections={CMS_SECTIONS.heritage} showManagedShell={false} legacyKeys={['hero']}><HeritagePage /></PageContentShell>} />
           <Route path="/penpal" element={<PageContentShell page="penpal" sections={CMS_SECTIONS.penpal}><PenpalPage /></PageContentShell>} />
           <Route path="/blog" element={<PageContentShell page="blog"><BlogPage /></PageContentShell>} />
           <Route path="/blog/:id" element={<PageContentShell page="blog-post"><BlogPostPage /></PageContentShell>} />

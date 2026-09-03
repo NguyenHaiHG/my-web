@@ -4,20 +4,21 @@ services:
     env: node
     region: singapore
     plan: free
-    rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm install && npm install --prefix backend && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: 22
       - key: PORT
         value: 10000
       - key: MONGODB_URI
         sync: false
       - key: FRONTEND_URL
-        value: https://htxtruonghai.com
+        value: https://bookhagiang.com
       - key: PUBLIC_API_URL
-        value: https://hagiang-backend.onrender.com
+        value: https://bookhagiang.com
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN

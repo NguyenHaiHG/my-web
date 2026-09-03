@@ -5,6 +5,7 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
+        "build:frontend": "npm install --prefix .. && npm run build --prefix ..",
         "dev": "sh -c 'PORT_TO_CLEAR=${PORT:-5001}; IDS=$(lsof -ti tcp:${PORT_TO_CLEAR}); if [ -n \"$IDS\" ]; then kill $IDS; fi; nodemon server.js'",
         "seed": "node seed.js"
     },

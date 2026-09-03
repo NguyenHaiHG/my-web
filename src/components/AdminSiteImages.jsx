@@ -1,10 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Upload, X } from 'lucide-react'
 import { useUI } from '../context/UIContext'
-import { apiFetch, responseError } from '../utils/api'
+import { API, apiFetch, responseError } from '../utils/api'
 import { compressImageFile, uploadImageDataUrl } from '../utils/uploadImage'
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const HERO_SLOTS = [
     { slot: 'homepage-hero-1', label: 'Ảnh bìa trang chủ #1' },

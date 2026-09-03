@@ -3,12 +3,10 @@ import { useState, useEffect } from 'react'
 import { ArrowRight, Edit2, Heart, Leaf, Plus, Settings2, Trash2 } from 'lucide-react'
 import { useLang } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
-import { apiFetch, responseError } from '../utils/api'
+import { API, apiFetch, responseError } from '../utils/api'
 import AdminHomeFilmStrip from '../components/AdminHomeFilmStrip'
 import { ListSectionEditor } from '../components/PageContentShell'
 import { CMS_SECTIONS } from '../config/cmsSections'
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 const QUICK_CARDS = [
     {
@@ -75,6 +73,9 @@ export default function HomePage({ siteContent = {} }) {
     const [heroImages, setHeroImages] = useState(HERO_IMAGES_DEFAULT)
     const [heroIdx, setHeroIdx] = useState(0)
     const cmsHero = siteContent.hero || {}
+    const staleHomeCta = /khám phá ngay/i.test(cmsHero.buttonLabel || '')
+    const heroCtaLabel = cmsHero.buttonLabel && !staleHomeCta ? cmsHero.buttonLabel : t('hp_hero_btn1')
+    const heroCtaHref = (cmsHero.buttonHref || '').includes('so-hoa') ? cmsHero.buttonHref : '/so-hoa-di-san'
     const mappedCards = highlights?.items?.length
         ? highlights.items.map(item => ({
             id: item.id || item._id,
@@ -201,8 +202,8 @@ export default function HomePage({ siteContent = {} }) {
                     <h1><span className="ng-hl">{cmsHero.title || t('hp_h1_hl')}</span></h1>
                     <p>{cmsHero.subtitle || cmsHero.body || t('hp_hero_sub')}</p>
                     <div className="ng-hero-btns">
-                        <button className="btn3d btn3d-orange" onClick={() => navigate(cmsHero.buttonHref || '/so-hoa-di-san')}>
-                            {cmsHero.buttonLabel || t('hp_hero_btn1')} <ArrowRight size={16} />
+                        <button className="btn3d btn3d-orange" onClick={() => navigate(heroCtaHref)}>
+                            {heroCtaLabel} <ArrowRight size={16} />
                         </button>
                         <button className="btn3d btn3d-outline-white" onClick={() => navigate('/lien-he')}>
                             {t('hp_hero_btn2')} →

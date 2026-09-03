@@ -7,9 +7,9 @@ import {
 import { useData } from '../context/DataContext'
 import { useOrder } from '../context/OrderContext'
 import { useUI } from '../context/UIContext'
+import { API } from '../utils/api'
 
 /* ── constants ── */
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 const SERVICES = [
     { icon: '🖨️', name: 'In ấn', desc: 'In tài liệu, ảnh, bản đồ', price: 'Từ 2k/trang' },
     { icon: '🚿', name: 'Tắm nhanh', desc: 'Nước nóng 24/7', price: '20k/lượt' },
